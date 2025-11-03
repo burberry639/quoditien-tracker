@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Suivi Quotidien - Mes Habitudes</title>
     <style>
         * {
@@ -602,50 +604,291 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
             .container {
-                padding: 20px;
+                padding: 15px;
             }
             
             h1 {
-                font-size: 2em;
+                font-size: 1.8em;
+                margin-bottom: 5px;
+            }
+
+            .date-display {
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+
+            .category {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .category h2 {
+                font-size: 1.2em;
+            }
+
+            .habit-item {
+                padding: 10px;
+                margin: 6px 0;
+            }
+
+            label {
+                font-size: 0.95em;
+            }
+
+            input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+                margin-right: 10px;
+            }
+
+            .progress-bar {
+                height: 25px;
             }
             
             .stats {
                 flex-direction: column;
-                gap: 15px;
+                gap: 12px;
+                padding: 15px;
+            }
+
+            .stat-item {
+                padding: 10px;
+            }
+
+            .stat-number {
+                font-size: 1.5em;
+            }
+
+            .stat-label {
+                font-size: 0.8em;
+            }
+
+            .reset-btn {
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            /* Système de rang - Mobile */
+            .rank-system {
+                padding: 15px;
+                margin-top: 20px;
+            }
+
+            .rank-system h2 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+
+            .rank-card {
+                padding: 15px;
             }
 
             .rank-badge {
-                font-size: 2.5em;
-                padding: 12px 30px;
+                font-size: 2em;
+                padding: 10px 25px;
             }
 
             .next-rank-badge {
+                font-size: 1.3em;
+                padding: 8px 20px;
+            }
+
+            .rank-progress-bar {
+                height: 30px;
+            }
+
+            .rank-info {
+                font-size: 1em;
+            }
+
+            .rank-percentage {
+                font-size: 1.1em;
+            }
+
+            .rank-countdown {
+                font-size: 0.95em;
+                padding: 10px;
+            }
+
+            .rank-total-progress {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+
+            /* Stats système - Mobile */
+            .stats-system {
+                padding: 15px;
+                margin-top: 20px;
+            }
+
+            .stats-system h2 {
                 font-size: 1.5em;
+            }
+
+            .stats-card {
+                padding: 15px;
             }
 
             .stats-display {
                 grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-item-detailed {
+                padding: 12px;
+            }
+
+            .stat-icon {
+                font-size: 1.5em;
+                min-width: 40px;
+            }
+
+            .stat-name {
+                font-size: 0.85em;
+            }
+
+            .stat-bar {
+                height: 16px;
+            }
+
+            .stat-value {
+                font-size: 1em;
+            }
+
+            .radar-chart-container {
+                padding: 10px;
+                margin: 20px 0;
+            }
+
+            #radarChart {
+                width: 100% !important;
+                height: 300px !important;
+            }
+
+            .power-level {
+                padding: 20px;
+            }
+
+            .power-label {
+                font-size: 1em;
             }
 
             .power-value {
-                font-size: 2em;
+                font-size: 2.2em;
+            }
+
+            /* Quêtes - Mobile */
+            .quest-system {
+                padding: 15px;
+                margin-top: 20px;
+            }
+
+            .quest-system h2 {
+                font-size: 1.5em;
+            }
+
+            .quest-card {
+                padding: 15px;
+            }
+
+            .quest-description {
+                font-size: 0.95em;
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            .quest-category {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            .quest-category h3 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+            }
+
+            .quest-item {
+                padding: 10px;
+                margin: 8px 0;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .quest-item input[type="checkbox"] {
+                margin-bottom: 8px;
             }
 
             .quest-item label {
+                width: 100%;
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
             }
 
+            .quest-title {
+                font-size: 0.95em;
+            }
+
             .quest-reward {
+                font-size: 0.85em;
+                padding: 4px 10px;
                 align-self: flex-start;
             }
 
             .quest-stats {
                 flex-direction: column;
-                gap: 20px;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .quest-stat-label {
+                font-size: 0.9em;
+            }
+
+            .quest-stat-value {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .category h2 {
+                font-size: 1.1em;
+            }
+
+            .rank-badge {
+                font-size: 1.8em;
+                padding: 8px 20px;
+            }
+
+            .stats-display {
+                gap: 10px;
+            }
+
+            #radarChart {
+                height: 250px !important;
+            }
+
+            .power-value {
+                font-size: 1.8em;
+            }
+
+            .quest-category h3 {
+                font-size: 1em;
+            }
+
+            .quest-title {
+                font-size: 0.9em;
             }
         }
     </style>
@@ -1698,15 +1941,30 @@
             const canvas = document.getElementById('radarChart');
             const ctx = canvas.getContext('2d');
             
+            // Adapter la taille du canvas pour mobile
+            const container = canvas.parentElement;
+            const containerWidth = container.offsetWidth;
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                canvas.width = Math.min(containerWidth - 40, 350);
+                canvas.height = canvas.width;
+            } else {
+                canvas.width = 400;
+                canvas.height = 400;
+            }
+            
             // Effacer le canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const radius = Math.min(centerX, centerY) - 60;
+            const radius = Math.min(centerX, centerY) - (isMobile ? 50 : 60);
             
             const statOrder = ['str', 'dis', 'spi', 'hp', 'end', 'men'];
             const labels = ['FORCE', 'DISCIPLINE', 'SPIRITUALITÉ', 'SANTÉ', 'ENDURANCE', 'MENTAL'];
+            const labelsMobile = ['STR', 'DIS', 'SPI', 'HP', 'END', 'MEN'];
+            const displayLabels = isMobile ? labelsMobile : labels;
             const colors = ['#ff6b6b', '#4ecdc4', '#ffd700', '#96fbc4', '#fa709a', '#667eea'];
             
             // Dessiner les cercles de fond
@@ -1732,14 +1990,15 @@
                 ctx.stroke();
                 
                 // Dessiner les labels
-                const labelX = centerX + Math.cos(angle) * (radius + 40);
-                const labelY = centerY + Math.sin(angle) * (radius + 40);
+                const labelDistance = isMobile ? 35 : 40;
+                const labelX = centerX + Math.cos(angle) * (radius + labelDistance);
+                const labelY = centerY + Math.sin(angle) * (radius + labelDistance);
                 
                 ctx.fillStyle = colors[index];
-                ctx.font = 'bold 12px Arial';
+                ctx.font = isMobile ? 'bold 10px Arial' : 'bold 12px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(labels[index], labelX, labelY);
+                ctx.fillText(displayLabels[index], labelX, labelY);
             });
             
             // Dessiner le polygone des stats
@@ -1767,7 +2026,7 @@
             
             // Contour du polygone
             ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = isMobile ? 2 : 3;
             ctx.stroke();
             
             // Dessiner les points
@@ -1781,7 +2040,7 @@
                 const y = centerY + Math.sin(angle) * radius * percentage;
                 
                 ctx.beginPath();
-                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.arc(x, y, isMobile ? 4 : 6, 0, Math.PI * 2);
                 ctx.fillStyle = colors[index];
                 ctx.fill();
                 ctx.strokeStyle = 'white';
@@ -1813,12 +2072,18 @@
                 updateStatsDisplay();
             }
         });
+
+        // Redessiner le graphique lors du redimensionnement
+        window.addEventListener('resize', function() {
+            updateStatsDisplay();
+        });
         
         console.log('✅ Application de suivi quotidien initialisée');
         console.log('📊 Historique disponible pour les 90 derniers jours');
         console.log('🏆 Système de rang activé');
         console.log('📈 Système de stats activé');
         console.log('⚔️ Système de quêtes activé');
+        console.log('📱 Optimisé pour mobile');
     </script>
 </body>
 </html>
