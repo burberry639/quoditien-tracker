@@ -493,6 +493,11 @@ function updateStatsDisplay() {
         stats[stat] += combatBonuses[stat];
     });
     
+    const streakBonuses = getStreakBonusForDisplay();
+    Object.keys(streakBonuses).forEach(stat => {
+        stats[stat] += (streakBonuses[stat] || 0);
+    });
+    
     const maxValues = {
         str: 100,
         dis: 150,
@@ -506,7 +511,14 @@ function updateStatsDisplay() {
         const value = stats[stat];
         const percentage = Math.min((value / maxValues[stat]) * 100, 100);
         
-        document.getElementById(`${stat}Value`).textContent = value;
+        // Convertir la valeur en rang visuel
+        const rankData = getStatRank(value);
+        
+        const valueElement = document.getElementById(`${stat}Value`);
+        valueElement.textContent = rankData.rank;
+        valueElement.className = 'stat-value ' + rankData.class;
+        valueElement.title = `${value} points`; // Affiche les points au survol
+        
         document.getElementById(`${stat}Bar`).style.width = percentage + '%';
     });
     
@@ -518,107 +530,42 @@ function updateStatsDisplay() {
     return powerLevel;
 }
 
-function drawRadarChart(stats, maxValues) {
-    const canvas = document.getElementById('radarChart');
-    const ctx = canvas.getContext('2d');
-    
-    const container = canvas.parentElement;
-    const containerWidth = container.offsetWidth;
-    const isMobile = window.innerWidth <= 768;
-    
-    if (isMobile) {
-        canvas.width = Math.min(containerWidth - 40, 350);
-        canvas.height = canvas.width;
-    } else {
-        canvas.width = 400;
-        canvas.height = 400;
-    }
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = Math.min(centerX, centerY) - (isMobile ? 50 : 60);
-    
-    const statOrder = ['str', 'dis', 'spi', 'hp', 'end', 'men'];
-    const labels = ['FORCE', 'DISCIPLINE', 'SPIRITUALITÉ', 'SANTÉ', 'ENDURANCE', 'MENTAL'];
-    const labelsMobile = ['STR', 'DIS', 'SPI', 'HP', 'END', 'MEN'];
-    const displayLabels = isMobile ? labelsMobile : labels;
-    const colors = ['#ff6b6b', '#4ecdc4', '#ffd700', '#96fbc4', '#fa709a', '#667eea'];
-    
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 1;
-    for (let i = 1; i <= 5; i++) {
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, (radius / 5) * i, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-    
-    ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 1;
-    statOrder.forEach((stat, index) => {
-        const angle = (Math.PI * 2 * index) / statOrder.length - Math.PI / 2;
-        const x = centerX + Math.cos(angle) * radius;
-        const y = centerY + Math.sin(angle) * radius;
-        
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        
-        const labelDistance = isMobile ? 35 : 40;
-        const labelX = centerX + Math.cos(angle) * (radius + labelDistance);
-        const labelY = centerY + Math.sin(angle) * (radius + labelDistance);
-        
-        ctx.fillStyle = colors[index];
-        ctx.font = isMobile ? 'bold 10px Arial' : 'bold 12px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(displayLabels[index], labelX, labelY);
-    });
-    
-    ctx.beginPath();
-    statOrder.forEach((stat, index) => {
-        const value = stats[stat];
-        const maxValue = maxValues[stat];
-        const percentage = Math.min(value / maxValue, 1);
-        
-        const angle = (Math.PI * 2 * index) / statOrder.length - Math.PI / 2;
-        const x = centerX + Math.cos(angle) * radius * percentage;
-        const y = centerY + Math.sin(angle) * radius * percentage;
-        
-        if (index === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
-    });
-    ctx.closePath();
-    
-    ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
-    ctx.fill();
-    
-    ctx.strokeStyle = '#667eea';
-    ctx.lineWidth = isMobile ? 2 : 3;
-    ctx.stroke();
-    
-    statOrder.forEach((stat, index) => {
-        const value = stats[stat];
-        const maxValue = maxValues[stat];
-        const percentage = Math.min(value / maxValue, 1);
-        
-        const angle = (Math.PI * 2 * index) / statOrder.length - Math.PI / 2;
-        const x = centerX + Math.cos(angle) * radius * percentage;
-        const y = centerY + Math.sin(angle) * radius * percentage;
-        
-        ctx.beginPath();
-        ctx.arc(x, y, isMobile ? 4 : 6, 0, Math.PI * 2);
-        ctx.fillStyle = colors[index];
-        ctx.fill();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    });
+/* ========================================
+   SYSTÈME DE RANGS POUR LES STATS
+======================================== */
+
+function getStatRank(value) {
+    if (value >= 20000) return { rank: 'DIVIN', class: 'rank-divin' };
+    if (value >= 10000) return { rank: 'inhumain', class: 'rank-inhumain' };
+    if (value >= 7000) return { rank: 'inconnue', class: 'rank-inconnue' };
+    if (value >= 5000) return { rank: 'DX', class: 'rank-dx' };
+    if (value >= 4000) return { rank: 'EX', class: 'rank-ex' };
+    if (value >= 3000) return { rank: 'XXX', class: 'rank-xxx' };
+    if (value >= 2500) return { rank: 'XX', class: 'rank-xx' };
+    if (value >= 2000) return { rank: 'X', class: 'rank-x' };
+    if (value >= 1600) return { rank: 'MR+', class: 'rank-mr+' };
+    if (value >= 1300) return { rank: 'MR', class: 'rank-mr' };
+    if (value >= 1300) return { rank: 'LR+', class: 'rank-LR+' };
+    if (value >= 1000) return { rank: 'LR', class: 'rank-lr' };
+    if (value >= 850) return { rank: 'UR+', class: 'rank-ur+' };
+    if (value >= 700) return { rank: 'UR', class: 'rank-ur' };
+    if (value >= 500) return { rank: 'SSR+', class: 'rank-ssr+' };
+    if (value >= 400) return { rank: 'SR+', class: 'rank-sr+' };
+    if (value >= 250) return { rank: 'SR', class: 'rank-sr' };
+    if (value >= 150) return { rank: 'SSS', class: 'rank-sss' };
+    if (value >= 120) return { rank: 'SS', class: 'rank-ss' };
+    if (value >= 90) return { rank: 'S', class: 'rank-s' };
+    if (value >= 70) return { rank: 'A', class: 'rank-a' };
+    if (value >= 50) return { rank: 'B', class: 'rank-b' };
+    if (value >= 35) return { rank: 'C', class: 'rank-c' };
+    if (value >= 20) return { rank: 'D', class: 'rank-d' };
+    if (value >= 10) return { rank: 'E', class: 'rank-e' };
+    return { rank: 'F', class: 'rank-f' };
+}
+
+function getStreakBonusForDisplay() {
+    const currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+    return getStreakBonus(currentStreak);
 }
 
 /* ========================================
