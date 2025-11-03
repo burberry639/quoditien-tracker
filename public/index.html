@@ -262,6 +262,22 @@
             font-weight: 600;
         }
 
+        .rank-total-progress {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 1em;
+            color: #667eea;
+            padding: 10px;
+            background: #e8f0ff;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .rank-total-progress span {
+            color: #f5576c;
+            font-weight: bold;
+        }
+
         .next-rank {
             text-align: center;
             margin-top: 20px;
@@ -499,6 +515,9 @@
                     <div class="rank-countdown">
                         ⏰ <span id="daysRemaining">14</span> jours restants jusqu'au prochain rang
                     </div>
+                    <div class="rank-total-progress">
+                        📊 Progression totale : <span id="totalProgressPoints">0.0</span> jours accumulés
+                    </div>
                 </div>
                 <div class="next-rank">
                     <span class="next-rank-label">Prochain Rang</span>
@@ -571,36 +590,38 @@
 
         // Initialiser le système de rang
         function initRankSystem() {
-            if (!localStorage.getItem('rankStartDate')) {
-                localStorage.setItem('rankStartDate', getTodayDate());
+            if (!localStorage.getItem('currentRankIndex')) {
                 localStorage.setItem('currentRankIndex', '0');
+                localStorage.setItem('rankProgressPoints', '0');
                 localStorage.setItem('rankHistory', JSON.stringify([]));
             }
         }
 
         // Mettre à jour le système de rang
         function updateRankSystem() {
-            const startDate = localStorage.getItem('rankStartDate');
             const currentRankIndex = parseInt(localStorage.getItem('currentRankIndex') || '0');
-            const today = getTodayDate();
+            const progressPoints = parseFloat(localStorage.getItem('rankProgressPoints') || '0');
             
-            let totalDaysElapsed = daysBetween(startDate, today);
+            let remainingPoints = progressPoints;
             let currentIndex = 0;
-            let daysInCurrentRank = 0;
+            let pointsInCurrentRank = 0;
             
-            // Calculer le rang actuel basé sur les jours écoulés
+            // Calculer le rang actuel basé sur les points accumulés
             for (let i = 0; i < rankSystem.length; i++) {
-                if (totalDaysElapsed >= rankSystem[i].days) {
-                    totalDaysElapsed -= rankSystem[i].days;
+                if (remainingPoints >= rankSystem[i].days) {
+                    remainingPoints -= rankSystem[i].days;
                     currentIndex++;
                     
                     // Si on vient de passer au rang suivant, sauvegarder dans l'historique
                     if (currentIndex > currentRankIndex) {
-                        addRankToHistory(rankSystem[i].name, today);
+                        addRankToHistory(rankSystem[i].name, getTodayDate());
                         localStorage.setItem('currentRankIndex', currentIndex.toString());
+                        
+                        // Afficher une notification
+                        showRankUpNotification(rankSystem[currentIndex].name);
                     }
                 } else {
-                    daysInCurrentRank = totalDaysElapsed;
+                    pointsInCurrentRank = remainingPoints;
                     break;
                 }
             }
@@ -608,7 +629,7 @@
             // Si on a atteint le rang maximum
             if (currentIndex >= rankSystem.length) {
                 currentIndex = rankSystem.length - 1;
-                daysInCurrentRank = rankSystem[currentIndex].days;
+                pointsInCurrentRank = rankSystem[currentIndex].days;
             }
             
             const currentRank = rankSystem[currentIndex];
@@ -616,8 +637,8 @@
             
             // Calculer la progression
             const daysRequired = currentRank.days;
-            const daysRemaining = daysRequired - daysInCurrentRank;
-            const percentage = Math.round((daysInCurrentRank / daysRequired) * 100);
+            const daysRemaining = daysRequired - pointsInCurrentRank;
+            const percentage = Math.round((pointsInCurrentRank / daysRequired) * 100);
             
             // Mettre à jour l'affichage
             document.getElementById('currentRank').textContent = currentRank.name;
@@ -626,9 +647,9 @@
             document.getElementById('nextRank').textContent = nextRank.name;
             document.getElementById('nextRank').style.background = `linear-gradient(135deg, ${nextRank.color}, ${adjustColor(nextRank.color, -20)})`;
             
-            document.getElementById('daysCompleted').textContent = daysInCurrentRank;
+            document.getElementById('daysCompleted').textContent = pointsInCurrentRank.toFixed(1);
             document.getElementById('daysTotal').textContent = daysRequired;
-            document.getElementById('daysRemaining').textContent = daysRemaining;
+            document.getElementById('daysRemaining').textContent = daysRemaining.toFixed(1);
             document.getElementById('rankPercentage').textContent = percentage + '%';
             
             const progressFill = document.getElementById('rankProgressFill');
@@ -636,8 +657,51 @@
             progressFill.textContent = percentage + '%';
             progressFill.style.background = `linear-gradient(90deg, ${currentRank.color}, ${nextRank.color})`;
             
+            // Afficher la progression totale
+            document.getElementById('totalProgressPoints').textContent = progressPoints.toFixed(1);
+            
             // Afficher l'historique
             displayRankHistory();
+        }
+
+        // Afficher une notification de montée de rang
+        function showRankUpNotification(rankName) {
+            // Créer une notification visuelle
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #FFD700, #FFA500);
+                color: white;
+                padding: 30px 50px;
+                border-radius: 20px;
+                font-size: 2em;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                animation: rankUpAnimation 0.5s ease-out;
+            `;
+            notification.innerHTML = `🎉 RANG ${rankName} ATTEINT ! 🎉`;
+            document.body.appendChild(notification);
+            
+            // Ajouter l'animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes rankUpAnimation {
+                    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+                    50% { transform: translate(-50%, -50%) scale(1.1); }
+                    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Retirer la notification après 3 secondes
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease-out';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
         }
 
         // Ajuster la couleur (éclaircir ou assombrir)
@@ -706,6 +770,22 @@
             }
             
             localStorage.setItem('habitHistory', JSON.stringify(history));
+            
+            // Ajouter les points de progression au système de rang basé sur le pourcentage
+            addProgressPoints(percentage);
+        }
+
+        // Ajouter des points de progression basés sur le pourcentage du jour
+        function addProgressPoints(percentage) {
+            // Convertir le pourcentage en progression (100% = 1 jour complet, 50% = 0.5 jour)
+            const progressPoints = percentage / 100;
+            
+            let currentProgress = parseFloat(localStorage.getItem('rankProgressPoints') || '0');
+            currentProgress += progressPoints;
+            
+            localStorage.setItem('rankProgressPoints', currentProgress.toString());
+            
+            console.log(`📈 +${percentage}% de progression (${progressPoints.toFixed(2)} jour). Total: ${currentProgress.toFixed(2)} jours`);
         }
 
         // Charger l'état sauvegardé
