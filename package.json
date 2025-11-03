@@ -1,0 +1,18 @@
+{
+  "name": "suivi-quotidien",
+  "version": "1.0.0",
+  "description": "Application de suivi quotidien des habitudes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["habits", "tracker"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

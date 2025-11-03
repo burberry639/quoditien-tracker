@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Quotidien - Mes Habitudes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .date-display {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .category {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .category h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-icon {
+            font-size: 1.3em;
+        }
+
+        .habit-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .habit-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .habit-item.checked {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .reset-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #ee5a52;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,107,107,0.4);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Suivi Quotidien</h1>
+        <div class="date-display" id="dateDisplay"></div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+
+        <!-- SOMMEIL -->
+        <div class="category">
+            <h2><span class="category-icon">😴</span> Sommeil</h2>
+            <div class="habit-item" onclick="toggleCheckbox('sommeil')">
+                <input type="checkbox" id="sommeil">
+                <label for="sommeil">7-8 heures de sommeil</label>
+            </div>
+        </div>
+
+        <!-- SPORT -->
+        <div class="category">
+            <h2><span class="category-icon">💪</span> Sport</h2>
+            <div class="habit-item" onclick="toggleCheckbox('sport')">
+                <input type="checkbox" id="sport">
+                <label for="sport">Séance de sport aujourd'hui</label>
+            </div>
+        </div>
+
+        <!-- ALIMENTATION -->
+        <div class="category">
+            <h2><span class="category-icon">🍗</span> Alimentation</h2>
+            <div class="habit-item" onclick="toggleCheckbox('proteines')">
+                <input type="checkbox" id="proteines">
+                <label for="proteines">140g de protéines minimum</label>
+            </div>
+        </div>
+
+        <!-- HYGIÈNE -->
+        <div class="category">
+            <h2><span class="category-icon">🧼</span> Hygiène</h2>
+            <div class="habit-item" onclick="toggleCheckbox('douche-matin')">
+                <input type="checkbox" id="douche-matin">
+                <label for="douche-matin">Douche du matin</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('douche-soir')">
+                <input type="checkbox" id="douche-soir">
+                <label for="douche-soir">Douche du soir</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('brossage-matin')">
+                <input type="checkbox" id="brossage-matin">
+                <label for="brossage-matin">Brossage de dents - Matin</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('brossage-midi')">
+                <input type="checkbox" id="brossage-midi">
+                <label for="brossage-midi">Brossage de dents - Midi</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('brossage-soir')">
+                <input type="checkbox" id="brossage-soir">
+                <label for="brossage-soir">Brossage de dents - Soir</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('ongles')">
+                <input type="checkbox" id="ongles">
+                <label for="ongles">Coupage d'ongles</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('rasage')">
+                <input type="checkbox" id="rasage">
+                <label for="rasage">Rasage</label>
+            </div>
+        </div>
+
+        <!-- PRIÈRES -->
+        <div class="category">
+            <h2><span class="category-icon">🕌</span> Prières</h2>
+            <div class="habit-item" onclick="toggleCheckbox('fajr')">
+                <input type="checkbox" id="fajr">
+                <label for="fajr">Fajr (Aube)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('dhuhr')">
+                <input type="checkbox" id="dhuhr">
+                <label for="dhuhr">Dhuhr (Midi)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('asr')">
+                <input type="checkbox" id="asr">
+                <label for="asr">Asr (Après-midi)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('maghrib')">
+                <input type="checkbox" id="maghrib">
+                <label for="maghrib">Maghrib (Coucher du soleil)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('isha')">
+                <input type="checkbox" id="isha">
+                <label for="isha">Isha (Nuit)</label>
+            </div>
+        </div>
+
+        <!-- RANGEMENT -->
+        <div class="category">
+            <h2><span class="category-icon">🧹</span> Rangement</h2>
+            <div class="habit-item" onclick="toggleCheckbox('chambre')">
+                <input type="checkbox" id="chambre">
+                <label for="chambre">Ranger ma chambre</label>
+            </div>
+        </div>
+
+        <!-- PÉCHÉS CAPITAUX -->
+        <div class="category">
+            <h2><span class="category-icon">✨</span> Spiritualité</h2>
+            <div class="habit-item" onclick="toggleCheckbox('peches')">
+                <input type="checkbox" id="peches">
+                <label for="peches">Aucun acte en rapport avec les 7 péchés capitaux</label>
+            </div>
+        </div>
+
+        <!-- STATISTIQUES -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="completedCount">0</div>
+                <div class="stat-label">Complétées</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalCount">19</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="percentCount">0%</div>
+                <div class="stat-label">Progression</div>
+            </div>
+        </div>
+
+        <button class="reset-btn" onclick="resetAll()">🔄 Réinitialiser pour demain</button>
+    </div>
+
+    <script>
+        const habits = [
+            'sommeil', 'sport', 'proteines',
+            'douche-matin', 'douche-soir',
+            'brossage-matin', 'brossage-midi', 'brossage-soir',
+            'ongles', 'rasage',
+            'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
+            'chambre', 'peches'
+        ];
+
+        // Afficher la date
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            document.getElementById('dateDisplay').textContent = today.toLocaleDateString('fr-FR', options);
+        }
+
+        // Charger l'état sauvegardé
+        function loadState() {
+            const today = new Date().toDateString();
+            const savedDate = localStorage.getItem('habitDate');
+            
+            // Si c'est un nouveau jour, réinitialiser
+            if (savedDate !== today) {
+                localStorage.setItem('habitDate', today);
+                habits.forEach(habit => {
+                    localStorage.removeItem(habit);
+                });
+            }
+
+            // Charger les cases cochées
+            habits.forEach(habit => {
+                const checkbox = document.getElementById(habit);
+                const isChecked = localStorage.getItem(habit) === 'true';
+                checkbox.checked = isChecked;
+                if (isChecked) {
+                    checkbox.parentElement.classList.add('checked');
+                }
+            });
+            
+            updateProgress();
+        }
+
+        // Toggle checkbox
+        function toggleCheckbox(id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+            
+            // Sauvegarder l'état
+            localStorage.setItem(id, checkbox.checked);
+            
+            // Mettre à jour le style
+            if (checkbox.checked) {
+                checkbox.parentElement.classList.add('checked');
+            } else {
+                checkbox.parentElement.classList.remove('checked');
+            }
+            
+            updateProgress();
+        }
+
+        // Mettre à jour la progression
+        function updateProgress() {
+            let completed = 0;
+            habits.forEach(habit => {
+                if (document.getElementById(habit).checked) {
+                    completed++;
+                }
+            });
+
+            const total = habits.length;
+            const percentage = Math.round((completed / total) * 100);
+
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('percentCount').textContent = percentage + '%';
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressFill').textContent = percentage + '%';
+        }
+
+        // Réinitialiser tout
+        function resetAll() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les cases ?')) {
+                habits.forEach(habit => {
+                    const checkbox = document.getElementById(habit);
+                    checkbox.checked = false;
+                    checkbox.parentElement.classList.remove('checked');
+                    localStorage.removeItem(habit);
+                });
+                updateProgress();
+            }
+        }
+
+        // Initialisation
+        updateDate();
+        loadState();
+    </script>
+</body>
+</html>
