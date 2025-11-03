@@ -162,6 +162,169 @@
             box-shadow: 0 4px 12px rgba(255,107,107,0.4);
         }
 
+        .rank-system {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            color: white;
+        }
+
+        .rank-system h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .rank-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            color: #333;
+        }
+
+        .current-rank {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .rank-label {
+            display: block;
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            font-size: 3em;
+            font-weight: bold;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .rank-progress-container {
+            margin: 25px 0;
+        }
+
+        .rank-progress-bar {
+            width: 100%;
+            height: 35px;
+            background: #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .rank-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .rank-info {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .rank-percentage {
+            margin-left: 15px;
+            color: #f5576c;
+            font-size: 1.3em;
+        }
+
+        .rank-countdown {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1em;
+            color: #666;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .next-rank {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .next-rank-label {
+            display: block;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .next-rank-badge {
+            display: inline-block;
+            font-size: 2em;
+            font-weight: bold;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            opacity: 0.8;
+        }
+
+        .rank-history {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            color: #333;
+        }
+
+        .rank-history h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        #rankHistoryList {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .rank-history-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rank-history-badge {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .rank-history-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -174,6 +337,15 @@
             .stats {
                 flex-direction: column;
                 gap: 15px;
+            }
+
+            .rank-badge {
+                font-size: 2.5em;
+                padding: 12px 30px;
+            }
+
+            .next-rank-badge {
+                font-size: 1.5em;
             }
         }
     </style>
@@ -307,6 +479,37 @@
         </div>
 
         <button class="reset-btn" onclick="resetAll()">🔄 Réinitialiser pour demain</button>
+
+        <!-- SYSTÈME DE RANG -->
+        <div class="rank-system">
+            <h2>🏆 Système de Rang</h2>
+            <div class="rank-card">
+                <div class="current-rank">
+                    <span class="rank-label">Rang Actuel</span>
+                    <span class="rank-badge" id="currentRank">F</span>
+                </div>
+                <div class="rank-progress-container">
+                    <div class="rank-progress-bar">
+                        <div class="rank-progress-fill" id="rankProgressFill"></div>
+                    </div>
+                    <div class="rank-info">
+                        <span id="daysCompleted">0</span> / <span id="daysTotal">14</span> jours
+                        <span class="rank-percentage" id="rankPercentage">0%</span>
+                    </div>
+                    <div class="rank-countdown">
+                        ⏰ <span id="daysRemaining">14</span> jours restants jusqu'au prochain rang
+                    </div>
+                </div>
+                <div class="next-rank">
+                    <span class="next-rank-label">Prochain Rang</span>
+                    <span class="next-rank-badge" id="nextRank">E</span>
+                </div>
+            </div>
+            <div class="rank-history">
+                <h3>📜 Historique des Rangs</h3>
+                <div id="rankHistoryList"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -319,6 +522,158 @@
             'chambre', 'peches'
         ];
 
+        // Système de rangs - 2 semaines par rang jusqu'à X, puis 3 semaines après
+        const rankSystem = [
+            // 2 semaines (14 jours) par rang
+            { name: 'F', days: 14, color: '#8B4513' },
+            { name: 'E', days: 14, color: '#CD853F' },
+            { name: 'D', days: 14, color: '#DAA520' },
+            { name: 'C', days: 14, color: '#FFD700' },
+            { name: 'B', days: 14, color: '#32CD32' },
+            { name: 'A', days: 14, color: '#00CED1' },
+            { name: 'S', days: 14, color: '#1E90FF' },
+            { name: 'SS', days: 14, color: '#4169E1' },
+            { name: 'SSS', days: 14, color: '#8A2BE2' },
+            { name: 'SR', days: 14, color: '#9370DB' },
+            { name: 'SR+', days: 14, color: '#BA55D3' },
+            { name: 'SSR', days: 14, color: '#FF1493' },
+            { name: 'SSR+', days: 14, color: '#FF69B4' },
+            { name: 'UR', days: 14, color: '#FF4500' },
+            { name: 'UR+', days: 14, color: '#FF6347' },
+            { name: 'LR', days: 14, color: '#FFD700' },
+            { name: 'LR+', days: 14, color: '#FFA500' },
+            { name: 'MR', days: 14, color: '#DC143C' },
+            { name: 'MR+', days: 14, color: '#B22222' },
+            { name: 'X', days: 14, color: '#8B0000' },
+            // À partir d'ici, 3 semaines (21 jours) par rang
+            { name: 'XX', days: 21, color: '#800080' },
+            { name: 'XXX', days: 21, color: '#4B0082' },
+            { name: 'EX', days: 21, color: '#00FFFF' },
+            { name: 'DX', days: 21, color: '#00CED1' },
+            { name: 'INHUMAIN', days: 21, color: '#FF00FF' },
+            { name: 'DIVIN', days: 21, color: '#FFD700' },
+            { name: 'INCONNU', days: 21, color: '#000000' }
+        ];
+
+        // Obtenir la date du jour au format YYYY-MM-DD
+        function getTodayDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+
+        // Calculer la différence en jours entre deux dates
+        function daysBetween(date1, date2) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            const firstDate = new Date(date1);
+            const secondDate = new Date(date2);
+            return Math.round(Math.abs((firstDate - secondDate) / oneDay));
+        }
+
+        // Initialiser le système de rang
+        function initRankSystem() {
+            if (!localStorage.getItem('rankStartDate')) {
+                localStorage.setItem('rankStartDate', getTodayDate());
+                localStorage.setItem('currentRankIndex', '0');
+                localStorage.setItem('rankHistory', JSON.stringify([]));
+            }
+        }
+
+        // Mettre à jour le système de rang
+        function updateRankSystem() {
+            const startDate = localStorage.getItem('rankStartDate');
+            const currentRankIndex = parseInt(localStorage.getItem('currentRankIndex') || '0');
+            const today = getTodayDate();
+            
+            let totalDaysElapsed = daysBetween(startDate, today);
+            let currentIndex = 0;
+            let daysInCurrentRank = 0;
+            
+            // Calculer le rang actuel basé sur les jours écoulés
+            for (let i = 0; i < rankSystem.length; i++) {
+                if (totalDaysElapsed >= rankSystem[i].days) {
+                    totalDaysElapsed -= rankSystem[i].days;
+                    currentIndex++;
+                    
+                    // Si on vient de passer au rang suivant, sauvegarder dans l'historique
+                    if (currentIndex > currentRankIndex) {
+                        addRankToHistory(rankSystem[i].name, today);
+                        localStorage.setItem('currentRankIndex', currentIndex.toString());
+                    }
+                } else {
+                    daysInCurrentRank = totalDaysElapsed;
+                    break;
+                }
+            }
+            
+            // Si on a atteint le rang maximum
+            if (currentIndex >= rankSystem.length) {
+                currentIndex = rankSystem.length - 1;
+                daysInCurrentRank = rankSystem[currentIndex].days;
+            }
+            
+            const currentRank = rankSystem[currentIndex];
+            const nextRank = currentIndex < rankSystem.length - 1 ? rankSystem[currentIndex + 1] : currentRank;
+            
+            // Calculer la progression
+            const daysRequired = currentRank.days;
+            const daysRemaining = daysRequired - daysInCurrentRank;
+            const percentage = Math.round((daysInCurrentRank / daysRequired) * 100);
+            
+            // Mettre à jour l'affichage
+            document.getElementById('currentRank').textContent = currentRank.name;
+            document.getElementById('currentRank').style.background = `linear-gradient(135deg, ${currentRank.color}, ${adjustColor(currentRank.color, -20)})`;
+            
+            document.getElementById('nextRank').textContent = nextRank.name;
+            document.getElementById('nextRank').style.background = `linear-gradient(135deg, ${nextRank.color}, ${adjustColor(nextRank.color, -20)})`;
+            
+            document.getElementById('daysCompleted').textContent = daysInCurrentRank;
+            document.getElementById('daysTotal').textContent = daysRequired;
+            document.getElementById('daysRemaining').textContent = daysRemaining;
+            document.getElementById('rankPercentage').textContent = percentage + '%';
+            
+            const progressFill = document.getElementById('rankProgressFill');
+            progressFill.style.width = percentage + '%';
+            progressFill.textContent = percentage + '%';
+            progressFill.style.background = `linear-gradient(90deg, ${currentRank.color}, ${nextRank.color})`;
+            
+            // Afficher l'historique
+            displayRankHistory();
+        }
+
+        // Ajuster la couleur (éclaircir ou assombrir)
+        function adjustColor(color, amount) {
+            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+        }
+
+        // Ajouter un rang à l'historique
+        function addRankToHistory(rankName, date) {
+            let history = JSON.parse(localStorage.getItem('rankHistory') || '[]');
+            history.push({ rank: rankName, date: date });
+            localStorage.setItem('rankHistory', JSON.stringify(history));
+        }
+
+        // Afficher l'historique des rangs
+        function displayRankHistory() {
+            const history = JSON.parse(localStorage.getItem('rankHistory') || '[]');
+            const historyList = document.getElementById('rankHistoryList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="color: #999; text-align: center;">Aucun rang atteint pour le moment. Continue tes efforts ! 💪</p>';
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            history.reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'rank-history-item';
+                div.innerHTML = `
+                    <span class="rank-history-badge">🏆 Rang ${item.rank}</span>
+                    <span class="rank-history-date">${new Date(item.date).toLocaleDateString('fr-FR')}</span>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+
         // Afficher la date
         function updateDate() {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -326,18 +681,59 @@
             document.getElementById('dateDisplay').textContent = today.toLocaleDateString('fr-FR', options);
         }
 
+        // Sauvegarder l'historique du jour précédent
+        function saveHistory(date, habitStates) {
+            let history = JSON.parse(localStorage.getItem('habitHistory') || '{}');
+            
+            // Calculer les stats du jour
+            const completed = Object.values(habitStates).filter(v => v === true).length;
+            const total = habits.length;
+            const percentage = Math.round((completed / total) * 100);
+            
+            history[date] = {
+                habits: habitStates,
+                completed: completed,
+                total: total,
+                percentage: percentage
+            };
+            
+            // Garder seulement les 90 derniers jours
+            const dates = Object.keys(history).sort();
+            if (dates.length > 90) {
+                dates.slice(0, dates.length - 90).forEach(oldDate => {
+                    delete history[oldDate];
+                });
+            }
+            
+            localStorage.setItem('habitHistory', JSON.stringify(history));
+        }
+
         // Charger l'état sauvegardé
         function loadState() {
-            const today = new Date().toDateString();
+            const today = getTodayDate();
             const savedDate = localStorage.getItem('habitDate');
             
-            // Si c'est un nouveau jour, réinitialiser
-            if (savedDate !== today) {
-                localStorage.setItem('habitDate', today);
+            // Si c'est un nouveau jour
+            if (savedDate && savedDate !== today) {
+                console.log('📅 Nouveau jour détecté ! Passage de', savedDate, 'à', today);
+                
+                // Sauvegarder l'état du jour précédent dans l'historique
+                const previousState = {};
+                habits.forEach(habit => {
+                    previousState[habit] = localStorage.getItem(habit) === 'true';
+                });
+                saveHistory(savedDate, previousState);
+                
+                // Réinitialiser pour le nouveau jour
                 habits.forEach(habit => {
                     localStorage.removeItem(habit);
                 });
+                
+                console.log('✅ Données du', savedDate, 'sauvegardées dans l\'historique');
             }
+            
+            // Mettre à jour la date actuelle
+            localStorage.setItem('habitDate', today);
 
             // Charger les cases cochées
             habits.forEach(habit => {
@@ -350,6 +746,17 @@
             });
             
             updateProgress();
+        }
+
+        // Vérifier automatiquement le changement de jour toutes les minutes
+        function checkDayChange() {
+            const today = getTodayDate();
+            const savedDate = localStorage.getItem('habitDate');
+            
+            if (savedDate !== today) {
+                console.log('🔄 Changement de jour détecté automatiquement !');
+                location.reload(); // Recharger la page pour réinitialiser
+            }
         }
 
         // Toggle checkbox
@@ -390,7 +797,7 @@
 
         // Réinitialiser tout
         function resetAll() {
-            if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les cases ?')) {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les cases pour aujourd\'hui ?')) {
                 habits.forEach(habit => {
                     const checkbox = document.getElementById(habit);
                     checkbox.checked = false;
@@ -403,7 +810,27 @@
 
         // Initialisation
         updateDate();
+        initRankSystem();
         loadState();
+        updateRankSystem();
+        
+        // Vérifier le changement de jour et mettre à jour le rang toutes les 60 secondes
+        setInterval(() => {
+            checkDayChange();
+            updateRankSystem();
+        }, 60000);
+        
+        // Vérifier aussi quand la page redevient visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                checkDayChange();
+                updateRankSystem();
+            }
+        });
+        
+        console.log('✅ Application de suivi quotidien initialisée');
+        console.log('📊 Historique disponible pour les 90 derniers jours');
+        console.log('🏆 Système de rang activé');
     </script>
 </body>
 </html>
