@@ -18,6 +18,41 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .container {
+            background: #0f3460;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .category,
+        body.dark-mode .habit-item,
+        body.dark-mode .rank-card,
+        body.dark-mode .stats-card,
+        body.dark-mode .quest-card,
+        body.dark-mode .combat-card,
+        body.dark-mode .daily-quests-card {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .habit-item,
+        body.dark-mode .quest-item,
+        body.dark-mode .martial-art {
+            background: #16213e;
+        }
+
+        body.dark-mode label,
+        body.dark-mode .quest-description,
+        body.dark-mode .combat-description,
+        body.dark-mode .daily-quests-description {
+            color: #b8b8d4;
         }
 
         .container {
@@ -162,6 +197,70 @@
             background: #ee5a52;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(255,107,107,0.4);
+        }
+
+        /* STREAKS SYSTEM */
+        .streak-container {
+            margin: 20px 0;
+        }
+
+        .streak-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+
+        .streak-icon {
+            font-size: 3em;
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .streak-info {
+            flex: 1;
+        }
+
+        .streak-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: rgba(255,255,255,0.9);
+            letter-spacing: 1px;
+        }
+
+        .streak-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .streak-sublabel {
+            font-size: 0.85em;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .streak-bonus {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        .bonus-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         .rank-system {
@@ -604,6 +703,279 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        /* COMBAT SYSTEM */
+        .combat-system {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #e73c7e 0%, #ee7752 100%);
+            border-radius: 20px;
+            color: white;
+        }
+
+        .combat-system h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .combat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            color: #333;
+        }
+
+        .combat-description {
+            text-align: center;
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .martial-arts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .martial-art {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border-left: 5px solid #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .martial-art.unlocked {
+            border-left-color: #4caf50;
+            background: linear-gradient(90deg, #d4fc79, #96e6a1);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .martial-art.locked {
+            opacity: 0.6;
+        }
+
+        .art-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .art-icon {
+            font-size: 2.5em;
+        }
+
+        .art-info {
+            flex: 1;
+        }
+
+        .art-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .art-requirement {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .art-status {
+            font-size: 2em;
+        }
+
+        .art-description {
+            margin: 10px 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        .art-bonus {
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .martial-art.unlocked .art-bonus {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .combat-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e73c7e, #ee7752);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .combat-stat {
+            text-align: center;
+        }
+
+        .combat-stat-label {
+            display: block;
+            font-size: 1em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .combat-stat-value {
+            display: block;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* DAILY QUESTS */
+        .daily-quests-system {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+            color: #333;
+        }
+
+        .daily-quests-system h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        .daily-quests-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .daily-quests-description {
+            text-align: center;
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        #dailyQuestsList {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .daily-quest-item {
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            border-left: 5px solid #a8edea;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .daily-quest-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .daily-quest-item.completed {
+            background: linear-gradient(90deg, #d4fc79, #96e6a1);
+            border-left-color: #4caf50;
+        }
+
+        .daily-quest-icon {
+            font-size: 2em;
+        }
+
+        .daily-quest-info {
+            flex: 1;
+        }
+
+        .daily-quest-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .daily-quest-reward {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .daily-quests-rewards {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .daily-reward-label {
+            display: block;
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .daily-reward-value {
+            display: block;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* THEME TOGGLE */
+        .theme-toggle-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(26, 26, 46, 0.9);
+            color: #e0e0e0;
+        }
+
+        #themeIcon {
+            font-size: 1.3em;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -895,6 +1267,11 @@
 </head>
 <body>
     <div class="container">
+        <div class="header-controls">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
         <h1>📋 Suivi Quotidien</h1>
         <div class="date-display" id="dateDisplay"></div>
 
@@ -1018,6 +1395,29 @@
             <div class="stat-item">
                 <div class="stat-number" id="percentCount">0%</div>
                 <div class="stat-label">Progression</div>
+            </div>
+        </div>
+
+        <!-- SYSTÈME DE STREAKS -->
+        <div class="streak-container">
+            <div class="streak-card">
+                <div class="streak-icon">🔥</div>
+                <div class="streak-info">
+                    <div class="streak-label">STREAK ACTUELLE</div>
+                    <div class="streak-number" id="currentStreak">0</div>
+                    <div class="streak-sublabel">jours consécutifs à 100%</div>
+                </div>
+            </div>
+            <div class="streak-card">
+                <div class="streak-icon">⭐</div>
+                <div class="streak-info">
+                    <div class="streak-label">RECORD</div>
+                    <div class="streak-number" id="maxStreak">0</div>
+                    <div class="streak-sublabel">meilleure série</div>
+                </div>
+            </div>
+            <div class="streak-bonus" id="streakBonus" style="display: none;">
+                <div class="bonus-text">🎉 BONUS STREAK 7 JOURS : +5 TOUTES STATS ! 🎉</div>
             </div>
         </div>
 
@@ -1336,6 +1736,113 @@
                 </div>
             </div>
         </div>
+
+        <!-- SYSTÈME DE COMBAT PVE - ARTS MARTIAUX -->
+        <div class="combat-system">
+            <h2>⚔️ Arts Martiaux à Maîtriser</h2>
+            <div class="combat-card">
+                <p class="combat-description">Apprends de nouvelles techniques selon ton Power Level ! 🥋</p>
+                
+                <div class="martial-arts-list">
+                    <div class="martial-art locked" data-required="50" data-name="Techniques de Base">
+                        <div class="art-header">
+                            <span class="art-icon">🥋</span>
+                            <div class="art-info">
+                                <div class="art-name">Techniques de Base (Goblin)</div>
+                                <div class="art-requirement">Power Level requis: 50</div>
+                            </div>
+                            <div class="art-status">🔒</div>
+                        </div>
+                        <div class="art-description">Apprends les fondamentaux du combat</div>
+                        <div class="art-bonus">Bonus: +3 STR, +2 DIS</div>
+                    </div>
+
+                    <div class="martial-art locked" data-required="150" data-name="Karaté">
+                        <div class="art-header">
+                            <span class="art-icon">🥊</span>
+                            <div class="art-info">
+                                <div class="art-name">Karaté (Orc)</div>
+                                <div class="art-requirement">Power Level requis: 150</div>
+                            </div>
+                            <div class="art-status">🔒</div>
+                        </div>
+                        <div class="art-description">Maîtrise la voie de la main vide</div>
+                        <div class="art-bonus">Bonus: +5 STR, +3 DIS, +2 END</div>
+                    </div>
+
+                    <div class="martial-art locked" data-required="300" data-name="Taekwondo">
+                        <div class="art-header">
+                            <span class="art-icon">🦵</span>
+                            <div class="art-info">
+                                <div class="art-name">Taekwondo (Troll)</div>
+                                <div class="art-requirement">Power Level requis: 300</div>
+                            </div>
+                            <div class="art-status">🔒</div>
+                        </div>
+                        <div class="art-description">L'art des coups de pied dévastateurs</div>
+                        <div class="art-bonus">Bonus: +7 STR, +5 END, +3 DIS</div>
+                    </div>
+
+                    <div class="martial-art locked" data-required="500" data-name="Muay Thai">
+                        <div class="art-header">
+                            <span class="art-icon">💥</span>
+                            <div class="art-info">
+                                <div class="art-name">Muay Thai (Ogre)</div>
+                                <div class="art-requirement">Power Level requis: 500</div>
+                            </div>
+                            <div class="art-status">🔒</div>
+                        </div>
+                        <div class="art-description">L'art des huit membres</div>
+                        <div class="art-bonus">Bonus: +10 STR, +7 END, +5 DIS</div>
+                    </div>
+
+                    <div class="martial-art locked" data-required="800" data-name="Dragon">
+                        <div class="art-header">
+                            <span class="art-icon">🐉</span>
+                            <div class="art-info">
+                                <div class="art-name">Style du Dragon (Dragon)</div>
+                                <div class="art-requirement">Power Level requis: 800</div>
+                            </div>
+                            <div class="art-status">🔒</div>
+                        </div>
+                        <div class="art-description">La technique légendaire ultime</div>
+                        <div class="art-bonus">Bonus: +15 STR, +10 END, +10 DIS, +5 MEN</div>
+                    </div>
+                </div>
+
+                <div class="combat-stats">
+                    <div class="combat-stat">
+                        <span class="combat-stat-label">Arts Maîtrisés</span>
+                        <span class="combat-stat-value" id="artsMastered">0/5</span>
+                    </div>
+                    <div class="combat-stat">
+                        <span class="combat-stat-label">Bonus Cumulé</span>
+                        <span class="combat-stat-value" id="combatBonus">+0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUÊTES JOURNALIÈRES ALÉATOIRES -->
+        <div class="daily-quests-system">
+            <h2>🎲 Quêtes du Jour</h2>
+            <div class="daily-quests-card">
+                <p class="daily-quests-description">3 quêtes aléatoires générées chaque jour ! 🎯</p>
+                <div id="dailyQuestsList"></div>
+                <div class="daily-quests-rewards">
+                    <span class="daily-reward-label">Récompenses du Jour</span>
+                    <span class="daily-reward-value" id="dailyRewards">+0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOGGLE MODE SOMBRE -->
+        <div class="theme-toggle-container">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText">Mode Sombre</span>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -1580,6 +2087,81 @@
             
             // Ajouter les points de progression au système de rang basé sur le pourcentage
             addProgressPoints(percentage);
+            
+            // Mettre à jour le streak
+            updateStreak(percentage);
+        }
+
+        // Système de Streaks
+        function updateStreak(percentage) {
+            let currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+            let maxStreak = parseInt(localStorage.getItem('maxStreak') || '0');
+            const lastStreakDate = localStorage.getItem('lastStreakDate');
+            const today = getTodayDate();
+            
+            // Si 100% aujourd'hui
+            if (percentage === 100) {
+                // Vérifier si c'est le jour suivant
+                if (lastStreakDate) {
+                    const lastDate = new Date(lastStreakDate);
+                    const todayDate = new Date(today);
+                    const diffTime = todayDate - lastDate;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 1) {
+                        // Continuer le streak
+                        currentStreak++;
+                    } else if (diffDays > 1) {
+                        // Streak cassé, recommencer
+                        currentStreak = 1;
+                    }
+                    // Si diffDays === 0, c'est le même jour, ne rien faire
+                } else {
+                    // Premier jour de streak
+                    currentStreak = 1;
+                }
+                
+                // Mettre à jour le record
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak;
+                    localStorage.setItem('maxStreak', maxStreak.toString());
+                }
+                
+                localStorage.setItem('currentStreak', currentStreak.toString());
+                localStorage.setItem('lastStreakDate', today);
+            } else if (percentage < 100 && lastStreakDate !== today) {
+                // Jour pas à 100%, casser le streak
+                currentStreak = 0;
+                localStorage.setItem('currentStreak', '0');
+            }
+            
+            displayStreak();
+        }
+
+        // Afficher le streak
+        function displayStreak() {
+            const currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+            const maxStreak = parseInt(localStorage.getItem('maxStreak') || '0');
+            
+            document.getElementById('currentStreak').textContent = currentStreak;
+            document.getElementById('maxStreak').textContent = maxStreak;
+            
+            // Afficher le bonus si streak >= 7
+            const bonusElement = document.getElementById('streakBonus');
+            if (currentStreak >= 7) {
+                bonusElement.style.display = 'block';
+            } else {
+                bonusElement.style.display = 'none';
+            }
+        }
+
+        // Obtenir le bonus de streak pour les stats
+        function getStreakBonus() {
+            const currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+            if (currentStreak >= 7) {
+                return 5; // +5 à toutes les stats si streak de 7 jours
+            }
+            return 0;
         }
 
         // Ajouter des points de progression basés sur le pourcentage du jour
@@ -1833,6 +2415,7 @@
                 men: 0
             };
             
+            // Bonus des quêtes normales
             quests.forEach(quest => {
                 if (document.getElementById(quest).checked) {
                     const rewards = questRewards[quest];
@@ -1840,6 +2423,12 @@
                         bonuses[stat] += rewards[stat];
                     });
                 }
+            });
+            
+            // Bonus des quêtes journalières
+            const dailyBonuses = getDailyQuestBonuses();
+            Object.keys(dailyBonuses).forEach(stat => {
+                bonuses[stat] += dailyBonuses[stat];
             });
             
             return bonuses;
@@ -1909,14 +2498,26 @@
                 stats[stat] += questBonuses[stat];
             });
             
+            // Ajouter le bonus de streak
+            const streakBonus = getStreakBonus();
+            Object.keys(stats).forEach(stat => {
+                stats[stat] += streakBonus;
+            });
+            
+            // Ajouter les bonus des arts martiaux
+            const combatBonus = getCombatBonus();
+            Object.keys(combatBonus).forEach(stat => {
+                stats[stat] += combatBonus[stat];
+            });
+            
             // Valeurs max pour les barres (ajustables)
             const maxValues = {
-                str: 100,
-                dis: 150,
-                spi: 200,
-                hp: 100,
-                end: 150,
-                men: 100
+                str: 150,
+                dis: 200,
+                spi: 250,
+                hp: 150,
+                end: 200,
+                men: 150
             };
             
             // Mettre à jour les barres et valeurs
@@ -1932,8 +2533,250 @@
             const powerLevel = Object.values(stats).reduce((sum, val) => sum + val, 0);
             document.getElementById('powerLevel').textContent = powerLevel;
             
+            // Mettre à jour le système de combat avec le nouveau Power Level
+            updateCombatSystem(powerLevel);
+            
             // Dessiner le graphique radar
             drawRadarChart(stats, maxValues);
+        }
+
+        // MODE SOMBRE
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            localStorage.setItem('darkMode', isDark);
+            
+            if (isDark) {
+                document.getElementById('themeIcon').textContent = '☀️';
+                document.getElementById('themeText').textContent = 'Mode Clair';
+            } else {
+                document.getElementById('themeIcon').textContent = '🌙';
+                document.getElementById('themeText').textContent = 'Mode Sombre';
+            }
+        }
+
+        // Charger le thème sauvegardé
+        function loadTheme() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+                document.getElementById('themeText').textContent = 'Mode Clair';
+            }
+        }
+
+        // SYSTÈME DE COMBAT PVE
+        const martialArts = [
+            { name: 'Techniques de Base', requiredPL: 50, bonus: { str: 3, dis: 2 }, icon: '🥋' },
+            { name: 'Karaté', requiredPL: 150, bonus: { str: 5, dis: 3, end: 2 }, icon: '🥊' },
+            { name: 'Taekwondo', requiredPL: 300, bonus: { str: 7, end: 5, dis: 3 }, icon: '🦵' },
+            { name: 'Muay Thai', requiredPL: 500, bonus: { str: 10, end: 7, dis: 5 }, icon: '💥' },
+            { name: 'Style du Dragon', requiredPL: 800, bonus: { str: 15, end: 10, dis: 10, men: 5 }, icon: '🐉' }
+        ];
+
+        function updateCombatSystem(powerLevel) {
+            const artElements = document.querySelectorAll('.martial-art');
+            let unlockedArts = JSON.parse(localStorage.getItem('unlockedArts') || '[]');
+            let newlyUnlocked = [];
+            
+            artElements.forEach((element, index) => {
+                const requiredPL = parseInt(element.dataset.required);
+                const artName = element.dataset.name;
+                
+                if (powerLevel >= requiredPL && !unlockedArts.includes(artName)) {
+                    // Débloquer l'art martial
+                    unlockedArts.push(artName);
+                    newlyUnlocked.push(artName);
+                }
+                
+                if (unlockedArts.includes(artName)) {
+                    element.classList.remove('locked');
+                    element.classList.add('unlocked');
+                    element.querySelector('.art-status').textContent = '✅';
+                }
+            });
+            
+            // Sauvegarder
+            localStorage.setItem('unlockedArts', JSON.stringify(unlockedArts));
+            
+            // Afficher notification si nouveau déblocage
+            if (newlyUnlocked.length > 0) {
+                newlyUnlocked.forEach(artName => {
+                    showArtUnlockNotification(artName);
+                });
+            }
+            
+            // Mettre à jour les stats
+            document.getElementById('artsMastered').textContent = `${unlockedArts.length}/5`;
+            
+            const totalBonus = getCombatBonusTotal();
+            document.getElementById('combatBonus').textContent = `+${totalBonus}`;
+        }
+
+        function getCombatBonus() {
+            const unlockedArts = JSON.parse(localStorage.getItem('unlockedArts') || '[]');
+            const bonus = { str: 0, dis: 0, spi: 0, hp: 0, end: 0, men: 0 };
+            
+            martialArts.forEach(art => {
+                if (unlockedArts.includes(art.name)) {
+                    Object.keys(art.bonus).forEach(stat => {
+                        bonus[stat] += art.bonus[stat];
+                    });
+                }
+            });
+            
+            return bonus;
+        }
+
+        function getCombatBonusTotal() {
+            const bonus = getCombatBonus();
+            return Object.values(bonus).reduce((sum, val) => sum + val, 0);
+        }
+
+        function showArtUnlockNotification(artName) {
+            const art = martialArts.find(a => a.name === artName);
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #e73c7e, #ee7752);
+                color: white;
+                padding: 30px 50px;
+                border-radius: 20px;
+                font-size: 1.5em;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                animation: rankUpAnimation 0.5s ease-out;
+                text-align: center;
+            `;
+            notification.innerHTML = `${art.icon}<br/>ART MARTIAL DÉBLOQUÉ !<br/>${artName}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease-out';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // QUÊTES JOURNALIÈRES ALÉATOIRES
+        function generateDailyQuests() {
+            const today = getTodayDate();
+            const savedDate = localStorage.getItem('dailyQuestsDate');
+            
+            if (savedDate !== today) {
+                // Générer 3 nouvelles quêtes aléatoires
+                const allQuests = Object.keys(questRewards);
+                const shuffled = allQuests.sort(() => 0.5 - Math.random());
+                const selectedQuests = shuffled.slice(0, 3);
+                
+                localStorage.setItem('dailyQuests', JSON.stringify(selectedQuests));
+                localStorage.setItem('dailyQuestsDate', today);
+                
+                // Réinitialiser l'état des quêtes
+                selectedQuests.forEach(quest => {
+                    localStorage.removeItem('daily_' + quest);
+                });
+            }
+            
+            displayDailyQuests();
+        }
+
+        function displayDailyQuests() {
+            const dailyQuests = JSON.parse(localStorage.getItem('dailyQuests') || '[]');
+            const container = document.getElementById('dailyQuestsList');
+            container.innerHTML = '';
+            
+            const questNames = {
+                'arts-martiaux': '🔥 Arts Martiaux 1h',
+                'pompes-100': '💪 100 Pompes',
+                'muscu-intense': '⚡ Muscu 90min',
+                'sparring': '🥊 Sparring 30min',
+                'course-10km': '🏃 10km Course',
+                'sprints-10x100m': '⚡ 10x100m Sprints',
+                'hiit-45min': '🔥 HIIT 45min',
+                'marathon-training': '🏔️ 20km+ Marathon',
+                'echecs-victoire': '♟️ 3 Parties Échecs',
+                'etude-intense': '📚 Étudier 2h',
+                'probleme-complexe': '🎯 Problème Complexe',
+                'langue-etrangere': '🗣️ Langue 1h',
+                'coran-1h': '📖 Coran 1h',
+                'tahajjud': '🌙 Tahajjud',
+                'jeune-sunnah': '🌟 Jeûne Sunnah',
+                'sadaqa': '💝 Sadaqa',
+                'jeune-intermittent': '⏰ Jeûne 16h',
+                'repas-parfait': '🥗 Repas Parfaits',
+                'sauna-glace': '🧊 Bain Glacé',
+                'reveil-4h': '⏰ Réveil 4h',
+                'zero-distraction': '📵 0 Réseaux Sociaux',
+                'productivite-10h': '⚡ 10h Productivité',
+                'journee-parfaite': '👑 Journée Parfaite'
+            };
+            
+            dailyQuests.forEach(questId => {
+                const rewards = questRewards[questId];
+                const rewardText = Object.entries(rewards).map(([stat, val]) => `+${val} ${stat.toUpperCase()}`).join(', ');
+                
+                const questDiv = document.createElement('div');
+                questDiv.className = 'daily-quest-item';
+                if (localStorage.getItem('daily_' + questId) === 'true') {
+                    questDiv.classList.add('completed');
+                }
+                
+                questDiv.innerHTML = `
+                    <div class="daily-quest-icon">${questNames[questId].split(' ')[0]}</div>
+                    <div class="daily-quest-info">
+                        <div class="daily-quest-title">${questNames[questId]}</div>
+                        <div class="daily-quest-reward">${rewardText}</div>
+                    </div>
+                `;
+                
+                questDiv.onclick = () => toggleDailyQuest(questId);
+                container.appendChild(questDiv);
+            });
+            
+            updateDailyRewards();
+        }
+
+        function toggleDailyQuest(questId) {
+            const key = 'daily_' + questId;
+            const isCompleted = localStorage.getItem(key) === 'true';
+            localStorage.setItem(key, !isCompleted);
+            displayDailyQuests();
+            updateStatsDisplay();
+        }
+
+        function updateDailyRewards() {
+            const dailyQuests = JSON.parse(localStorage.getItem('dailyQuests') || '[]');
+            let totalRewards = 0;
+            
+            dailyQuests.forEach(questId => {
+                if (localStorage.getItem('daily_' + questId) === 'true') {
+                    const rewards = questRewards[questId];
+                    totalRewards += Object.values(rewards).reduce((sum, val) => sum + val, 0);
+                }
+            });
+            
+            document.getElementById('dailyRewards').textContent = `+${totalRewards}`;
+        }
+
+        function getDailyQuestBonuses() {
+            const dailyQuests = JSON.parse(localStorage.getItem('dailyQuests') || '[]');
+            const bonuses = { str: 0, dis: 0, spi: 0, hp: 0, end: 0, men: 0 };
+            
+            dailyQuests.forEach(questId => {
+                if (localStorage.getItem('daily_' + questId) === 'true') {
+                    const rewards = questRewards[questId];
+                    Object.keys(rewards).forEach(stat => {
+                        bonuses[stat] += rewards[stat];
+                    });
+                }
+            });
+            
+            return bonuses;
         }
 
         // Dessiner le graphique radar
