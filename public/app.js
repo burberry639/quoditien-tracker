@@ -63,6 +63,33 @@ const statMapping = {
     'rasage': 'men'
 };
 
+// Récompenses des quêtes quotidiennes
+const questRewards = {
+    'arts-martiaux': { str: 5, dis: 3 },
+    'pompes-100': { str: 4, end: 2 },
+    'muscu-intense': { str: 7, end: 3 },
+    'sparring': { str: 6, dis: 4, men: 2 },
+    'course-10km': { end: 6, hp: 3 },
+    'sprints-10x100m': { end: 5, str: 3 },
+    'hiit-45min': { end: 6, hp: 4, str: 2 },
+    'marathon-training': { end: 10, hp: 5, men: 3 },
+    'echecs-victoire': { men: 5, dis: 3 },
+    'etude-intense': { men: 6, dis: 2 },
+    'probleme-complexe': { men: 7, dis: 3 },
+    'langue-etrangere': { men: 4, dis: 2 },
+    'coran-1h': { spi: 8, men: 4 },
+    'tahajjud': { spi: 6, dis: 5 },
+    'jeune-sunnah': { spi: 7, dis: 6, hp: 3 },
+    'sadaqa': { spi: 5, dis: 3 },
+    'jeune-intermittent': { hp: 5, dis: 4 },
+    'repas-parfait': { hp: 4, str: 2 },
+    'sauna-glace': { hp: 6, dis: 5, end: 3 },
+    'reveil-4h': { dis: 8, men: 5 },
+    'zero-distraction': { dis: 7, men: 4 },
+    'productivite-10h': { dis: 10, men: 6, end: 3 },
+    'journee-parfaite': { str: 5, dis: 15, spi: 5, hp: 5, end: 5, men: 10 }
+};
+
 // État du son
 let soundEnabled = true;
 
@@ -107,7 +134,9 @@ function toggleTheme() {
     localStorage.setItem('theme', newTheme);
     
     const icon = document.getElementById('themeIcon');
-    icon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+    if (icon) {
+        icon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+    }
     
     playSound('click');
     updateStatsDisplay();
@@ -119,7 +148,9 @@ function loadTheme() {
     html.setAttribute('data-theme', savedTheme);
     
     const icon = document.getElementById('themeIcon');
-    icon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+    if (icon) {
+        icon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+    }
 }
 
 /* ========================================
@@ -489,6 +520,28 @@ function calculateStats() {
     stats.dis += totalDays;
     
     return stats;
+}
+
+function getCombatBonuses() {
+    return JSON.parse(localStorage.getItem('combatBonuses') || '{}');
+}
+
+function getDailyQuestBonuses() {
+    const dailyQuests = JSON.parse(localStorage.getItem('dailyQuests') || '[]');
+    const bonuses = { str: 0, dis: 0, spi: 0, hp: 0, end: 0, men: 0 };
+    
+    dailyQuests.forEach(questId => {
+        if (localStorage.getItem('daily_' + questId) === 'true') {
+            const rewards = questRewards[questId];
+            if (rewards) {
+                Object.keys(rewards).forEach(stat => {
+                    bonuses[stat] += rewards[stat];
+                });
+            }
+        }
+    });
+    
+    return bonuses;
 }
 
 function updateStatsDisplay() {
