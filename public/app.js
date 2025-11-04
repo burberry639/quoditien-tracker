@@ -447,6 +447,17 @@ function calculateStats() {
     let totalDays = 0;
     let perfectDays = 0;
     
+    // AJOUTER LES STATS D'AUJOURD'HUI EN TEMPS RÉEL
+    habits.forEach(habit => {
+        const checkbox = document.getElementById(habit);
+        if (checkbox && checkbox.checked) {
+            const statType = statMapping[habit];
+            if (statType) {
+                stats[statType] += 1;
+            }
+        }
+    });
+    
     dates.forEach(date => {
         const dayData = history[date];
         if (dayData && dayData.habits) {
