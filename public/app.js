@@ -180,7 +180,9 @@ function loadSoundPreference() {
     soundEnabled = saved === null ? true : saved === 'true';
     
     const icon = document.getElementById('soundIcon');
-    icon.textContent = soundEnabled ? '🔊' : '🔇';
+    if (icon) {
+        icon.textContent = soundEnabled ? '🔊' : '🔇';
+    }
 }
 
 /* ========================================
@@ -547,20 +549,32 @@ function getDailyQuestBonuses() {
 function updateStatsDisplay() {
     const stats = calculateStats();
     
-    const questBonuses = getDailyQuestBonuses();
-    Object.keys(questBonuses).forEach(stat => {
-        stats[stat] += questBonuses[stat];
-    });
+    const questBonuses = getDailyQuestBonuses() || {};
+    if (questBonuses) {
+        Object.keys(questBonuses).forEach(stat => {
+            if (stats[stat] !== undefined) {
+                stats[stat] += questBonuses[stat] || 0;
+            }
+        });
+    }
     
-    const combatBonuses = getCombatBonuses();
-    Object.keys(combatBonuses).forEach(stat => {
-        stats[stat] += combatBonuses[stat];
-    });
+    const combatBonuses = getCombatBonuses() || {};
+    if (combatBonuses) {
+        Object.keys(combatBonuses).forEach(stat => {
+            if (stats[stat] !== undefined) {
+                stats[stat] += combatBonuses[stat] || 0;
+            }
+        });
+    }
     
-    const streakBonuses = getStreakBonusForDisplay();
-    Object.keys(streakBonuses).forEach(stat => {
-        stats[stat] += (streakBonuses[stat] || 0);
-    });
+    const streakBonuses = getStreakBonusForDisplay() || {};
+    if (streakBonuses) {
+        Object.keys(streakBonuses).forEach(stat => {
+            if (stats[stat] !== undefined) {
+                stats[stat] += streakBonuses[stat] || 0;
+            }
+        });
+    }
     
     const maxValues = {
         str: 100,
