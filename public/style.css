@@ -2096,3 +2096,191 @@ label {
         border: 1px solid #000;
     }
 }
+
+/* ========================================
+   QUÊTES MAGNIFIQUES STYLE SOLO LEVELING
+======================================== */
+
+#dailyQuestsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.quest-item {
+    position: relative;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 170, 0, 0.05) 0%, rgba(255, 100, 0, 0.05) 100%);
+    border: 2px solid transparent;
+    border-image: linear-gradient(135deg, var(--warning-color), #ff6400) 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.quest-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--warning-color), #ff6400);
+    transition: width 0.3s ease;
+}
+
+.quest-item:hover {
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(255, 170, 0, 0.3);
+    background: linear-gradient(135deg, rgba(255, 170, 0, 0.1) 0%, rgba(255, 100, 0, 0.1) 100%);
+}
+
+.quest-item:hover::before {
+    width: 100%;
+    opacity: 0.1;
+}
+
+.quest-item.completed {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.08) 0%, rgba(0, 200, 100, 0.08) 100%);
+    border-image: linear-gradient(135deg, var(--success-color), #00cc66) 1;
+}
+
+.quest-item.completed::before {
+    background: linear-gradient(180deg, var(--success-color), #00cc66);
+}
+
+.quest-item.completed:hover {
+    box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+}
+
+.quest-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quest-name {
+    font-size: 1.15em;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quest-reward {
+    font-size: 0.9em;
+    color: var(--warning-color);
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.quest-reward::before {
+    content: '⚡';
+    font-size: 1.2em;
+}
+
+.quest-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--warning-color), #ff6400);
+    color: white;
+    border: none;
+    font-weight: 700;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.quest-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.quest-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.quest-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 25px rgba(255, 170, 0, 0.5);
+}
+
+.quest-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.quest-btn:disabled {
+    background: linear-gradient(135deg, var(--success-color), #00cc66);
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+}
+
+.quest-btn:disabled:hover {
+    transform: none;
+}
+
+/* Animation d'apparition des quêtes */
+.quest-item {
+    animation: questSlideIn 0.5s ease-out backwards;
+}
+
+.quest-item:nth-child(1) { animation-delay: 0.1s; }
+.quest-item:nth-child(2) { animation-delay: 0.2s; }
+.quest-item:nth-child(3) { animation-delay: 0.3s; }
+.quest-item:nth-child(4) { animation-delay: 0.4s; }
+.quest-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes questSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive pour les quêtes */
+@media (max-width: 768px) {
+    .quest-item {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 15px;
+    }
+    
+    .quest-name {
+        font-size: 1em;
+    }
+    
+    .quest-btn {
+        width: 100%;
+        padding: 14px;
+    }
+}
