@@ -2,26 +2,25 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>🎮 RPG Tracker - Suivi Quotidien</title>
+    <title>⚔️ RPG Tracker - Suivi Quotidien</title>
     
-    <!-- CSS EXTERNE -->
-    <link rel="stylesheet" href="style.css">
+    <!-- CSS EXTERNE SOLO LEVELING -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- HEADER AVEC CONTRÔLES -->
+        <!-- HEADER -->
         <div class="header-controls">
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer le thème">🌙</button>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
             <div class="sound-toggle">
-                <button onclick="toggleSound()" aria-label="Activer/Désactiver les sons">🔊</button>
+                <button onclick="toggleSound()">🔊</button>
             </div>
         </div>
 
-        <!-- TITRE -->
-        <h1>⚔️ RPG TRACKER</h1>
+        <h1>📋 SUIVI QUOTIDIEN</h1>
         <div class="date-display" id="dateDisplay"></div>
 
         <!-- STREAKS -->
@@ -42,12 +41,108 @@
             </div>
         </div>
 
-        <!-- BONUS DE STREAK -->
         <div class="streak-bonus" id="streakBonus" style="display: none;"></div>
 
-        <!-- BARRE DE PROGRESSION -->
+        <!-- PROGRESSION -->
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+        </div>
+
+        <!-- HABITUDES - TOUTES TES 19 ORIGINALES -->
+        <div class="category">
+            <h2><span class="category-icon">😴</span> Sommeil</h2>
+            <div class="habit-item" onclick="toggleCheckbox('sommeil')">
+                <input type="checkbox" id="sommeil">
+                <label for="sommeil">7-8 heures de sommeil</label>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2><span class="category-icon">💪</span> Sport</h2>
+            <div class="habit-item" onclick="toggleCheckbox('sport')">
+                <input type="checkbox" id="sport">
+                <label for="sport">Séance de sport aujourd'hui</label>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2><span class="category-icon">🍗</span> Alimentation</h2>
+            <div class="habit-item" onclick="toggleCheckbox('proteines')">
+                <input type="checkbox" id="proteines">
+                <label for="proteines">140g de protéines minimum</label>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2><span class="category-icon">🧼</span> Hygiène</h2>
+            <div class="habit-item" onclick="toggleCheckbox('douche-matin')">
+                <input type="checkbox" id="douche-matin">
+                <label for="douche-matin">Douche du matin</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('douche-soir')">
+                <input type="checkbox" id="douche-soir">
+                <label for="douche-soir">Douche du soir</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('brossage-matin')">
+                <input type="checkbox" id="brossage-matin">
+                <label for="brossage-matin">Brossage de dents - Matin</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('brossage-midi')">
+                <input type="checkbox" id="brossage-midi">
+                <label for="brossage-midi">Brossage de dents - Midi</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('brossage-soir')">
+                <input type="checkbox" id="brossage-soir">
+                <label for="brossage-soir">Brossage de dents - Soir</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('ongles')">
+                <input type="checkbox" id="ongles">
+                <label for="ongles">Coupage d'ongles</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('rasage')">
+                <input type="checkbox" id="rasage">
+                <label for="rasage">Rasage</label>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2><span class="category-icon">🕌</span> Prières</h2>
+            <div class="habit-item" onclick="toggleCheckbox('fajr')">
+                <input type="checkbox" id="fajr">
+                <label for="fajr">Fajr (Aube)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('dhuhr')">
+                <input type="checkbox" id="dhuhr">
+                <label for="dhuhr">Dhuhr (Midi)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('asr')">
+                <input type="checkbox" id="asr">
+                <label for="asr">Asr (Après-midi)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('maghrib')">
+                <input type="checkbox" id="maghrib">
+                <label for="maghrib">Maghrib (Coucher du soleil)</label>
+            </div>
+            <div class="habit-item" onclick="toggleCheckbox('isha')">
+                <input type="checkbox" id="isha">
+                <label for="isha">Isha (Nuit)</label>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2><span class="category-icon">🧹</span> Rangement</h2>
+            <div class="habit-item" onclick="toggleCheckbox('chambre')">
+                <input type="checkbox" id="chambre">
+                <label for="chambre">Ranger ma chambre</label>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2><span class="category-icon">✨</span> Spiritualité</h2>
+            <div class="habit-item" onclick="toggleCheckbox('peches')">
+                <input type="checkbox" id="peches">
+                <label for="peches">Aucun acte en rapport avec les 7 péchés capitaux</label>
+            </div>
         </div>
 
         <!-- STATS QUOTIDIENNES -->
@@ -62,111 +157,7 @@
             </div>
         </div>
 
-        <!-- CATÉGORIE : SPIRITUEL -->
-        <div class="category">
-            <h2><span class="category-icon">✨</span> Spirituel & Mental</h2>
-            <div class="habit-item" onclick="toggleCheckbox('coran')">
-                <input type="checkbox" id="coran">
-                <label for="coran">📖 Lire/Mémoriser Coran</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('5prieres')">
-                <input type="checkbox" id="5prieres">
-                <label for="5prieres">🕌 5 Prières à l'heure</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('duha')">
-                <input type="checkbox" id="duha">
-                <label for="duha">🌅 Prière Duha</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('witr')">
-                <input type="checkbox" id="witr">
-                <label for="witr">🌙 Prière Witr</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('dhikr')">
-                <input type="checkbox" id="dhikr">
-                <label for="dhikr">📿 Dhikr quotidien</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('meditation')">
-                <input type="checkbox" id="meditation">
-                <label for="meditation">🧘 Méditation/Réflexion</label>
-            </div>
-        </div>
-
-        <!-- CATÉGORIE : PHYSIQUE -->
-        <div class="category">
-            <h2><span class="category-icon">💪</span> Physique & Sport</h2>
-            <div class="habit-item" onclick="toggleCheckbox('sport')">
-                <input type="checkbox" id="sport">
-                <label for="sport">🏃 Sport/Exercice</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('marche')">
-                <input type="checkbox" id="marche">
-                <label for="marche">🚶 Marche 30min</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('etirements')">
-                <input type="checkbox" id="etirements">
-                <label for="etirements">🤸 Étirements</label>
-            </div>
-        </div>
-
-        <!-- CATÉGORIE : SANTÉ -->
-        <div class="category">
-            <h2><span class="category-icon">🍎</span> Santé & Alimentation</h2>
-            <div class="habit-item" onclick="toggleCheckbox('eau')">
-                <input type="checkbox" id="eau">
-                <label for="eau">💧 2L d'eau</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('alimentation')">
-                <input type="checkbox" id="alimentation">
-                <label for="alimentation">🥗 Alimentation saine</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('sommeil')">
-                <input type="checkbox" id="sommeil">
-                <label for="sommeil">😴 Sommeil 7-8h</label>
-            </div>
-        </div>
-
-        <!-- CATÉGORIE : PRODUCTIVITÉ -->
-        <div class="category">
-            <h2><span class="category-icon">📚</span> Productivité & Croissance</h2>
-            <div class="habit-item" onclick="toggleCheckbox('travail')">
-                <input type="checkbox" id="travail">
-                <label for="travail">💼 Travail productif</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('lecture')">
-                <input type="checkbox" id="lecture">
-                <label for="lecture">📖 Lire 30min</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('apprentissage')">
-                <input type="checkbox" id="apprentissage">
-                <label for="apprentissage">🎓 Apprendre quelque chose</label>
-            </div>
-        </div>
-
-        <!-- CATÉGORIE : DISCIPLINE -->
-        <div class="category">
-            <h2><span class="category-icon">🎯</span> Discipline & Habitudes</h2>
-            <div class="habit-item" onclick="toggleCheckbox('reveil')">
-                <input type="checkbox" id="reveil">
-                <label for="reveil">⏰ Réveil tôt</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('lit')">
-                <input type="checkbox" id="lit">
-                <label for="lit">🛏️ Faire son lit</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('ecrans')">
-                <input type="checkbox" id="ecrans">
-                <label for="ecrans">📱 Limiter écrans</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('gratitude')">
-                <input type="checkbox" id="gratitude">
-                <label for="gratitude">🙏 Moment de gratitude</label>
-            </div>
-        </div>
-
-        <!-- BOUTON RESET -->
-        <button class="reset-btn" onclick="resetAll()">
-            <span>♻️ Réinitialiser Aujourd'hui</span>
-        </button>
+        <button class="reset-btn" onclick="resetAll()"><span>🔄 Réinitialiser</span></button>
 
         <!-- SYSTÈME DE RANG -->
         <div class="rank-system">
@@ -174,9 +165,8 @@
             <div class="rank-card">
                 <div class="current-rank">
                     <span class="rank-label">Rang Actuel</span>
-                    <div class="rank-badge" id="currentRank">Novice</div>
+                    <div class="rank-badge" id="currentRank">F</div>
                 </div>
-                
                 <div class="rank-progress-container">
                     <div class="rank-progress-bar">
                         <div class="rank-progress-fill" id="rankProgressFill" style="width: 0%;">0%</div>
@@ -185,32 +175,25 @@
                         <span id="daysCompleted">0</span>/<span id="daysTotal">0</span> jours
                         <span class="rank-percentage" id="rankPercentage">0%</span>
                     </div>
-                    <div class="rank-countdown">
-                        Reste : <span id="daysRemaining">0</span> jours parfaits
-                    </div>
-                    <div class="rank-total-progress">
-                        Progression totale : <span id="totalProgressPoints">0</span> jours
-                    </div>
+                    <div class="rank-countdown">Reste : <span id="daysRemaining">0</span> jours</div>
+                    <div class="rank-total-progress">Total : <span id="totalProgressPoints">0</span> jours</div>
                 </div>
-
                 <div class="next-rank">
                     <span class="next-rank-label">Prochain Rang</span>
-                    <div class="next-rank-badge" id="nextRank">Apprenti</div>
+                    <div class="next-rank-badge" id="nextRank">E</div>
                 </div>
-
                 <div class="rank-history">
-                    <h3>📜 Historique des Rangs</h3>
+                    <h3>📜 Historique</h3>
                     <div id="rankHistoryList"></div>
                 </div>
             </div>
         </div>
 
-        <!-- SYSTÈME DE STATS -->
+        <!-- STATS RPG -->
         <div class="stats-system">
             <h2>📊 STATISTIQUES RPG</h2>
             <div class="stats-card">
                 <div class="stats-display">
-                    <!-- FORCE -->
                     <div class="stat-item-detailed">
                         <div class="stat-icon">💪</div>
                         <div class="stat-details">
@@ -221,8 +204,6 @@
                             <span class="stat-value" id="strValue">0</span>
                         </div>
                     </div>
-
-                    <!-- DISCIPLINE -->
                     <div class="stat-item-detailed">
                         <div class="stat-icon">🧠</div>
                         <div class="stat-details">
@@ -233,8 +214,6 @@
                             <span class="stat-value" id="disValue">0</span>
                         </div>
                     </div>
-
-                    <!-- SPIRITUALITÉ -->
                     <div class="stat-item-detailed">
                         <div class="stat-icon">✨</div>
                         <div class="stat-details">
@@ -245,8 +224,6 @@
                             <span class="stat-value" id="spiValue">0</span>
                         </div>
                     </div>
-
-                    <!-- SANTÉ -->
                     <div class="stat-item-detailed">
                         <div class="stat-icon">💚</div>
                         <div class="stat-details">
@@ -257,8 +234,6 @@
                             <span class="stat-value" id="hpValue">0</span>
                         </div>
                     </div>
-
-                    <!-- ENDURANCE -->
                     <div class="stat-item-detailed">
                         <div class="stat-icon">⚡</div>
                         <div class="stat-details">
@@ -269,8 +244,6 @@
                             <span class="stat-value" id="endValue">0</span>
                         </div>
                     </div>
-
-                    <!-- MENTAL -->
                     <div class="stat-item-detailed">
                         <div class="stat-icon">🎯</div>
                         <div class="stat-details">
@@ -282,13 +255,9 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- GRAPHIQUE RADAR -->
                 <div class="radar-chart-container">
                     <canvas id="radarChart" width="400" height="400"></canvas>
                 </div>
-
-                <!-- POWER LEVEL -->
                 <div class="power-level">
                     <div class="power-label">⚡ POWER LEVEL</div>
                     <div class="power-value" id="powerLevel">0</div>
@@ -296,13 +265,11 @@
             </div>
         </div>
 
-        <!-- SYSTÈME DE COMBAT -->
+        <!-- COMBAT -->
         <div class="combat-system">
             <h2>⚔️ ARTS MARTIAUX</h2>
             <div class="combat-card">
-                <div class="combat-description">
-                    Affronte des adversaires pour développer tes compétences martiales !
-                </div>
+                <div class="combat-description">Affronte des adversaires !</div>
                 <div id="enemyList"></div>
                 <div class="combat-victories">
                     <h3>🏆 Victoires</h3>
@@ -311,16 +278,12 @@
             </div>
         </div>
 
-        <!-- SYSTÈME DE QUÊTES -->
+        <!-- QUÊTES -->
         <div class="quest-system">
             <h2>🎯 QUÊTES QUOTIDIENNES</h2>
             <div class="quest-card">
-                <div class="quest-description">
-                    3 nouvelles quêtes chaque jour ! Complète-les pour des bonus de stats.
-                </div>
-                <div class="quest-refresh-timer">
-                    ⏰ Nouvelles quêtes dans : <span id="questTimer">00:00:00</span>
-                </div>
+                <div class="quest-description">3 quêtes par jour pour des bonus !</div>
+                <div class="quest-refresh-timer">⏰ Nouvelles : <span id="questTimer">00:00:00</span></div>
                 <div id="dailyQuestsList"></div>
                 <div class="quest-stats">
                     <div class="quest-completed">
@@ -328,7 +291,7 @@
                         <span class="quest-stat-value" id="dailyQuestsCompleted">0/3</span>
                     </div>
                     <div class="quest-bonus">
-                        <span class="quest-stat-label">Bonus Total</span>
+                        <span class="quest-stat-label">Bonus</span>
                         <span class="quest-stat-value" id="dailyQuestBonus">+0</span>
                     </div>
                 </div>
@@ -336,7 +299,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT EXTERNE -->
+    <!-- JS EXTERNE -->
     <script src="app.js"></script>
 </body>
 </html>
