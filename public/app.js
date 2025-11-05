@@ -1450,7 +1450,16 @@ function initLeaderboard() {
         return;
     }
     
-    displayLeaderboard();
+    // Sauvegarder sur Firebase
+    setTimeout(() => updateMyRankOnFirebase(), 1000);
+    
+    // Afficher le classement Firebase
+    if (window.firebaseDb) {
+        displayFirebaseLeaderboard();
+    } else {
+        // Fallback si Firebase pas chargé
+        displayLeaderboard();
+    }
 }
 
 function displayLeaderboard() {
@@ -1715,17 +1724,3 @@ function updateMyRankOnFirebase() {
 }
 
 // Remplacer l'ancien initLeaderboard par Firebase
-const oldInitLeaderboard = initLeaderboard;
-initLeaderboard = function() {
-    const username = localStorage.getItem('username');
-    if (!username) {
-        showUsernamePrompt();
-        return;
-    }
-    
-    // Sauvegarder sur Firebase
-    updateMyRankOnFirebase();
-    
-    // Afficher le classement en temps réel
-    displayFirebaseLeaderboard();
-};
