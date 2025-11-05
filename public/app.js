@@ -676,6 +676,7 @@ function resetAll() {
 ======================================== */
 
 function updateRankSystem() {
+    setTimeout(() => updateMyRankOnFirebase(), 1000);
     const progressPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
     
     let remainingPoints = progressPoints;
@@ -1625,3 +1626,106 @@ window.resetAll = resetAll;
 window.toggleTheme = toggleTheme;
 window.toggleSound = toggleSound;
 window.completeQuest = completeQuest;
+
+/* ========================================
+   FIREBASE REAL-TIME LEADERBOARD
+======================================== */
+
+async function saveUserToFirebase(username, religion, rank) {
+    if (!window.firebaseDb) {
+        console.log('Firebase pas encore chargé...');
+        return;
+    }
+    
+    try {
+        const userRef = window.firebaseDoc(window.firebaseDb, 'users', username);
+        await window.firebaseSetDoc(userRef, {
+            username: username,
+            religion: religion,
+            rank: rank,
+            lastUpdated: new Date().toISOString()
+        }, { merge: true });
+        console.log('✅ Rang synchronisé sur Firebase !');
+    } catch (error) {
+        console.error('❌ Erreur Firebase:', error);
+    }
+}
+
+function displayFirebaseLeaderboard() {
+    const container = document.getElementById('leaderboardList');
+    if (!container || !window.firebaseDb) return;
+    
+    const username = localStorage.getItem('username');
+    
+    const religionIcons = {
+        islam: '☪️',
+        christianity: '✝️',
+        neutral: '🌟'
+    };
+    
+    const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
+    const q = window.firebaseQuery(usersCollection, window.firebaseOrderBy('lastUpdated', 'desc'));
+    
+    window.firebaseOnSnapshot(q, (snapshot) => {
+        const users = [];
+        snapshot.forEach((doc) => {
+            users.push(doc.data());
+        });
+        
+        const rankValues = {};
+        rankSystem.forEach((r, i) => rankValues[r.name] = i);
+        users.sort((a, b) => rankValues[b.rank] - rankValues[a.rank]);
+        
+        container.innerHTML = '';
+        
+        if (users.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 30px; color: #666; font-size: 1.1em;">🔍 Aucun guerrier pour le moment...<br><br>Sois le premier à rejoindre le classement !</div>';
+            return;
+        }
+        
+        users.forEach((user, index) => {
+            const rank = rankSystem.find(r => r.name === user.rank);
+            const isMe = user.username === username;
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = 'leaderboard-item' + (isMe ? ' my-rank' : '');
+            
+            userDiv.innerHTML = `
+                <div class="leaderboard-position">#${index + 1}</div>
+                <div class="leaderboard-user">
+                    <span class="leaderboard-icon">${religionIcons[user.religion] || '🌟'}</span>
+                    <span class="leaderboard-username">${user.username}${isMe ? ' (TOI 👑)' : ''}</span>
+                </div>
+                <div class="leaderboard-rank" style="background: ${rank?.color || '#666'};">${user.rank}</div>
+            `;
+            
+            container.appendChild(userDiv);
+        });
+    });
+}
+
+function updateMyRankOnFirebase() {
+    const username = localStorage.getItem('username');
+    const religion = localStorage.getItem('selectedReligion');
+    const rank = getCurrentUserRank();
+    
+    if (username && religion && rank) {
+        saveUserToFirebase(username, religion, rank);
+    }
+}
+
+// Remplacer l'ancien initLeaderboard par Firebase
+const oldInitLeaderboard = initLeaderboard;
+initLeaderboard = function() {
+    const username = localStorage.getItem('username');
+    if (!username) {
+        showUsernamePrompt();
+        return;
+    }
+    
+    // Sauvegarder sur Firebase
+    updateMyRankOnFirebase();
+    
+    // Afficher le classement en temps réel
+    displayFirebaseLeaderboard();
+};

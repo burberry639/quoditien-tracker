@@ -194,11 +194,36 @@
                 <div class="leaderboard-description">
                     Compare ton rang avec tes rivaux !
                 </div>
-                <button class="add-user-btn" onclick="showAddUserDialog()">
-                    ➕ Ajouter un rival
-                </button>
                 <div id="leaderboardList"></div>
             </div>
         </div>
+    </div>
+
+    <!-- FIREBASE + APP -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyD_ztzn3IaW7zA65QZky0ehQA4ryaZqUXY",
+          authDomain: "quotidien-max-data.firebaseapp.com",
+          projectId: "quotidien-max-data",
+          storageBucket: "quotidien-max-data.firebasestorage.app",
+          messagingSenderId: "493129239803",
+          appId: "1:493129239803:web:45d50e3d2e47fe4c39745e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        window.firebaseDb = db;
+        window.firebaseDoc = doc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseOnSnapshot = onSnapshot;
+        window.firebaseQuery = query;
+        window.firebaseOrderBy = orderBy;
+        window.firebaseCollection = collection;
+    </script>
+    <script src="app.js"></script>
 </body>
 </html>
