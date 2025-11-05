@@ -2,25 +2,98 @@
    CONFIGURATION DE BASE
 ======================================== */
 
-const habits = [
-    'sommeil', 'sport', 'proteines',
-    'douche-matin', 'douche-soir', 
-    'brossage-matin', 'brossage-midi', 'brossage-soir',
-    'ongles', 'rasage',
-    'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
-    'chambre', 'peches'
-];
+// Configurations par religion
+const religionConfigs = {
+    islam: {
+        name: 'Islam',
+        icon: '☪️',
+        habits: [
+            'sommeil', 'sport', 'proteines',
+            'douche-matin', 'douche-soir', 
+            'brossage-matin', 'brossage-midi', 'brossage-soir',
+            'ongles', 'rasage',
+            'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
+            'chambre', 'peches'
+        ],
+        habitLabels: {
+            'fajr': 'Fajr (Aube)',
+            'dhuhr': 'Dhuhr (Midi)',
+            'asr': 'Asr (Après-midi)',
+            'maghrib': 'Maghrib (Coucher du soleil)',
+            'isha': 'Isha (Nuit)',
+            'peches': 'Aucun acte en rapport avec les 7 péchés capitaux'
+        },
+        categoryIcons: {
+            spiritual: '🕌'
+        },
+        categoryNames: {
+            spiritual: 'Prières',
+            ethics: 'Spiritualité'
+        }
+    },
+    christianity: {
+        name: 'Christianisme',
+        icon: '✝️',
+        habits: [
+            'sommeil', 'sport', 'proteines',
+            'douche-matin', 'douche-soir', 
+            'brossage-matin', 'brossage-midi', 'brossage-soir',
+            'ongles', 'rasage',
+            'priere-matin', 'priere-midi', 'priere-soir', 'priere-repas', 'priere-nuit',
+            'chambre', 'commandements'
+        ],
+        habitLabels: {
+            'priere-matin': 'Prière du matin',
+            'priere-midi': 'Prière de midi',
+            'priere-soir': 'Prière du soir',
+            'priere-repas': 'Prière avant repas',
+            'priere-nuit': 'Prière avant de dormir',
+            'commandements': 'Respecter les enseignements du Christ'
+        },
+        categoryIcons: {
+            spiritual: '⛪'
+        },
+        categoryNames: {
+            spiritual: 'Prières',
+            ethics: 'Spiritualité'
+        }
+    },
+    neutral: {
+        name: 'Neutre',
+        icon: '🌟',
+        habits: [
+            'sommeil', 'sport', 'proteines',
+            'douche-matin', 'douche-soir', 
+            'brossage-matin', 'brossage-midi', 'brossage-soir',
+            'ongles', 'rasage',
+            'meditation-matin', 'meditation-midi', 'meditation-soir', 'gratitude', 'journal',
+            'chambre', 'ethique'
+        ],
+        habitLabels: {
+            'meditation-matin': 'Méditation/réflexion du matin',
+            'meditation-midi': 'Pause méditative à midi',
+            'meditation-soir': 'Méditation du soir',
+            'gratitude': 'Moment de gratitude',
+            'journal': 'Journal personnel',
+            'ethique': 'Agir selon mes valeurs éthiques'
+        },
+        categoryIcons: {
+            spiritual: '🧘'
+        },
+        categoryNames: {
+            spiritual: 'Bien-être Mental',
+            ethics: 'Développement Personnel'
+        }
+    }
+};
 
-const statMapping = {
+let currentConfig = null;
+let habits = [];
+
+const baseStatMapping = {
     'sport': 'str',
     'proteines': 'str',
     'chambre': 'dis',
-    'fajr': 'spi',
-    'dhuhr': 'spi',
-    'asr': 'spi',
-    'maghrib': 'spi',
-    'isha': 'spi',
-    'peches': 'spi',
     'sommeil': 'hp',
     'douche-matin': 'hp',
     'douche-soir': 'hp',
@@ -30,6 +103,22 @@ const statMapping = {
     'ongles': 'men',
     'rasage': 'men'
 };
+
+const spiritualStatMapping = {
+    // Islam
+    'fajr': 'spi', 'dhuhr': 'spi', 'asr': 'spi', 'maghrib': 'spi', 'isha': 'spi',
+    'peches': 'spi',
+    // Christianity
+    'priere-matin': 'spi', 'priere-midi': 'spi', 'priere-soir': 'spi', 
+    'priere-repas': 'spi', 'priere-nuit': 'spi',
+    'commandements': 'spi',
+    // Neutral
+    'meditation-matin': 'men', 'meditation-midi': 'men', 'meditation-soir': 'men',
+    'gratitude': 'spi', 'journal': 'men',
+    'ethique': 'spi'
+};
+
+const statMapping = { ...baseStatMapping, ...spiritualStatMapping };
 
 const rankSystem = [
     { name: 'F', days: 14, color: '#808080' },
@@ -48,6 +137,151 @@ let soundEnabled = true;
 /* ========================================
    FONCTIONS UTILITAIRES
 ======================================== */
+
+function showReligionSelector() {
+    const overlay = document.createElement('div');
+    overlay.id = 'religionOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(10px);
+    `;
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 800px;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #00d9ff;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 217, 255, 0.5);
+        ">
+            <h1 style="
+                font-size: 2.5em;
+                color: #00d9ff;
+                margin-bottom: 20px;
+                text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
+            ">⚔️ CHOISIS TON CHEMIN ⚔️</h1>
+            <p style="
+                font-size: 1.2em;
+                color: #aaa;
+                margin-bottom: 40px;
+            ">Sélectionne ta configuration spirituelle</p>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            ">
+                <button onclick="selectReligion('islam')" style="
+                    padding: 30px 20px;
+                    background: linear-gradient(135deg, #00cc66, #008844);
+                    border: none;
+                    border-radius: 15px;
+                    color: white;
+                    font-size: 1.5em;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 5px 20px rgba(0, 204, 102, 0.4);
+                ">
+                    <div style="font-size: 3em; margin-bottom: 10px;">☪️</div>
+                    <div style="font-weight: bold;">ISLAM</div>
+                </button>
+                
+                <button onclick="selectReligion('christianity')" style="
+                    padding: 30px 20px;
+                    background: linear-gradient(135deg, #667eea, #4a5fd4);
+                    border: none;
+                    border-radius: 15px;
+                    color: white;
+                    font-size: 1.5em;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+                ">
+                    <div style="font-size: 3em; margin-bottom: 10px;">✝️</div>
+                    <div style="font-weight: bold;">CHRISTIANISME</div>
+                </button>
+                
+                <button onclick="selectReligion('neutral')" style="
+                    padding: 30px 20px;
+                    background: linear-gradient(135deg, #ffa500, #ff6b00);
+                    border: none;
+                    border-radius: 15px;
+                    color: white;
+                    font-size: 1.5em;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 5px 20px rgba(255, 165, 0, 0.4);
+                ">
+                    <div style="font-size: 3em; margin-bottom: 10px;">🌟</div>
+                    <div style="font-weight: bold;">NEUTRE</div>
+                </button>
+            </div>
+            
+            <p style="
+                font-size: 0.9em;
+                color: #666;
+                margin-top: 20px;
+            ">Tu pourras changer ce choix plus tard dans les paramètres</p>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function selectReligion(religion) {
+    localStorage.setItem('selectedReligion', religion);
+    currentConfig = religionConfigs[religion];
+    habits = currentConfig.habits;
+    
+    const overlay = document.getElementById('religionOverlay');
+    if (overlay) {
+        overlay.style.animation = 'fadeOut 0.3s forwards';
+        setTimeout(() => overlay.remove(), 300);
+    }
+    
+    updateHabitLabels();
+    initializeApp();
+}
+
+function updateHabitLabels() {
+    if (!currentConfig) return;
+    
+    // Mettre à jour les labels des catégories spirituelles
+    const spiritualCategory = document.querySelector('.category:has(#' + habits[10] + ')');
+    if (spiritualCategory) {
+        const h2 = spiritualCategory.querySelector('h2');
+        if (h2) {
+            const icon = h2.querySelector('.category-icon');
+            if (icon) {
+                icon.textContent = currentConfig.categoryIcons.spiritual;
+            }
+            h2.childNodes[1].textContent = ' ' + currentConfig.categoryNames.spiritual;
+        }
+    }
+}
+
+function loadReligionConfig() {
+    const savedReligion = localStorage.getItem('selectedReligion');
+    if (!savedReligion) {
+        showReligionSelector();
+        return false;
+    }
+    currentConfig = religionConfigs[savedReligion];
+    habits = currentConfig.habits;
+    return true;
+}
 
 function getTodayDate() {
     return new Date().toISOString().split('T')[0];
@@ -613,8 +847,8 @@ function updateQuestTimer() {
    INITIALISATION
 ======================================== */
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadTheme();
+function initializeApp() {
+    generateHabitsHTML();
     updateDate();
     loadHabits();
     updateProgress();
@@ -623,8 +857,88 @@ document.addEventListener('DOMContentLoaded', function() {
     updateStreaks();
     initDailyQuests();
     
-    // Redessiner le graphique quand la fenêtre change de taille
     window.addEventListener('resize', function() {
         updateStatsDisplay();
     });
+}
+
+function generateHabitsHTML() {
+    const container = document.getElementById('habitsContainer');
+    if (!container || !currentConfig) return;
+    
+    container.innerHTML = '';
+    
+    const categories = {
+        sleep: { icon: '😴', name: 'Sommeil', habits: ['sommeil'] },
+        sport: { icon: '💪', name: 'Sport', habits: ['sport'] },
+        food: { icon: '🍗', name: 'Alimentation', habits: ['proteines'] },
+        hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-matin', 'douche-soir', 'brossage-matin', 'brossage-midi', 'brossage-soir', 'ongles', 'rasage'] },
+        spiritual: { icon: currentConfig.categoryIcons.spiritual, name: currentConfig.categoryNames.spiritual, habits: [] },
+        clean: { icon: '🧹', name: 'Rangement', habits: ['chambre'] },
+        ethics: { icon: '✨', name: currentConfig.categoryNames.ethics, habits: [] }
+    };
+    
+    // Habitudes spirituelles selon la religion
+    if (currentConfig.name === 'Islam') {
+        categories.spiritual.habits = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+        categories.ethics.habits = ['peches'];
+    } else if (currentConfig.name === 'Christianisme') {
+        categories.spiritual.habits = ['priere-matin', 'priere-midi', 'priere-soir', 'priere-repas', 'priere-nuit'];
+        categories.ethics.habits = ['commandements'];
+    } else {
+        categories.spiritual.habits = ['meditation-matin', 'meditation-midi', 'meditation-soir', 'gratitude', 'journal'];
+        categories.ethics.habits = ['ethique'];
+    }
+    
+    const habitLabels = {
+        'sommeil': '7-8 heures de sommeil',
+        'sport': 'Séance de sport aujourd\'hui',
+        'proteines': '140g de protéines minimum',
+        'douche-matin': 'Douche du matin',
+        'douche-soir': 'Douche du soir',
+        'brossage-matin': 'Brossage de dents - Matin',
+        'brossage-midi': 'Brossage de dents - Midi',
+        'brossage-soir': 'Brossage de dents - Soir',
+        'ongles': 'Coupage d\'ongles',
+        'rasage': 'Rasage',
+        'chambre': 'Ranger ma chambre',
+        ...currentConfig.habitLabels
+    };
+    
+    Object.values(categories).forEach(category => {
+        if (category.habits.length === 0) return;
+        
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category';
+        
+        const title = document.createElement('h2');
+        title.innerHTML = `<span class="category-icon">${category.icon}</span> ${category.name}`;
+        categoryDiv.appendChild(title);
+        
+        category.habits.forEach(habitId => {
+            const habitDiv = document.createElement('div');
+            habitDiv.className = 'habit-item';
+            habitDiv.onclick = () => toggleCheckbox(habitId);
+            
+            habitDiv.innerHTML = `
+                <input type="checkbox" id="${habitId}">
+                <label for="${habitId}">${habitLabels[habitId] || habitId}</label>
+            `;
+            
+            categoryDiv.appendChild(habitDiv);
+        });
+        
+        container.appendChild(categoryDiv);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadTheme();
+    
+    if (loadReligionConfig()) {
+        initializeApp();
+    }
 });
+
+// Fonction globale pour sélection (appelée depuis HTML inline)
+window.selectReligion = selectReligion;

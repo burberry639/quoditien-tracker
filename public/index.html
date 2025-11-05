@@ -6,8 +6,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>⚔️ RPG Tracker - Suivi Quotidien</title>
-    
-    <!-- CSS EXTERNE SOLO LEVELING -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -48,102 +46,8 @@
             <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
         </div>
 
-        <!-- HABITUDES - TOUTES TES 19 ORIGINALES -->
-        <div class="category">
-            <h2><span class="category-icon">😴</span> Sommeil</h2>
-            <div class="habit-item" onclick="toggleCheckbox('sommeil')">
-                <input type="checkbox" id="sommeil">
-                <label for="sommeil">7-8 heures de sommeil</label>
-            </div>
-        </div>
-
-        <div class="category">
-            <h2><span class="category-icon">💪</span> Sport</h2>
-            <div class="habit-item" onclick="toggleCheckbox('sport')">
-                <input type="checkbox" id="sport">
-                <label for="sport">Séance de sport aujourd'hui</label>
-            </div>
-        </div>
-
-        <div class="category">
-            <h2><span class="category-icon">🍗</span> Alimentation</h2>
-            <div class="habit-item" onclick="toggleCheckbox('proteines')">
-                <input type="checkbox" id="proteines">
-                <label for="proteines">140g de protéines minimum</label>
-            </div>
-        </div>
-
-        <div class="category">
-            <h2><span class="category-icon">🧼</span> Hygiène</h2>
-            <div class="habit-item" onclick="toggleCheckbox('douche-matin')">
-                <input type="checkbox" id="douche-matin">
-                <label for="douche-matin">Douche du matin</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('douche-soir')">
-                <input type="checkbox" id="douche-soir">
-                <label for="douche-soir">Douche du soir</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('brossage-matin')">
-                <input type="checkbox" id="brossage-matin">
-                <label for="brossage-matin">Brossage de dents - Matin</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('brossage-midi')">
-                <input type="checkbox" id="brossage-midi">
-                <label for="brossage-midi">Brossage de dents - Midi</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('brossage-soir')">
-                <input type="checkbox" id="brossage-soir">
-                <label for="brossage-soir">Brossage de dents - Soir</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('ongles')">
-                <input type="checkbox" id="ongles">
-                <label for="ongles">Coupage d'ongles</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('rasage')">
-                <input type="checkbox" id="rasage">
-                <label for="rasage">Rasage</label>
-            </div>
-        </div>
-
-        <div class="category">
-            <h2><span class="category-icon">🕌</span> Prières</h2>
-            <div class="habit-item" onclick="toggleCheckbox('fajr')">
-                <input type="checkbox" id="fajr">
-                <label for="fajr">Fajr (Aube)</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('dhuhr')">
-                <input type="checkbox" id="dhuhr">
-                <label for="dhuhr">Dhuhr (Midi)</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('asr')">
-                <input type="checkbox" id="asr">
-                <label for="asr">Asr (Après-midi)</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('maghrib')">
-                <input type="checkbox" id="maghrib">
-                <label for="maghrib">Maghrib (Coucher du soleil)</label>
-            </div>
-            <div class="habit-item" onclick="toggleCheckbox('isha')">
-                <input type="checkbox" id="isha">
-                <label for="isha">Isha (Nuit)</label>
-            </div>
-        </div>
-
-        <div class="category">
-            <h2><span class="category-icon">🧹</span> Rangement</h2>
-            <div class="habit-item" onclick="toggleCheckbox('chambre')">
-                <input type="checkbox" id="chambre">
-                <label for="chambre">Ranger ma chambre</label>
-            </div>
-        </div>
-
-        <div class="category">
-            <h2><span class="category-icon">✨</span> Spiritualité</h2>
-            <div class="habit-item" onclick="toggleCheckbox('peches')">
-                <input type="checkbox" id="peches">
-                <label for="peches">Aucun acte en rapport avec les 7 péchés capitaux</label>
-            </div>
-        </div>
+        <!-- HABITUDES DYNAMIQUES (générées en JS) -->
+        <div id="habitsContainer"></div>
 
         <!-- STATS QUOTIDIENNES -->
         <div class="stats">
@@ -181,10 +85,6 @@
                 <div class="next-rank">
                     <span class="next-rank-label">Prochain Rang</span>
                     <div class="next-rank-badge" id="nextRank">E</div>
-                </div>
-                <div class="rank-history">
-                    <h3>📜 Historique</h3>
-                    <div id="rankHistoryList"></div>
                 </div>
             </div>
         </div>
@@ -265,7 +165,6 @@
             </div>
         </div>
 
-
         <!-- QUÊTES -->
         <div class="quest-system">
             <h2>🎯 QUÊTES QUOTIDIENNES</h2>
@@ -287,7 +186,6 @@
         </div>
     </div>
 
-    <!-- JS EXTERNE -->
     <script src="app.js"></script>
 </body>
 </html>
