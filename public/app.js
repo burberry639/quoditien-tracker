@@ -5,6 +5,15 @@
 // Système d'utilisateurs
 let currentUser = null;
 
+// Fonctions de stockage de base (utilise directement localStorage)
+const originalGetItem = (key) => {
+    return localStorage.getItem(key);
+};
+
+const originalSetItem = (key, value) => {
+    localStorage.setItem(key, value);
+};
+
 function getAllUsers() {
     return JSON.parse(originalGetItem('allUsers') || '{}');
 }
@@ -29,15 +38,6 @@ function setCurrentUserData(key, value) {
     users[currentUser][key] = value;
     saveAllUsers(users);
 }
-
-// Remplacer localStorage.getItem et setItem par les versions utilisateur
-const originalGetItem = (key, defaultValue) => {
-    return getCurrentUserData(key, defaultValue);
-};
-
-const originalSetItem = (key, value) => {
-    setCurrentUserData(key, value);
-};
 
 // Configurations par religion
 const religionConfigs = {
