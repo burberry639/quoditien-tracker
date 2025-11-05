@@ -1635,6 +1635,41 @@ window.resetAll = resetAll;
 window.toggleTheme = toggleTheme;
 window.toggleSound = toggleSound;
 window.completeQuest = completeQuest;
+window.showPage = showPage;
+
+/* ========================================
+   NAVIGATION SYSTEM
+======================================== */
+
+function showPage(pageName) {
+    // Cache toutes les pages
+    document.querySelectorAll('.page-content').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // Retire l'état actif de tous les onglets
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Affiche la page sélectionnée
+    const selectedPage = document.getElementById(`page-${pageName}`);
+    if (selectedPage) {
+        selectedPage.classList.add('active');
+    }
+    
+    // Active l'onglet correspondant
+    const tabs = document.querySelectorAll('.nav-tab');
+    const pageIndex = ['daily', 'stats', 'quests', 'leaderboard'].indexOf(pageName);
+    if (tabs[pageIndex]) {
+        tabs[pageIndex].classList.add('active');
+    }
+    
+    // Joue un son si activé
+    if (soundEnabled) {
+        playSound('assets/ui-click.mp3');
+    }
+}
 
 /* ========================================
    FIREBASE REAL-TIME LEADERBOARD

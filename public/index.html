@@ -21,183 +21,215 @@
         <h1>📋 SUIVI QUOTIDIEN</h1>
         <div class="date-display" id="dateDisplay"></div>
 
-        <!-- STREAKS -->
-        <div class="streaks-container">
-            <div class="streak-card">
-                <div class="streak-icon">🔥</div>
-                <div class="streak-info">
-                    <div class="streak-label">Série Actuelle</div>
-                    <div class="streak-value" id="currentStreak">0 jour</div>
+        <!-- NAVIGATION -->
+        <div class="navigation-tabs">
+            <button class="nav-tab active" onclick="showPage('daily')">📋 Quotidien</button>
+            <button class="nav-tab" onclick="showPage('stats')">📊 Stats</button>
+            <button class="nav-tab" onclick="showPage('quests')">🎯 Quêtes</button>
+            <button class="nav-tab" onclick="showPage('leaderboard')">🏆 Classement</button>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="navigation-tabs">
+            <button class="nav-tab active" onclick="showPage('daily')">📋 Quotidien</button>
+            <button class="nav-tab" onclick="showPage('stats')">📊 Stats</button>
+            <button class="nav-tab" onclick="showPage('quests')">🎯 Quêtes</button>
+            <button class="nav-tab" onclick="showPage('leaderboard')">🏆 Classement</button>
+        </div>
+
+        <!-- PAGE: QUOTIDIEN -->
+        <div class="page-content active" id="page-daily">
+            <!-- STREAKS -->
+            <div class="streaks-container">
+                <div class="streak-card">
+                    <div class="streak-icon">🔥</div>
+                    <div class="streak-info">
+                        <div class="streak-label">Série Actuelle</div>
+                        <div class="streak-value" id="currentStreak">0 jour</div>
+                    </div>
+                </div>
+                <div class="streak-card">
+                    <div class="streak-icon">🏆</div>
+                    <div class="streak-info">
+                        <div class="streak-label">Record</div>
+                        <div class="streak-value" id="bestStreak">0 jour</div>
+                    </div>
                 </div>
             </div>
-            <div class="streak-card">
-                <div class="streak-icon">🏆</div>
-                <div class="streak-info">
-                    <div class="streak-label">Record</div>
-                    <div class="streak-value" id="bestStreak">0 jour</div>
+
+            <div class="streak-bonus" id="streakBonus" style="display: none;"></div>
+
+            <!-- PROGRESSION -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+            </div>
+
+            <!-- HABITUDES DYNAMIQUES (générées en JS) -->
+            <div id="habitsContainer"></div>
+
+            <!-- STATS QUOTIDIENNES -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="completedCount">0</div>
+                    <div class="stat-label">Complétées</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="percentCount">0%</div>
+                    <div class="stat-label">Progression</div>
+                </div>
+            </div>
+
+            <button class="reset-btn" onclick="resetAll()"><span>🔄 Réinitialiser</span></button>
+        </div>
+
+        <!-- PAGE: STATS -->
+        <div class="page-content" id="page-stats">
+        <!-- PAGE: STATS -->
+        <div class="page-content" id="page-stats">
+            <!-- SYSTÈME DE RANG -->
+            <div class="rank-system">
+                <h2>🏆 SYSTÈME DE RANG</h2>
+                <div class="rank-card">
+                    <div class="current-rank">
+                        <span class="rank-label">Rang Actuel</span>
+                        <div class="rank-badge" id="currentRank">F</div>
+                    </div>
+                    <div class="rank-progress-container">
+                        <div class="rank-progress-bar">
+                            <div class="rank-progress-fill" id="rankProgressFill" style="width: 0%;">0%</div>
+                        </div>
+                        <div class="rank-info">
+                            <span id="daysCompleted">0</span>/<span id="daysTotal">0</span> jours
+                            <span class="rank-percentage" id="rankPercentage">0%</span>
+                        </div>
+                        <div class="rank-countdown">Reste : <span id="daysRemaining">0</span> jours</div>
+                        <div class="rank-total-progress">Total : <span id="totalProgressPoints">0</span> jours</div>
+                    </div>
+                    <div class="next-rank">
+                        <span class="next-rank-label">Prochain Rang</span>
+                        <div class="next-rank-badge" id="nextRank">E</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS RPG -->
+            <div class="stats-system">
+                <h2>📊 STATISTIQUES RPG</h2>
+                <div class="stats-card">
+                    <div class="stats-display">
+                        <div class="stat-item-detailed">
+                            <div class="stat-icon">💪</div>
+                            <div class="stat-details">
+                                <span class="stat-name">FORCE (STR)</span>
+                                <div class="stat-bar">
+                                    <div class="stat-bar-fill str-bar" id="strBar" style="width: 0%;"></div>
+                                </div>
+                                <span class="stat-value" id="strValue"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item-detailed">
+                            <div class="stat-icon">🧠</div>
+                            <div class="stat-details">
+                                <span class="stat-name">DISCIPLINE (DIS)</span>
+                                <div class="stat-bar">
+                                    <div class="stat-bar-fill dis-bar" id="disBar" style="width: 0%;"></div>
+                                </div>
+                                <span class="stat-value" id="disValue"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item-detailed">
+                            <div class="stat-icon">✨</div>
+                            <div class="stat-details">
+                                <span class="stat-name">SPIRITUALITÉ (SPI)</span>
+                                <div class="stat-bar">
+                                    <div class="stat-bar-fill spi-bar" id="spiBar" style="width: 0%;"></div>
+                                </div>
+                                <span class="stat-value" id="spiValue"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item-detailed">
+                            <div class="stat-icon">💚</div>
+                            <div class="stat-details">
+                                <span class="stat-name">SANTÉ (HP)</span>
+                                <div class="stat-bar">
+                                    <div class="stat-bar-fill hp-bar" id="hpBar" style="width: 0%;"></div>
+                                </div>
+                                <span class="stat-value" id="hpValue"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item-detailed">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-details">
+                                <span class="stat-name">ENDURANCE (END)</span>
+                                <div class="stat-bar">
+                                    <div class="stat-bar-fill end-bar" id="endBar" style="width: 0%;"></div>
+                                </div>
+                                <span class="stat-value" id="endValue"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item-detailed">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-details">
+                                <span class="stat-name">MENTAL (MEN)</span>
+                                <div class="stat-bar">
+                                    <div class="stat-bar-fill men-bar" id="menBar" style="width: 0%;"></div>
+                                </div>
+                                <span class="stat-value" id="menValue"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="radar-chart-container">
+                        <canvas id="radarChart" width="400" height="400"></canvas>
+                    </div>
+                    <div class="power-level">
+                        <div class="power-label">⚡ POWER LEVEL</div>
+                        <div class="power-value" id="powerLevel">0</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="streak-bonus" id="streakBonus" style="display: none;"></div>
-
-        <!-- PROGRESSION -->
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
-        </div>
-
-        <!-- HABITUDES DYNAMIQUES (générées en JS) -->
-        <div id="habitsContainer"></div>
-
-        <!-- STATS QUOTIDIENNES -->
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-number" id="completedCount">0</div>
-                <div class="stat-label">Complétées</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="percentCount">0%</div>
-                <div class="stat-label">Progression</div>
-            </div>
-        </div>
-
-        <button class="reset-btn" onclick="resetAll()"><span>🔄 Réinitialiser</span></button>
-
-        <!-- SYSTÈME DE RANG -->
-        <div class="rank-system">
-            <h2>🏆 SYSTÈME DE RANG</h2>
-            <div class="rank-card">
-                <div class="current-rank">
-                    <span class="rank-label">Rang Actuel</span>
-                    <div class="rank-badge" id="currentRank">F</div>
-                </div>
-                <div class="rank-progress-container">
-                    <div class="rank-progress-bar">
-                        <div class="rank-progress-fill" id="rankProgressFill" style="width: 0%;">0%</div>
+        <!-- PAGE: QUÊTES -->
+        <div class="page-content" id="page-quests">
+        <!-- PAGE: QUÊTES -->
+        <div class="page-content" id="page-quests">
+            <!-- QUÊTES -->
+            <div class="quest-system">
+                <h2>🎯 QUÊTES QUOTIDIENNES</h2>
+                <div class="quest-card">
+                    <div class="quest-description">5 quêtes par jour pour des bonus !</div>
+                    <div class="quest-refresh-timer">⏰ Nouvelles : <span id="questTimer">00:00:00</span></div>
+                    <div id="dailyQuestsList"></div>
+                    <div class="quest-stats">
+                        <div class="quest-completed">
+                            <span class="quest-stat-label">Complétées</span>
+                            <span class="quest-stat-value" id="dailyQuestsCompleted">0/5</span>
+                        </div>
+                        <div class="quest-bonus">
+                            <span class="quest-stat-label">Bonus</span>
+                            <span class="quest-stat-value" id="dailyQuestBonus">+0</span>
+                        </div>
                     </div>
-                    <div class="rank-info">
-                        <span id="daysCompleted">0</span>/<span id="daysTotal">0</span> jours
-                        <span class="rank-percentage" id="rankPercentage">0%</span>
-                    </div>
-                    <div class="rank-countdown">Reste : <span id="daysRemaining">0</span> jours</div>
-                    <div class="rank-total-progress">Total : <span id="totalProgressPoints">0</span> jours</div>
-                </div>
-                <div class="next-rank">
-                    <span class="next-rank-label">Prochain Rang</span>
-                    <div class="next-rank-badge" id="nextRank">E</div>
                 </div>
             </div>
         </div>
 
-        <!-- STATS RPG -->
-        <div class="stats-system">
-            <h2>📊 STATISTIQUES RPG</h2>
-            <div class="stats-card">
-                <div class="stats-display">
-                    <div class="stat-item-detailed">
-                        <div class="stat-icon">💪</div>
-                        <div class="stat-details">
-                            <span class="stat-name">FORCE (STR)</span>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill str-bar" id="strBar" style="width: 0%;"></div>
-                            </div>
-                            <span class="stat-value" id="strValue"></span>
-                        </div>
+        <!-- PAGE: CLASSEMENT -->
+        <div class="page-content" id="page-leaderboard">
+            <!-- CLASSEMENT -->
+            <div class="leaderboard-system">
+                <h2>🏆 CLASSEMENT DES GUERRIERS</h2>
+                <div class="leaderboard-card">
+                    <div class="leaderboard-description">
+                        Compare ton rang avec tes rivaux !
                     </div>
-                    <div class="stat-item-detailed">
-                        <div class="stat-icon">🧠</div>
-                        <div class="stat-details">
-                            <span class="stat-name">DISCIPLINE (DIS)</span>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill dis-bar" id="disBar" style="width: 0%;"></div>
-                            </div>
-                            <span class="stat-value" id="disValue"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item-detailed">
-                        <div class="stat-icon">✨</div>
-                        <div class="stat-details">
-                            <span class="stat-name">SPIRITUALITÉ (SPI)</span>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill spi-bar" id="spiBar" style="width: 0%;"></div>
-                            </div>
-                            <span class="stat-value" id="spiValue"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item-detailed">
-                        <div class="stat-icon">💚</div>
-                        <div class="stat-details">
-                            <span class="stat-name">SANTÉ (HP)</span>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill hp-bar" id="hpBar" style="width: 0%;"></div>
-                            </div>
-                            <span class="stat-value" id="hpValue"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item-detailed">
-                        <div class="stat-icon">⚡</div>
-                        <div class="stat-details">
-                            <span class="stat-name">ENDURANCE (END)</span>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill end-bar" id="endBar" style="width: 0%;"></div>
-                            </div>
-                            <span class="stat-value" id="endValue"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item-detailed">
-                        <div class="stat-icon">🎯</div>
-                        <div class="stat-details">
-                            <span class="stat-name">MENTAL (MEN)</span>
-                            <div class="stat-bar">
-                                <div class="stat-bar-fill men-bar" id="menBar" style="width: 0%;"></div>
-                            </div>
-                            <span class="stat-value" id="menValue"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="radar-chart-container">
-                    <canvas id="radarChart" width="400" height="400"></canvas>
-                </div>
-                <div class="power-level">
-                    <div class="power-label">⚡ POWER LEVEL</div>
-                    <div class="power-value" id="powerLevel">0</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- QUÊTES -->
-        <div class="quest-system">
-            <h2>🎯 QUÊTES QUOTIDIENNES</h2>
-            <div class="quest-card">
-                <div class="quest-description">5 quêtes par jour pour des bonus !</div>
-                <div class="quest-refresh-timer">⏰ Nouvelles : <span id="questTimer">00:00:00</span></div>
-                <div id="dailyQuestsList"></div>
-                <div class="quest-stats">
-                    <div class="quest-completed">
-                        <span class="quest-stat-label">Complétées</span>
-                        <span class="quest-stat-value" id="dailyQuestsCompleted">0/5</span>
-                    </div>
-                    <div class="quest-bonus">
-                        <span class="quest-stat-label">Bonus</span>
-                        <span class="quest-stat-value" id="dailyQuestBonus">+0</span>
-                    </div>
+                    <div id="leaderboardList"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="app.js"></script>
-        <!-- CLASSEMENT -->
-        <div class="leaderboard-system">
-            <h2>🏆 CLASSEMENT DES GUERRIERS</h2>
-            <div class="leaderboard-card">
-                <div class="leaderboard-description">
-                    Compare ton rang avec tes rivaux !
-                </div>
-                <div id="leaderboardList"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- FIREBASE + APP -->
     <script type="module">

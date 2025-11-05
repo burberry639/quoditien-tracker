@@ -35,6 +35,89 @@
 }
 
 /* ========================================
+   NAVIGATION SYSTEM
+======================================== */
+
+.navigation-tabs {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-radius: 15px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-primary) var(--bg-card);
+}
+
+.navigation-tabs::-webkit-scrollbar {
+    height: 6px;
+}
+
+.navigation-tabs::-webkit-scrollbar-track {
+    background: var(--bg-card);
+    border-radius: 10px;
+}
+
+.navigation-tabs::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 10px;
+}
+
+.nav-tab {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 20px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-bright);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.nav-tab:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.nav-tab.active {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-color: var(--accent-primary);
+    color: #000;
+    box-shadow: 0 0 20px var(--accent-glow);
+    font-weight: 700;
+}
+
+/* PAGE CONTENT */
+.page-content {
+    display: none;
+    animation: fadeInUp 0.4s ease;
+}
+
+.page-content.active {
+    display: block;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
    RESET & BASE
 ======================================== */
 
