@@ -2,6 +2,43 @@
    CONFIGURATION DE BASE
 ======================================== */
 
+// Système d'utilisateurs
+let currentUser = null;
+
+function getAllUsers() {
+    return JSON.parse(originalGetItem('allUsers') || '{}');
+}
+
+function saveAllUsers(users) {
+    originalSetItem('allUsers', JSON.stringify(users));
+}
+
+function getCurrentUserData(key, defaultValue = null) {
+    if (!currentUser) return defaultValue;
+    const users = getAllUsers();
+    const userData = users[currentUser] || {};
+    return userData[key] !== undefined ? userData[key] : defaultValue;
+}
+
+function setCurrentUserData(key, value) {
+    if (!currentUser) return;
+    const users = getAllUsers();
+    if (!users[currentUser]) {
+        users[currentUser] = {};
+    }
+    users[currentUser][key] = value;
+    saveAllUsers(users);
+}
+
+// Remplacer localStorage.getItem et setItem par les versions utilisateur
+const originalGetItem = (key, defaultValue) => {
+    return getCurrentUserData(key, defaultValue);
+};
+
+const originalSetItem = (key, value) => {
+    setCurrentUserData(key, value);
+};
+
 // Configurations par religion
 const religionConfigs = {
     islam: {
@@ -121,15 +158,33 @@ const spiritualStatMapping = {
 const statMapping = { ...baseStatMapping, ...spiritualStatMapping };
 
 const rankSystem = [
-    { name: 'F', days: 14, color: '#808080' },
-    { name: 'E', days: 21, color: '#8B4513' },
-    { name: 'D', days: 28, color: '#CD7F32' },
-    { name: 'C', days: 35, color: '#C0C0C0' },
-    { name: 'B', days: 42, color: '#4169E1' },
-    { name: 'A', days: 56, color: '#9370DB' },
-    { name: 'S', days: 70, color: '#FFD700' },
-    { name: 'SS', days: 90, color: '#FF6347' },
-    { name: 'SSS', days: 120, color: '#FF1493' }
+    { name: 'F', days: 14, color: '#8B4513' },
+    { name: 'E', days: 14, color: '#CD853F' },
+    { name: 'D', days: 14, color: '#DAA520' },
+    { name: 'C', days: 14, color: '#FFD700' },
+    { name: 'B', days: 14, color: '#32CD32' },
+    { name: 'A', days: 14, color: '#00CED1' },
+    { name: 'S', days: 14, color: '#1E90FF' },
+    { name: 'SS', days: 14, color: '#4169E1' },
+    { name: 'SSS', days: 14, color: '#8A2BE2' },
+    { name: 'SR', days: 14, color: '#9370DB' },
+    { name: 'SR+', days: 14, color: '#BA55D3' },
+    { name: 'SSR', days: 14, color: '#FF1493' },
+    { name: 'SSR+', days: 14, color: '#FF69B4' },
+    { name: 'UR', days: 14, color: '#FF4500' },
+    { name: 'UR+', days: 14, color: '#FF6347' },
+    { name: 'LR', days: 14, color: '#FFD700' },
+    { name: 'LR+', days: 14, color: '#FFA500' },
+    { name: 'MR', days: 14, color: '#DC143C' },
+    { name: 'MR+', days: 14, color: '#B22222' },
+    { name: 'X', days: 14, color: '#8B0000' },
+    { name: 'XX', days: 21, color: '#800080' },
+    { name: 'XXX', days: 21, color: '#4B0082' },
+    { name: 'EX', days: 21, color: '#00FFFF' },
+    { name: 'DX', days: 21, color: '#00CED1' },
+    { name: 'INHUMAIN', days: 21, color: '#FF00FF' },
+    { name: 'DIVIN', days: 21, color: '#FFD700' },
+    { name: 'INCONNU', days: 21, color: '#000000' }
 ];
 
 let soundEnabled = true;
@@ -170,12 +225,27 @@ function showReligionSelector() {
                 color: #00d9ff;
                 margin-bottom: 20px;
                 text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
-            ">⚔️ CHOISIS TON CHEMIN ⚔️</h1>
+            ">⚔️ CRÉATION DE PERSONNAGE ⚔️</h1>
+            
+            <div style="margin-bottom: 30px;">
+                <input type="text" id="usernameInput" placeholder="Entre ton pseudo..." style="
+                    width: 100%;
+                    padding: 15px;
+                    font-size: 1.2em;
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 2px solid #00d9ff;
+                    color: white;
+                    border-radius: 10px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                ">
+            </div>
+            
             <p style="
                 font-size: 1.2em;
                 color: #aaa;
-                margin-bottom: 40px;
-            ">Sélectionne ta configuration spirituelle</p>
+                margin-bottom: 30px;
+            ">Choisis ta voie spirituelle</p>
             
             <div style="
                 display: grid;
@@ -183,7 +253,7 @@ function showReligionSelector() {
                 gap: 20px;
                 margin-bottom: 30px;
             ">
-                <button onclick="selectReligion('islam')" style="
+                <button onclick="createUser('islam')" class="religion-btn" style="
                     padding: 30px 20px;
                     background: linear-gradient(135deg, #00cc66, #008844);
                     border: none;
@@ -198,7 +268,7 @@ function showReligionSelector() {
                     <div style="font-weight: bold;">ISLAM</div>
                 </button>
                 
-                <button onclick="selectReligion('christianity')" style="
+                <button onclick="createUser('christianity')" class="religion-btn" style="
                     padding: 30px 20px;
                     background: linear-gradient(135deg, #667eea, #4a5fd4);
                     border: none;
@@ -213,7 +283,7 @@ function showReligionSelector() {
                     <div style="font-weight: bold;">CHRISTIANISME</div>
                 </button>
                 
-                <button onclick="selectReligion('neutral')" style="
+                <button onclick="createUser('neutral')" class="religion-btn" style="
                     padding: 30px 20px;
                     background: linear-gradient(135deg, #ffa500, #ff6b00);
                     border: none;
@@ -228,20 +298,178 @@ function showReligionSelector() {
                     <div style="font-weight: bold;">NEUTRE</div>
                 </button>
             </div>
-            
-            <p style="
-                font-size: 0.9em;
-                color: #666;
-                margin-top: 20px;
-            ">Tu pourras changer ce choix plus tard dans les paramètres</p>
         </div>
     `;
     
     document.body.appendChild(overlay);
 }
 
+function createUser(religion) {
+    const username = document.getElementById('usernameInput').value.trim();
+    
+    if (!username) {
+        alert('⚠️ Entre un pseudo !');
+        return;
+    }
+    
+    if (username.length < 3) {
+        alert('⚠️ Le pseudo doit faire au moins 3 caractères !');
+        return;
+    }
+    
+    const users = getAllUsers();
+    if (users[username]) {
+        alert('⚠️ Ce pseudo existe déjà ! Choisis-en un autre.');
+        return;
+    }
+    
+    // Créer le nouvel utilisateur
+    users[username] = {
+        religion: religion,
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString()
+    };
+    saveAllUsers(users);
+    
+    // Définir comme utilisateur actuel
+    originalSetItem('currentUser', username);
+    currentUser = username;
+    
+    selectReligion(religion);
+}
+
+function showUserSelector() {
+    const users = getAllUsers();
+    const userList = Object.keys(users);
+    
+    if (userList.length === 0) {
+        showReligionSelector();
+        return;
+    }
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'userOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(10px);
+        overflow-y: auto;
+    `;
+    
+    let usersHTML = '';
+    userList.forEach(username => {
+        const userData = users[username];
+        const config = religionConfigs[userData.religion];
+        usersHTML += `
+            <button onclick="selectUser('${username}')" style="
+                padding: 20px;
+                background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 150, 200, 0.1));
+                border: 2px solid #00d9ff;
+                border-radius: 15px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s;
+                text-align: left;
+                width: 100%;
+                margin-bottom: 15px;
+            ">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 2em;">${config.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 1.3em; font-weight: bold;">${username}</div>
+                        <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
+                    </div>
+                </div>
+            </button>
+        `;
+    });
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 600px;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #00d9ff;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 217, 255, 0.5);
+        ">
+            <h1 style="
+                font-size: 2.5em;
+                color: #00d9ff;
+                margin-bottom: 30px;
+                text-align: center;
+                text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
+            ">👥 SÉLECTIONNE TON PROFIL</h1>
+            
+            <div style="margin-bottom: 20px;">
+                ${usersHTML}
+            </div>
+            
+            <button onclick="showReligionSelector(); document.getElementById('userOverlay').remove();" style="
+                width: 100%;
+                padding: 15px;
+                background: linear-gradient(135deg, #ff6b6b, #ff4444);
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-size: 1.1em;
+                font-weight: bold;
+                cursor: pointer;
+            ">
+                ➕ CRÉER UN NOUVEAU PROFIL
+            </button>
+            
+            <button onclick="showLeaderboard()" style="
+                width: 100%;
+                margin-top: 15px;
+                padding: 15px;
+                background: linear-gradient(135deg, #ffd700, #ffaa00);
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-size: 1.1em;
+                font-weight: bold;
+                cursor: pointer;
+            ">
+                🏆 VOIR LE CLASSEMENT
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function selectUser(username) {
+    currentUser = username;
+    originalSetItem('currentUser', username);
+    
+    const users = getAllUsers();
+    const userData = users[username];
+    
+    // Mettre à jour la dernière activité
+    userData.lastActive = new Date().toISOString();
+    users[username] = userData;
+    saveAllUsers(users);
+    
+    const overlay = document.getElementById('userOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    loadReligionConfig();
+    initializeApp();
+}
+
 function selectReligion(religion) {
-    localStorage.setItem('selectedReligion', religion);
+    originalSetItem('selectedReligion', religion);
     currentConfig = religionConfigs[religion];
     habits = currentConfig.habits;
     
@@ -273,12 +501,25 @@ function updateHabitLabels() {
 }
 
 function loadReligionConfig() {
-    const savedReligion = localStorage.getItem('selectedReligion');
-    if (!savedReligion) {
-        showReligionSelector();
+    // Charger l'utilisateur actuel
+    currentUser = originalGetItem('currentUser');
+    
+    if (!currentUser) {
+        showUserSelector();
         return false;
     }
-    currentConfig = religionConfigs[savedReligion];
+    
+    // Vérifier que l'utilisateur existe
+    const users = getAllUsers();
+    if (!users[currentUser]) {
+        localStorage.removeItem('currentUser');
+        showUserSelector();
+        return false;
+    }
+    
+    // Charger la religion de l'utilisateur
+    const userData = users[currentUser];
+    currentConfig = religionConfigs[userData.religion];
     habits = currentConfig.habits;
     return true;
 }
@@ -325,18 +566,18 @@ function toggleTheme() {
     const currentTheme = html.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
+    originalSetItem('theme', newTheme);
     playSound('click');
 }
 
 function loadTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = originalGetItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
 }
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
-    localStorage.setItem('soundEnabled', soundEnabled);
+    originalSetItem('soundEnabled', soundEnabled);
     playSound('click');
 }
 
@@ -356,7 +597,7 @@ function toggleCheckbox(id) {
 
 function saveHabits() {
     const today = getTodayDate();
-    const history = JSON.parse(localStorage.getItem('habitHistory') || '{}');
+    const history = JSON.parse(originalGetItem('habitHistory') || '{}');
     
     if (!history[today]) {
         history[today] = { habits: {}, date: today };
@@ -367,12 +608,12 @@ function saveHabits() {
         history[today].habits[habit] = checkbox.checked;
     });
     
-    localStorage.setItem('habitHistory', JSON.stringify(history));
+    originalSetItem('habitHistory', JSON.stringify(history));
 }
 
 function loadHabits() {
     const today = getTodayDate();
-    const history = JSON.parse(localStorage.getItem('habitHistory') || '{}');
+    const history = JSON.parse(originalGetItem('habitHistory') || '{}');
     
     if (history[today] && history[today].habits) {
         habits.forEach(habit => {
@@ -407,13 +648,13 @@ function updateProgress() {
 
 function addRankProgress(points) {
     const today = getTodayDate();
-    const lastUpdate = localStorage.getItem('lastRankUpdate') || '';
+    const lastUpdate = originalGetItem('lastRankUpdate') || '';
     
     if (lastUpdate !== today) {
-        let currentPoints = parseFloat(localStorage.getItem('rankProgressPoints') || '0');
+        let currentPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
         currentPoints += points;
-        localStorage.setItem('rankProgressPoints', currentPoints.toString());
-        localStorage.setItem('lastRankUpdate', today);
+        originalSetItem('rankProgressPoints', currentPoints.toString());
+        originalSetItem('lastRankUpdate', today);
         updateRankSystem();
     }
 }
@@ -436,7 +677,7 @@ function resetAll() {
 ======================================== */
 
 function updateRankSystem() {
-    const progressPoints = parseFloat(localStorage.getItem('rankProgressPoints') || '0');
+    const progressPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
     
     let remainingPoints = progressPoints;
     let currentIndex = 0;
@@ -483,7 +724,7 @@ function updateRankSystem() {
 ======================================== */
 
 function calculateStats() {
-    const history = JSON.parse(localStorage.getItem('habitHistory') || '{}');
+    const history = JSON.parse(originalGetItem('habitHistory') || '{}');
     const dates = Object.keys(history).sort().slice(-30);
     
     const stats = { str: 0, dis: 0, spi: 0, hp: 0, end: 0, men: 0 };
@@ -684,9 +925,9 @@ function updateStreaks() {
     });
     const todayPerfect = completed === habits.length;
     
-    let currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
-    let bestStreak = parseInt(localStorage.getItem('bestStreak') || '0');
-    let lastStreakDate = localStorage.getItem('lastStreakDate') || '';
+    let currentStreak = parseInt(originalGetItem('currentStreak') || '0');
+    let bestStreak = parseInt(originalGetItem('bestStreak') || '0');
+    let lastStreakDate = originalGetItem('lastStreakDate') || '';
     
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -696,12 +937,12 @@ function updateStreaks() {
         if (lastStreakDate === yesterdayStr) {
             if (todayPerfect) {
                 currentStreak++;
-                localStorage.setItem('lastStreakDate', today);
+                originalSetItem('lastStreakDate', today);
             }
         } else if (lastStreakDate !== today) {
             if (todayPerfect) {
                 currentStreak = 1;
-                localStorage.setItem('lastStreakDate', today);
+                originalSetItem('lastStreakDate', today);
             } else {
                 currentStreak = 0;
             }
@@ -709,16 +950,16 @@ function updateStreaks() {
         
         if (currentStreak > bestStreak) {
             bestStreak = currentStreak;
-            localStorage.setItem('bestStreak', bestStreak.toString());
+            originalSetItem('bestStreak', bestStreak.toString());
         }
         
-        localStorage.setItem('currentStreak', currentStreak.toString());
+        originalSetItem('currentStreak', currentStreak.toString());
     } else if (todayPerfect && currentStreak === 0) {
         currentStreak = 1;
-        localStorage.setItem('currentStreak', '1');
-        localStorage.setItem('lastStreakDate', today);
+        originalSetItem('currentStreak', '1');
+        originalSetItem('lastStreakDate', today);
         if (bestStreak === 0) {
-            localStorage.setItem('bestStreak', '1');
+            originalSetItem('bestStreak', '1');
             bestStreak = 1;
         }
     }
@@ -752,13 +993,13 @@ const allQuests = [
 
 function initDailyQuests() {
     const today = getTodayDate();
-    const savedDate = localStorage.getItem('questsDate');
+    const savedDate = originalGetItem('questsDate');
     
     if (savedDate !== today) {
         const shuffled = [...allQuests].sort(() => Math.random() - 0.5);
         const dailyQuests = shuffled.slice(0, 5).map(q => q.id);
-        localStorage.setItem('dailyQuests', JSON.stringify(dailyQuests));
-        localStorage.setItem('questsDate', today);
+        originalSetItem('dailyQuests', JSON.stringify(dailyQuests));
+        originalSetItem('questsDate', today);
         
         dailyQuests.forEach(qid => localStorage.removeItem('quest_' + qid));
     }
@@ -769,7 +1010,7 @@ function initDailyQuests() {
 }
 
 function displayDailyQuests() {
-    const dailyQuests = JSON.parse(localStorage.getItem('dailyQuests') || '[]');
+    const dailyQuests = JSON.parse(originalGetItem('dailyQuests') || '[]');
     const container = document.getElementById('dailyQuestsList');
     if (!container) return;
     
@@ -779,7 +1020,7 @@ function displayDailyQuests() {
         const quest = allQuests.find(q => q.id === questId);
         if (!quest) return;
         
-        const completed = localStorage.getItem('quest_' + questId) === 'true';
+        const completed = originalGetItem('quest_' + questId) === 'true';
         
         const questDiv = document.createElement('div');
         questDiv.className = 'quest-item' + (completed ? ' completed' : '');
@@ -800,12 +1041,12 @@ function displayDailyQuests() {
 }
 
 function completeQuest(questId) {
-    localStorage.setItem('quest_' + questId, 'true');
+    originalSetItem('quest_' + questId, 'true');
     
     // +0.5 jour de rang par quête !
-    let currentPoints = parseFloat(localStorage.getItem('rankProgressPoints') || '0');
+    let currentPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
     currentPoints += 0.5;
-    localStorage.setItem('rankProgressPoints', currentPoints.toString());
+    originalSetItem('rankProgressPoints', currentPoints.toString());
     
     playSound('levelUp');
     displayDailyQuests();
@@ -813,11 +1054,11 @@ function completeQuest(questId) {
 }
 
 function updateQuestStats() {
-    const dailyQuests = JSON.parse(localStorage.getItem('dailyQuests') || '[]');
+    const dailyQuests = JSON.parse(originalGetItem('dailyQuests') || '[]');
     let completed = 0;
     
     dailyQuests.forEach(qid => {
-        if (localStorage.getItem('quest_' + qid) === 'true') {
+        if (originalGetItem('quest_' + qid) === 'true') {
             completed++;
         }
     });
@@ -856,6 +1097,7 @@ function initializeApp() {
     updateRankSystem();
     updateStreaks();
     initDailyQuests();
+    initLeaderboard();
     
     window.addEventListener('resize', function() {
         updateStatsDisplay();
@@ -942,3 +1184,439 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Fonction globale pour sélection (appelée depuis HTML inline)
 window.selectReligion = selectReligion;
+
+/* ========================================
+   SYSTÈME DE LEADERBOARD
+======================================== */
+
+function showLeaderboard() {
+    const users = getAllUsers();
+    const userList = Object.keys(users);
+    
+    if (userList.length === 0) {
+        alert('Aucun utilisateur pour le moment !');
+        return;
+    }
+    
+    // Calculer les stats de chaque utilisateur
+    const rankings = userList.map(username => {
+        const userData = users[username];
+        const savedUser = currentUser;
+        currentUser = username;
+        
+        const rankIndex = parseInt(originalGetItem('currentRankIndex', '0'));
+        const progressPoints = parseFloat(originalGetItem('rankProgressPoints', '0'));
+        const currentStreak = parseInt(originalGetItem('currentStreak', '0'));
+        const bestStreak = parseInt(originalGetItem('bestStreak', '0'));
+        
+        // Calculer le power level
+        const history = JSON.parse(originalGetItem('habitHistory', '{}'));
+        let powerLevel = 0;
+        Object.keys(history).forEach(date => {
+            const dayData = history[date];
+            if (dayData && dayData.habits) {
+                Object.keys(dayData.habits).forEach(habit => {
+                    if (dayData.habits[habit]) powerLevel += 1;
+                });
+            }
+        });
+        
+        currentUser = savedUser;
+        
+        return {
+            username,
+            religion: userData.religion,
+            rankIndex,
+            progressPoints,
+            currentStreak,
+            bestStreak,
+            powerLevel,
+            rank: rankSystem[Math.min(rankIndex, rankSystem.length - 1)].name
+        };
+    });
+    
+    // Trier par progression totale
+    rankings.sort((a, b) => b.progressPoints - a.progressPoints);
+    
+    let leaderboardHTML = '';
+    rankings.forEach((user, index) => {
+        const config = religionConfigs[user.religion];
+        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+        const isCurrentUser = user.username === currentUser;
+        
+        leaderboardHTML += `
+            <div style="
+                padding: 20px;
+                background: ${isCurrentUser ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2))' : 'linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(0, 150, 200, 0.05))'};
+                border: 2px solid ${isCurrentUser ? '#ffd700' : '#00d9ff'};
+                border-radius: 15px;
+                margin-bottom: 15px;
+                ${isCurrentUser ? 'box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);' : ''}
+            ">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <div style="font-size: 2em; min-width: 40px;">${medal}</div>
+                    <div style="font-size: 2em;">${config.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: ${isCurrentUser ? '#ffd700' : 'white'};">
+                            ${user.username} ${isCurrentUser ? '(TOI)' : ''}
+                        </div>
+                        <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; font-size: 0.9em;">
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: #aaa; margin-bottom: 5px;">RANG</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #ffd700;">${user.rank}</div>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: #aaa; margin-bottom: 5px;">POWER LEVEL</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #00d9ff;">${user.powerLevel}</div>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: #aaa; margin-bottom: 5px;">STREAK</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #ff6b6b;">🔥 ${user.currentStreak}</div>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <div style="color: #aaa; margin-bottom: 5px;">RECORD</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #00cc66;">🏆 ${user.bestStreak}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'leaderboardOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(10px);
+        overflow-y: auto;
+        padding: 20px;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        ">
+            <h1 style="
+                font-size: 2.5em;
+                color: #ffd700;
+                margin-bottom: 30px;
+                text-align: center;
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            ">🏆 CLASSEMENT DES GUERRIERS 🏆</h1>
+            
+            <div>${leaderboardHTML}</div>
+            
+            <button onclick="document.getElementById('leaderboardOverlay').remove()" style="
+                width: 100%;
+                margin-top: 20px;
+                padding: 15px;
+                background: linear-gradient(135deg, #667eea, #4a5fd4);
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-size: 1.1em;
+                font-weight: bold;
+                cursor: pointer;
+            ">
+                ✖️ FERMER
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+// Exposer les fonctions globalement
+window.selectReligion = selectReligion;
+window.createUser = createUser;
+window.selectUser = selectUser;
+window.showLeaderboard = showLeaderboard;
+
+/* ========================================
+   SYSTÈME DE CLASSEMENT
+======================================== */
+
+function showUsernamePrompt() {
+    const savedUsername = localStorage.getItem('username');
+    if (savedUsername) return;
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10001;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 500px;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #00d9ff;
+            border-radius: 20px;
+            text-align: center;
+        ">
+            <h2 style="color: #00d9ff; margin-bottom: 20px;">⚔️ CHOISIS TON NOM DE GUERRIER ⚔️</h2>
+            <input type="text" id="usernameInput" placeholder="Entre ton pseudo..." style="
+                width: 100%;
+                padding: 15px;
+                font-size: 1.2em;
+                background: #0f1419;
+                border: 2px solid #00d9ff;
+                color: white;
+                border-radius: 10px;
+                margin-bottom: 20px;
+            ">
+            <button onclick="saveUsername()" style="
+                padding: 15px 40px;
+                background: linear-gradient(135deg, #00d9ff, #0088cc);
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-size: 1.2em;
+                font-weight: bold;
+                cursor: pointer;
+            ">CONFIRMER</button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function saveUsername() {
+    const input = document.getElementById('usernameInput');
+    const username = input.value.trim();
+    
+    if (!username) {
+        alert('Entre un pseudo !');
+        return;
+    }
+    
+    localStorage.setItem('username', username);
+    document.querySelector('[style*="z-index: 10001"]').remove();
+    initLeaderboard();
+}
+
+function getCurrentUserRank() {
+    const progressPoints = parseFloat(localStorage.getItem('rankProgressPoints') || '0');
+    let currentIndex = 0;
+    let remainingPoints = progressPoints;
+    
+    for (let i = 0; i < rankSystem.length; i++) {
+        if (remainingPoints >= rankSystem[i].days) {
+            remainingPoints -= rankSystem[i].days;
+            currentIndex++;
+        } else {
+            break;
+        }
+    }
+    
+    if (currentIndex >= rankSystem.length) {
+        currentIndex = rankSystem.length - 1;
+    }
+    
+    return rankSystem[currentIndex].name;
+}
+
+function initLeaderboard() {
+    const username = localStorage.getItem('username');
+    if (!username) {
+        showUsernamePrompt();
+        return;
+    }
+    
+    displayLeaderboard();
+}
+
+function displayLeaderboard() {
+    const container = document.getElementById('leaderboardList');
+    if (!container) return;
+    
+    const username = localStorage.getItem('username');
+    const religion = localStorage.getItem('selectedReligion');
+    const currentRank = getCurrentUserRank();
+    
+    const religionIcons = {
+        islam: '☪️',
+        christianity: '✝️',
+        neutral: '🌟'
+    };
+    
+    // Liste des utilisateurs (toi + ceux que tu as ajoutés)
+    let users = JSON.parse(localStorage.getItem('leaderboardUsers') || '[]');
+    
+    // Ajouter/mettre à jour ton propre profil
+    const myProfile = {
+        username: username,
+        rank: currentRank,
+        religion: religion,
+        isMe: true
+    };
+    
+    users = users.filter(u => u.username !== username);
+    users.push(myProfile);
+    
+    // Trier par rang (du meilleur au moins bon)
+    const rankValues = {};
+    rankSystem.forEach((r, i) => rankValues[r.name] = i);
+    users.sort((a, b) => rankValues[b.rank] - rankValues[a.rank]);
+    
+    container.innerHTML = '';
+    
+    users.forEach((user, index) => {
+        const rank = rankSystem.find(r => r.name === user.rank);
+        const userDiv = document.createElement('div');
+        userDiv.className = 'leaderboard-item' + (user.isMe ? ' my-rank' : '');
+        
+        userDiv.innerHTML = `
+            <div class="leaderboard-position">#${index + 1}</div>
+            <div class="leaderboard-user">
+                <span class="leaderboard-icon">${religionIcons[user.religion] || '🌟'}</span>
+                <span class="leaderboard-username">${user.username}${user.isMe ? ' (TOI)' : ''}</span>
+            </div>
+            <div class="leaderboard-rank" style="background: ${rank.color};">${user.rank}</div>
+        `;
+        
+        container.appendChild(userDiv);
+    });
+    
+    localStorage.setItem('leaderboardUsers', JSON.stringify(users));
+}
+
+function showAddUserDialog() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10002;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 500px;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #ffa500;
+            border-radius: 20px;
+            text-align: center;
+        ">
+            <h2 style="color: #ffa500; margin-bottom: 20px;">➕ AJOUTER UN RIVAL</h2>
+            <input type="text" id="friendUsernameInput" placeholder="Pseudo de ton pote..." style="
+                width: 100%;
+                padding: 15px;
+                font-size: 1.2em;
+                background: #0f1419;
+                border: 2px solid #ffa500;
+                color: white;
+                border-radius: 10px;
+                margin-bottom: 15px;
+            ">
+            <select id="friendReligionInput" style="
+                width: 100%;
+                padding: 15px;
+                font-size: 1.2em;
+                background: #0f1419;
+                border: 2px solid #ffa500;
+                color: white;
+                border-radius: 10px;
+                margin-bottom: 15px;
+            ">
+                <option value="islam">☪️ Islam</option>
+                <option value="christianity">✝️ Christianisme</option>
+                <option value="neutral">🌟 Neutre</option>
+            </select>
+            <select id="friendRankInput" style="
+                width: 100%;
+                padding: 15px;
+                font-size: 1.2em;
+                background: #0f1419;
+                border: 2px solid #ffa500;
+                color: white;
+                border-radius: 10px;
+                margin-bottom: 20px;
+            ">
+                ${rankSystem.map(r => `<option value="${r.name}">${r.name}</option>`).join('')}
+            </select>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="addFriend()" style="
+                    flex: 1;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #ffa500, #ff6b00);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.2em;
+                    font-weight: bold;
+                    cursor: pointer;
+                ">AJOUTER</button>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+                    flex: 1;
+                    padding: 15px;
+                    background: #444;
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.2em;
+                    cursor: pointer;
+                ">ANNULER</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function addFriend() {
+    const username = document.getElementById('friendUsernameInput').value.trim();
+    const religion = document.getElementById('friendReligionInput').value;
+    const rank = document.getElementById('friendRankInput').value;
+    
+    if (!username) {
+        alert('Entre un pseudo !');
+        return;
+    }
+    
+    let users = JSON.parse(localStorage.getItem('leaderboardUsers') || '[]');
+    users.push({ username, rank, religion, isMe: false });
+    localStorage.setItem('leaderboardUsers', JSON.stringify(users));
+    
+    document.querySelector('[style*="z-index: 10002"]').remove();
+    displayLeaderboard();
+}
+
+window.saveUsername = saveUsername;
+window.addFriend = addFriend;
+window.showAddUserDialog = showAddUserDialog;
