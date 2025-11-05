@@ -1758,4 +1758,56 @@ function updateMyRankOnFirebase() {
     }
 }
 
-// Remplacer l'ancien initLeaderboard par Firebase
+/* ========================================
+   INITIALISATION
+======================================== */
+
+// Attendre que Firebase soit chargé
+setTimeout(() => {
+    if (window.firebaseDb) {
+        displayFirebaseLeaderboard();
+    }
+}, 1000);
+
+// Initialiser l'application au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier si l'utilisateur existe
+    const savedUsername = localStorage.getItem('username');
+    const savedReligion = localStorage.getItem('selectedReligion');
+    
+    if (!savedUsername || !savedReligion) {
+        // Afficher le sélecteur de religion
+        showReligionSelector();
+    } else {
+        // Charger la configuration et initialiser
+        currentUser = savedUsername;
+        currentConfig = religionConfigs[savedReligion];
+        habits = currentConfig.habits;
+        
+        // Initialiser toutes les fonctions
+        initApp();
+    }
+});
+
+function initApp() {
+    updateDate();
+    loadHabits();
+    updateStatsDisplay();
+    updateRankSystem();
+    calculateStats();
+    initDailyQuests();
+    displayDailyQuests();
+    updateQuestTimer();
+    
+    // Mettre à jour le timer toutes les secondes
+    setInterval(updateQuestTimer, 1000);
+    
+    // Afficher le leaderboard Firebase
+    if (window.firebaseDb) {
+        displayFirebaseLeaderboard();
+    }
+    
+    // Afficher la page quotidien par défaut
+    showPage('daily');
+}
+
