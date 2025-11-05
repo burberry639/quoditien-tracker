@@ -469,7 +469,7 @@ function selectUser(username) {
 }
 
 function selectReligion(religion) {
-    originalSetItem('selectedReligion', religion);
+    localStorage.setItem('selectedReligion', religion);
     currentConfig = religionConfigs[religion];
     habits = currentConfig.habits;
     
@@ -479,7 +479,6 @@ function selectReligion(religion) {
         setTimeout(() => overlay.remove(), 300);
     }
     
-    updateHabitLabels();
     initializeApp();
 }
 
@@ -1346,7 +1345,6 @@ function showLeaderboard() {
 }
 
 // Exposer les fonctions globalement
-window.selectReligion = selectReligion;
 window.createUser = createUser;
 window.selectUser = selectUser;
 window.showLeaderboard = showLeaderboard;
@@ -1620,3 +1618,10 @@ function addFriend() {
 window.saveUsername = saveUsername;
 window.addFriend = addFriend;
 window.showAddUserDialog = showAddUserDialog;
+
+// EXPOSE TOUTES LES FONCTIONS NÉCESSAIRES
+window.toggleCheckbox = toggleCheckbox;
+window.resetAll = resetAll;
+window.toggleTheme = toggleTheme;
+window.toggleSound = toggleSound;
+window.completeQuest = completeQuest;
