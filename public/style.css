@@ -118,6 +118,255 @@
 }
 
 /* ========================================
+   PARTICLE EFFECTS SYSTEM
+======================================== */
+
+/* Conteneur de particules */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* Particule de base */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleFloat 3s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+    0%, 100% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(var(--drift, 20px)) scale(0.5);
+        opacity: 0;
+    }
+}
+
+/* Effets de rang (autour du badge de rang) */
+.rank-badge {
+    position: relative;
+    overflow: visible;
+}
+
+/* Particules selon le rang */
+.rank-particles-low {
+    animation: rankGlowLow 2s ease-in-out infinite;
+}
+
+.rank-particles-mid {
+    animation: rankGlowMid 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px currentColor);
+}
+
+.rank-particles-high {
+    animation: rankGlowHigh 1s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 30px currentColor);
+}
+
+.rank-particles-legendary {
+    animation: rankGlowLegendary 0.8s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px currentColor) drop-shadow(0 0 50px currentColor);
+}
+
+@keyframes rankGlowLow {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+}
+
+@keyframes rankGlowMid {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 10px currentColor); }
+    50% { filter: brightness(1.3) drop-shadow(0 0 15px currentColor); }
+}
+
+@keyframes rankGlowHigh {
+    0%, 100% { 
+        filter: brightness(1) drop-shadow(0 0 20px currentColor); 
+        transform: scale(1);
+    }
+    50% { 
+        filter: brightness(1.5) drop-shadow(0 0 30px currentColor); 
+        transform: scale(1.05);
+    }
+}
+
+@keyframes rankGlowLegendary {
+    0%, 100% { 
+        filter: brightness(1.2) drop-shadow(0 0 30px currentColor) hue-rotate(0deg);
+        transform: scale(1) rotate(0deg);
+    }
+    25% {
+        filter: brightness(1.5) drop-shadow(0 0 40px currentColor) hue-rotate(90deg);
+        transform: scale(1.08) rotate(5deg);
+    }
+    50% { 
+        filter: brightness(1.8) drop-shadow(0 0 50px currentColor) hue-rotate(180deg);
+        transform: scale(1.1) rotate(0deg);
+    }
+    75% {
+        filter: brightness(1.5) drop-shadow(0 0 40px currentColor) hue-rotate(270deg);
+        transform: scale(1.08) rotate(-5deg);
+    }
+}
+
+/* Effets de stats (autour des barres de stats) */
+.stat-bar-fill {
+    position: relative;
+    overflow: visible;
+}
+
+/* Effet brillant sur les barres de stats */
+.stat-bar-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+    );
+    animation: statShine 3s ease-in-out infinite;
+}
+
+@keyframes statShine {
+    0% { left: -100%; }
+    50%, 100% { left: 200%; }
+}
+
+/* Effet selon le niveau de stat */
+.stat-high .stat-bar-fill {
+    animation: statPulseHigh 2s ease-in-out infinite;
+    box-shadow: 0 0 20px currentColor;
+}
+
+.stat-mid .stat-bar-fill {
+    animation: statPulseMid 2.5s ease-in-out infinite;
+    box-shadow: 0 0 10px currentColor;
+}
+
+@keyframes statPulseHigh {
+    0%, 100% { 
+        box-shadow: 0 0 20px currentColor;
+        filter: brightness(1.2);
+    }
+    50% { 
+        box-shadow: 0 0 30px currentColor, 0 0 40px currentColor;
+        filter: brightness(1.5);
+    }
+}
+
+@keyframes statPulseMid {
+    0%, 100% { 
+        box-shadow: 0 0 10px currentColor;
+        filter: brightness(1.1);
+    }
+    50% { 
+        box-shadow: 0 0 15px currentColor;
+        filter: brightness(1.3);
+    }
+}
+
+/* Effet d'aura autour du power level */
+.power-level {
+    position: relative;
+}
+
+.power-level::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    border-radius: 20px;
+    background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+    opacity: 0;
+    animation: powerAura 2s ease-in-out infinite;
+}
+
+@keyframes powerAura {
+    0%, 100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    50% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+/* Power level élevé */
+.power-level-high::before {
+    animation: powerAuraHigh 1.5s ease-in-out infinite;
+}
+
+@keyframes powerAuraHigh {
+    0%, 100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+        background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1.5);
+        background: radial-gradient(circle, #ff00ff 0%, transparent 70%);
+    }
+}
+
+/* Effet de completion de checkbox avec particules */
+.checkbox.completed {
+    animation: checkboxComplete 0.5s ease-out;
+}
+
+@keyframes checkboxComplete {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Traînée de particules sur le curseur (effet premium) */
+.cursor-trail {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    pointer-events: none;
+    z-index: 10000;
+    animation: cursorFade 0.8s ease-out forwards;
+}
+
+@keyframes cursorFade {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+/* ========================================
    RESET & BASE
 ======================================== */
 

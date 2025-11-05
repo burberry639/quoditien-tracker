@@ -1,56 +1,114 @@
-# Application de Suivi Quotidien 📋
+# 🎮 RPG Tracker - Guide d'utilisation
 
-Application web pour suivre vos habitudes quotidiennes (sommeil, sport, alimentation, hygiène, prières, etc.)
+## 📦 Installation
 
-## 🚀 Déploiement sur Render
+1. Télécharge les 3 fichiers :
+   - `index.html`
+   - `style.css`
+   - `app.js`
 
-### Étape 1 : Préparer votre code
+2. Mets-les dans le même dossier
 
-1. Créez un compte sur [GitHub](https://github.com) si vous n'en avez pas
-2. Créez un nouveau repository (dépôt) sur GitHub
-3. Uploadez tous les fichiers de ce dossier dans votre repository
+3. Double-clique sur `index.html` pour ouvrir dans ton navigateur
 
-### Étape 2 : Déployer sur Render
+## ✨ Fonctionnalités
 
-1. Allez sur [Render.com](https://render.com) et créez un compte
-2. Cliquez sur **"New +"** puis **"Web Service"**
-3. Connectez votre repository GitHub
-4. Configurez votre service :
-   - **Name** : `suivi-quotidien` (ou le nom que vous voulez)
-   - **Environment** : `Node`
-   - **Build Command** : `npm install`
-   - **Start Command** : `npm start`
-   - **Instance Type** : `Free`
+### 📋 Page Quotidien
+- Suivi de toutes tes habitudes
+- Streaks (séries)
+- Progression quotidienne en %
+- **✨ Explosion de particules** lors du clic sur une habitude
 
-5. Cliquez sur **"Create Web Service"**
+### 📊 Page Stats
+- Système de rang (F → INCONNU)
+- Stats RPG (Force, Discipline, Spiritualité, etc.)
+- Radar chart visuel
+- Power Level
+- **🌈 Effets de particules selon ton rang** :
+  - Rangs F-D : Effet subtil bleu
+  - Rangs C-A : Effet cyan/bleu moyen
+  - Rangs S-SSR+ : Effet intense multicolore
+  - Rangs UR+ : Effet légendaire avec particules dorées
+  - Rangs X-INCONNU : Effet épique arc-en-ciel animé
+- **✨ Effets spéciaux sur les stats** :
+  - Stats 50-79% : Effet de brillance moyen
+  - Stats 80%+ : Effet de brillance intense avec particules
+  - Power Level 400+ : Aura pulsante multicolore
+- **🎨 Traînée de curseur** automatique pour rangs UR+ et au-dessus
 
-### Étape 3 : Accéder à votre application
+### 🎯 Page Quêtes
+- 5 quêtes quotidiennes
+- Timer de renouvellement
+- Bonus à gagner
 
-Une fois déployée, Render vous donnera une URL du type :
-`https://suivi-quotidien.onrender.com`
+### 🏆 Page Classement
+- Leaderboard Firebase en temps réel
+- Compare-toi avec tes amis
+- Voir les rangs de tous
 
-Votre application sera accessible sur cette URL ! 🎉
+## 🎨 Système d'effets visuels
 
-## 📝 Alternative : Déploiement rapide
+### Particules de rang
+Les particules apparaissent automatiquement autour de ton badge de rang :
+- Plus ton rang est élevé, plus les effets sont impressionnants
+- Les particules se régénèrent toutes les 5 secondes
+- Couleurs adaptées à chaque niveau de rang
 
-Si vous ne voulez pas utiliser GitHub, vous pouvez aussi :
+### Effets de stats
+- Les barres de stats brillent selon leur niveau
+- Effet de particules pour les stats élevées
+- Animation d'aura pour le Power Level élevé
 
-1. Compresser ce dossier en fichier ZIP
-2. Sur Render, utiliser l'option "Deploy from local Git"
-3. Suivre les mêmes étapes de configuration
+### Traînée de curseur (Premium)
+- Activée automatiquement pour les rangs UR+ et supérieurs
+- Particules qui suivent ton curseur
+- Effet visuel premium pour les joueurs d'élite
 
-## ⚠️ Note importante
+## 🔧 Corrections effectuées
 
-Avec le plan gratuit de Render :
-- L'application peut se mettre en veille après 15 minutes d'inactivité
-- Il faudra attendre quelques secondes au premier chargement
-- Parfait pour un usage personnel !
+✅ Erreur de référence circulaire corrigée
+✅ Navigation par onglets ajoutée
+✅ Doublons de code supprimés
+✅ Initialisation corrigée
+✅ Structure HTML nettoyée
+✅ Bouton réinitialiser supprimé (reset automatique)
+✅ **Système de particules selon le rang ajouté**
+✅ **Effets spéciaux sur les stats ajoutés**
 
-## 📱 Utilisation
+## 🚀 Déploiement
 
-Une fois déployée, vous pouvez :
-- Accéder à l'application depuis n'importe quel appareil
-- Ajouter l'URL à vos favoris
-- Sur mobile, ajouter un raccourci sur l'écran d'accueil
+Pour héberger en ligne :
+- **Vercel** : `npx vercel`
+- **Netlify** : Drag & drop sur netlify.com
+- **GitHub Pages** : Push sur GitHub → Settings → Pages
 
-Bon courage dans le suivi de vos habitudes ! 💪
+## 🎯 Progression des effets
+
+### Rangs Débutants (F-E-D)
+- Effet minimal : petite brillance
+- 3 particules bleues claires
+
+### Rangs Intermédiaires (C-B-A)
+- Effet moyen : brillance animée
+- 8 particules cyan/bleu
+- Léger pulse lumineux
+
+### Rangs Avancés (S-SSS-SR-SSR)
+- Effet intense : brillance forte
+- 12 particules multicolores
+- Pulse lumineux marqué
+
+### Rangs Légendaires (UR-LR-MR)
+- Effet légendaire : brillance éclatante
+- 20 particules dorées/roses/cyan
+- Pulse lumineux intense
+- Rotation animée
+
+### Rangs Divins (X-XX-XXX-EX-DX-INHUMAIN-DIVIN-INCONNU)
+- Effet épique : brillance arc-en-ciel
+- 20+ particules multicolores changeantes
+- Pulse lumineux + rotation + changement de couleur
+- **Traînée de curseur activée**
+- Effet d'aura permanent
+
+Enjoy ton aventure ! 🎮⚔️✨

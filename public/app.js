@@ -587,6 +587,14 @@ function toggleSound() {
 function toggleCheckbox(id) {
     const checkbox = document.getElementById(id);
     checkbox.checked = !checkbox.checked;
+    
+    // Effet de particules si la checkbox est cochée
+    if (checkbox.checked) {
+        checkbox.classList.add('completed');
+        setTimeout(() => checkbox.classList.remove('completed'), 500);
+        createCheckboxParticles(checkbox);
+    }
+    
     saveHabits();
     updateProgress();
     updateStatsDisplay();
@@ -717,6 +725,12 @@ function updateRankSystem() {
     progressFill.textContent = percentage + '%';
     
     document.getElementById('totalProgressPoints').textContent = progressPoints.toFixed(1);
+    
+    // Créer des particules selon le rang
+    createRankParticles(currentRank.name);
+    
+    // Activer la traînée de curseur pour les rangs élevés
+    updateCursorTrailForRank(currentRank.name);
 }
 
 /* ========================================
@@ -792,6 +806,9 @@ function updateStatsDisplay() {
         if (barElement) {
             barElement.style.width = percentage + '%';
         }
+        
+        // Créer des particules pour les stats élevées
+        createStatParticles(stat, value, maxValues[stat]);
     });
     
     const powerLevel = Object.values(stats).reduce((sum, val) => sum + val, 0);
@@ -799,6 +816,9 @@ function updateStatsDisplay() {
     if (powerElement) {
         powerElement.textContent = powerLevel;
     }
+    
+    // Effet sur le power level
+    updatePowerLevelEffect(powerLevel);
     
     // Dessiner le graphique radar
     drawRadarChart(stats, maxValues);
@@ -1672,6 +1692,209 @@ function showPage(pageName) {
 }
 
 /* ========================================
+   PARTICLE EFFECTS SYSTEM
+======================================== */
+
+// Créer le conteneur de particules
+function createParticlesContainer() {
+    if (document.getElementById('particles-container')) return;
+    
+    const container = document.createElement('div');
+    container.id = 'particles-container';
+    container.className = 'particles-container';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Créer une particule
+function createParticle(x, y, color, size = 5) {
+    const container = createParticlesContainer();
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    
+    const drift = (Math.random() - 0.5) * 100;
+    const duration = 2 + Math.random() * 2;
+    
+    particle.style.cssText = `
+        left: ${x}px;
+        top: ${y}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: ${color};
+        --drift: ${drift}px;
+        animation-duration: ${duration}s;
+        box-shadow: 0 0 ${size * 2}px ${color};
+    `;
+    
+    container.appendChild(particle);
+    
+    setTimeout(() => particle.remove(), duration * 1000);
+}
+
+// Effet de particules selon le rang
+function createRankParticles(rankName) {
+    const rankBadge = document.getElementById('currentRank');
+    if (!rankBadge) return;
+    
+    const rect = rankBadge.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Déterminer la classe d'effet selon le rang
+    const rankIndex = rankSystem.findIndex(r => r.name === rankName);
+    let effectClass = 'rank-particles-low';
+    let particleCount = 3;
+    let colors = ['#00d4ff'];
+    
+    if (rankIndex >= 20) { // X, XX, XXX, EX, DX, INHUMAIN, DIVIN, INCONNU
+        effectClass = 'rank-particles-legendary';
+        particleCount = 20;
+        colors = ['#FFD700', '#FF00FF', '#00FFFF', '#FF1493', '#00FF00'];
+    } else if (rankIndex >= 13) { // UR à MR+
+        effectClass = 'rank-particles-high';
+        particleCount = 12;
+        colors = ['#FF4500', '#FFD700', '#FF1493'];
+    } else if (rankIndex >= 6) { // A à SSR+
+        effectClass = 'rank-particles-mid';
+        particleCount = 8;
+        colors = ['#00CED1', '#1E90FF', '#9370DB'];
+    }
+    
+    // Appliquer la classe au badge
+    rankBadge.className = `rank-badge ${effectClass}`;
+    
+    // Créer les particules
+    for (let i = 0; i < particleCount; i++) {
+        setTimeout(() => {
+            const angle = (Math.PI * 2 * i) / particleCount;
+            const radius = 50 + Math.random() * 30;
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const size = 3 + Math.random() * 5;
+            
+            createParticle(x, y, color, size);
+        }, i * 100);
+    }
+}
+
+// Effet de particules pour les stats élevées
+function createStatParticles(statName, value, maxValue = 100) {
+    const statBar = document.getElementById(`${statName}Bar`);
+    if (!statBar) return;
+    
+    const percentage = (value / maxValue) * 100;
+    const rect = statBar.getBoundingClientRect();
+    
+    // Déterminer la classe d'effet
+    let effectClass = '';
+    let particleCount = 0;
+    let color = getComputedStyle(statBar).backgroundColor;
+    
+    if (percentage >= 80) {
+        effectClass = 'stat-high';
+        particleCount = 5;
+    } else if (percentage >= 50) {
+        effectClass = 'stat-mid';
+        particleCount = 3;
+    }
+    
+    // Appliquer la classe
+    const statItem = statBar.closest('.stat-item-detailed');
+    if (statItem && effectClass) {
+        statItem.classList.add(effectClass);
+        
+        // Créer quelques particules
+        for (let i = 0; i < particleCount; i++) {
+            setTimeout(() => {
+                const x = rect.left + Math.random() * rect.width;
+                const y = rect.top + rect.height / 2;
+                createParticle(x, y, color, 4);
+            }, i * 200);
+        }
+    }
+}
+
+// Effet sur le power level
+function updatePowerLevelEffect(powerLevel) {
+    const powerLevelEl = document.querySelector('.power-level');
+    if (!powerLevelEl) return;
+    
+    powerLevelEl.classList.remove('power-level-high');
+    
+    if (powerLevel >= 400) {
+        powerLevelEl.classList.add('power-level-high');
+        
+        // Créer des particules autour
+        const rect = powerLevelEl.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        for (let i = 0; i < 10; i++) {
+            setTimeout(() => {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 50 + Math.random() * 50;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                const colors = ['#FFD700', '#FF00FF', '#00FFFF'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                createParticle(x, y, color, 6);
+            }, i * 150);
+        }
+    }
+}
+
+// Effet lors du clic sur une checkbox
+function createCheckboxParticles(checkbox) {
+    const rect = checkbox.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Explosion de particules
+    for (let i = 0; i < 12; i++) {
+        const angle = (Math.PI * 2 * i) / 12;
+        const x = centerX + Math.cos(angle) * 30;
+        const y = centerY + Math.sin(angle) * 30;
+        const colors = ['#00ff88', '#00d4ff', '#FFD700'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        createParticle(x, y, color, 4);
+    }
+}
+
+// Traînée de curseur (effet premium)
+let cursorTrailEnabled = false;
+let lastCursorTime = 0;
+
+function enableCursorTrail(enabled) {
+    cursorTrailEnabled = enabled;
+}
+
+document.addEventListener('mousemove', (e) => {
+    if (!cursorTrailEnabled) return;
+    
+    const now = Date.now();
+    if (now - lastCursorTime < 50) return; // Limiter la fréquence
+    lastCursorTime = now;
+    
+    const trail = document.createElement('div');
+    trail.className = 'cursor-trail';
+    trail.style.left = e.pageX + 'px';
+    trail.style.top = e.pageY + 'px';
+    
+    document.body.appendChild(trail);
+    
+    setTimeout(() => trail.remove(), 800);
+});
+
+// Activer la traînée de curseur pour les rangs élevés
+function updateCursorTrailForRank(rankName) {
+    const rankIndex = rankSystem.findIndex(r => r.name === rankName);
+    enableCursorTrail(rankIndex >= 13); // UR+ et au-dessus
+}
+
+/* ========================================
    FIREBASE REAL-TIME LEADERBOARD
 ======================================== */
 
@@ -1801,6 +2024,14 @@ function initApp() {
     
     // Mettre à jour le timer toutes les secondes
     setInterval(updateQuestTimer, 1000);
+    
+    // Recréer les particules de rang toutes les 5 secondes
+    setInterval(() => {
+        const currentRankEl = document.getElementById('currentRank');
+        if (currentRankEl) {
+            createRankParticles(currentRankEl.textContent);
+        }
+    }, 5000);
     
     // Afficher le leaderboard Firebase
     if (window.firebaseDb) {
