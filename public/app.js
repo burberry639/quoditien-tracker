@@ -253,7 +253,7 @@ function showReligionSelector() {
                 gap: 20px;
                 margin-bottom: 30px;
             ">
-                <button onclick="createUser('islam')" class="religion-btn" style="
+                <button data-religion="islam" onclick="createUser('islam')" class="religion-btn" style="
                     padding: 30px 20px;
                     background: linear-gradient(135deg, #00cc66, #008844);
                     border: none;
@@ -268,7 +268,7 @@ function showReligionSelector() {
                     <div style="font-weight: bold;">ISLAM</div>
                 </button>
                 
-                <button onclick="createUser('christianity')" class="religion-btn" style="
+                <button data-religion="christianity" onclick="createUser('christianity')" class="religion-btn" style="
                     padding: 30px 20px;
                     background: linear-gradient(135deg, #667eea, #4a5fd4);
                     border: none;
@@ -283,7 +283,7 @@ function showReligionSelector() {
                     <div style="font-weight: bold;">CHRISTIANISME</div>
                 </button>
                 
-                <button onclick="createUser('neutral')" class="religion-btn" style="
+                <button data-religion="neutral" onclick="createUser('neutral')" class="religion-btn" style="
                     padding: 30px 20px;
                     background: linear-gradient(135deg, #ffa500, #ff6b00);
                     border: none;
@@ -302,24 +302,51 @@ function showReligionSelector() {
     `;
     
     document.body.appendChild(overlay);
+    
+    // Attacher aussi les événements touch pour mobile
+    setTimeout(() => {
+        const buttons = overlay.querySelectorAll('[data-religion]');
+        buttons.forEach(btn => {
+            const religion = btn.getAttribute('data-religion');
+            btn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                createUser(religion);
+            }, { passive: false });
+        });
+    }, 100);
 }
 
 function createUser(religion) {
-    const username = document.getElementById('usernameInput').value.trim();
+    const usernameInput = document.getElementById('usernameInput');
+    const username = usernameInput ? usernameInput.value.trim() : '';
+    
+    console.log('createUser called with religion:', religion);
+    console.log('Username input value:', username);
     
     if (!username) {
         alert('⚠️ Entre un pseudo !');
+        // Re-focus sur l'input
+        if (usernameInput) {
+            usernameInput.focus();
+        }
         return;
     }
     
     if (username.length < 3) {
         alert('⚠️ Le pseudo doit faire au moins 3 caractères !');
+        if (usernameInput) {
+            usernameInput.focus();
+        }
         return;
     }
     
     const users = getAllUsers();
     if (users[username]) {
         alert('⚠️ Ce pseudo existe déjà ! Choisis-en un autre.');
+        if (usernameInput) {
+            usernameInput.focus();
+        }
         return;
     }
     
@@ -331,9 +358,15 @@ function createUser(religion) {
     };
     saveAllUsers(users);
     
+    console.log('User created:', username);
+    console.log('All users:', users);
+    
     // Définir comme utilisateur actuel
     originalSetItem('currentUser', username);
+    localStorage.setItem('currentUser', username); // Aussi en localStorage normal
     currentUser = username;
+    
+    console.log('Current user set to:', currentUser);
     
     selectReligion(religion);
 }
@@ -469,7 +502,23 @@ function selectUser(username) {
 }
 
 function selectReligion(religion) {
+    // Sauvegarder la religion dans localStorage classique pour compatibilité
     localStorage.setItem('selectedReligion', religion);
+    
+    // Sauvegarder aussi dans les données utilisateur
+    if (currentUser) {
+        const users = getAllUsers();
+        if (users[currentUser]) {
+            users[currentUser].religion = religion;
+            saveAllUsers(users);
+        }
+    }
+    
+    // Sauvegarder username dans localStorage aussi
+    if (currentUser) {
+        localStorage.setItem('username', currentUser);
+    }
+    
     currentConfig = religionConfigs[religion];
     habits = currentConfig.habits;
     
@@ -1994,17 +2043,35 @@ setTimeout(() => {
 
 // Initialiser l'application au chargement
 document.addEventListener('DOMContentLoaded', function() {
-    // Vérifier si l'utilisateur existe
+    console.log('App starting...');
+    
+    // Vérifier si l'utilisateur existe dans le système multi-utilisateurs
+    const savedCurrentUser = localStorage.getItem('currentUser');
     const savedUsername = localStorage.getItem('username');
     const savedReligion = localStorage.getItem('selectedReligion');
     
-    if (!savedUsername || !savedReligion) {
+    console.log('Saved data:', { savedCurrentUser, savedUsername, savedReligion });
+    
+    // Utiliser currentUser ou username
+    const username = savedCurrentUser || savedUsername;
+    
+    if (!username || !savedReligion) {
+        console.log('No user found, showing selector');
         // Afficher le sélecteur de religion
         showReligionSelector();
     } else {
+        console.log('User found, loading app for:', username);
         // Charger la configuration et initialiser
-        currentUser = savedUsername;
+        currentUser = username;
+        localStorage.setItem('username', username); // S'assurer que username est aussi sauvegardé
         currentConfig = religionConfigs[savedReligion];
+        
+        if (!currentConfig) {
+            console.error('Config not found for religion:', savedReligion);
+            showReligionSelector();
+            return;
+        }
+        
         habits = currentConfig.habits;
         
         // Initialiser toutes les fonctions
