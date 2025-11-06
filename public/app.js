@@ -1067,16 +1067,173 @@ function updateStreaks() {
    SYSTÈME DE QUÊTES QUOTIDIENNES
 ======================================== */
 
-const allQuests = [
-    { id: 'quest-sport', name: '💪 Séance de sport intense', reward: 'str', bonus: '+0.5 jour de rang' },
-    { id: 'quest-prayers', name: '🕌 Toutes les 5 prières à l\'heure', reward: 'spi', bonus: '+0.5 jour de rang' },
-    { id: 'quest-study', name: '📚 1h d\'étude/lecture', reward: 'men', bonus: '+0.5 jour de rang' },
-    { id: 'quest-hygiene', name: '🧼 Hygiène parfaite toute la journée', reward: 'hp', bonus: '+0.5 jour de rang' },
-    { id: 'quest-discipline', name: '🎯 Zéro distraction aujourd\'hui', reward: 'dis', bonus: '+0.5 jour de rang' },
-    { id: 'quest-cardio', name: '🏃 30min de cardio', reward: 'end', bonus: '+0.5 jour de rang' },
-    { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang' },
-    { id: 'quest-wake', name: '⏰ Réveil à 5h du matin', reward: 'dis', bonus: '+0.5 jour de rang' }
+/* ========================================
+   SYSTÈME DE QUÊTES ÉPIQUES
+======================================== */
+
+// Quêtes quotidiennes classiques
+const dailyQuests = [
+    { id: 'quest-sport', name: '💪 Séance de sport intense', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-prayers', name: '🕌 Toutes les 5 prières à l\'heure', reward: 'spi', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-study', name: '📚 1h d\'étude/lecture', reward: 'men', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-hygiene', name: '🧼 Hygiène parfaite toute la journée', reward: 'hp', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-discipline', name: '🎯 Zéro distraction aujourd\'hui', reward: 'dis', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-cardio', name: '🏃 30min de cardio', reward: 'end', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-wake', name: '⏰ Réveil à 5h du matin', reward: 'dis', bonus: '+0.5 jour de rang', points: 5 }
 ];
+
+// QUÊTES ÉPIQUES - Objectifs à long terme
+const epicQuests = [
+    {
+        id: 'epic-blackbelt',
+        name: '🥋 CEINTURE NOIRE',
+        description: 'Atteindre le niveau de ceinture noire en arts martiaux',
+        category: 'martial-arts',
+        icon: '🥋',
+        targetDays: 365,
+        rewards: {
+            rankBonus: 30,
+            stats: { str: 50, dis: 40, men: 30 }
+        },
+        milestones: [
+            { days: 30, name: 'Ceinture Blanche', bonus: 2 },
+            { days: 90, name: 'Ceinture Jaune', bonus: 5 },
+            { days: 180, name: 'Ceinture Orange', bonus: 10 },
+            { days: 270, name: 'Ceinture Verte', bonus: 15 },
+            { days: 365, name: 'CEINTURE NOIRE 🥋', bonus: 30 }
+        ]
+    },
+    {
+        id: 'epic-wealth',
+        name: '💰 FORTUNE',
+        description: 'Gagner 10 000€ grâce à tes efforts',
+        category: 'wealth',
+        icon: '💰',
+        targetAmount: 10000,
+        currentAmount: 0,
+        rewards: {
+            rankBonus: 50,
+            stats: { dis: 60, men: 50 }
+        },
+        milestones: [
+            { amount: 1000, name: 'Premiers 1000€', bonus: 5 },
+            { amount: 2500, name: '2500€ - En route', bonus: 10 },
+            { amount: 5000, name: '5000€ - Mi-chemin', bonus: 20 },
+            { amount: 7500, name: '7500€ - Presque là', bonus: 30 },
+            { amount: 10000, name: '10 000€ ATTEINTS 💰', bonus: 50 }
+        ]
+    },
+    {
+        id: 'epic-marathon',
+        name: '🏃 MARATHON',
+        description: 'Courir un marathon complet (42.195 km)',
+        category: 'endurance',
+        icon: '🏃',
+        targetKm: 42.195,
+        currentKm: 0,
+        rewards: {
+            rankBonus: 25,
+            stats: { end: 60, hp: 40, str: 30 }
+        },
+        milestones: [
+            { km: 5, name: '5km - Démarrage', bonus: 2 },
+            { km: 10, name: '10km - Bon rythme', bonus: 5 },
+            { km: 21, name: '21km - Semi-marathon', bonus: 10 },
+            { km: 35, name: '35km - Presque là', bonus: 15 },
+            { km: 42.195, name: 'MARATHON TERMINÉ 🏃', bonus: 25 }
+        ]
+    },
+    {
+        id: 'epic-muscle',
+        name: '💪 TRANSFORMATION',
+        description: 'Prendre 10kg de muscle pur',
+        category: 'bodybuilding',
+        icon: '💪',
+        targetKg: 10,
+        currentKg: 0,
+        rewards: {
+            rankBonus: 35,
+            stats: { str: 80, end: 40, hp: 30 }
+        },
+        milestones: [
+            { kg: 2, name: '+2kg - Début', bonus: 3 },
+            { kg: 5, name: '+5kg - Moitié', bonus: 10 },
+            { kg: 8, name: '+8kg - Presque là', bonus: 20 },
+            { kg: 10, name: '+10KG DE MUSCLE 💪', bonus: 35 }
+        ]
+    },
+    {
+        id: 'epic-meditation',
+        name: '🧘 MAÎTRE ZEN',
+        description: '1000 heures de méditation',
+        category: 'spiritual',
+        icon: '🧘',
+        targetHours: 1000,
+        currentHours: 0,
+        rewards: {
+            rankBonus: 40,
+            stats: { spi: 70, men: 60, dis: 40 }
+        },
+        milestones: [
+            { hours: 100, name: '100h - Initié', bonus: 5 },
+            { hours: 250, name: '250h - Pratiquant', bonus: 10 },
+            { hours: 500, name: '500h - Avancé', bonus: 20 },
+            { hours: 1000, name: 'MAÎTRE ZEN 🧘', bonus: 40 }
+        ]
+    }
+];
+
+// SYSTÈME DE DÉFIS ENTRE AMIS
+const challengeTypes = [
+    {
+        id: 'cardio-race',
+        name: '🏃 Course de Cardio',
+        description: 'Qui court le plus de km en 7 jours ?',
+        duration: 7,
+        metric: 'distance',
+        unit: 'km',
+        icon: '🏃'
+    },
+    {
+        id: 'pushups-challenge',
+        name: '💪 Défi Pompes',
+        description: 'Qui fait le plus de pompes en 30 jours ?',
+        duration: 30,
+        metric: 'count',
+        unit: 'pompes',
+        icon: '💪'
+    },
+    {
+        id: 'streak-battle',
+        name: '🔥 Bataille de Streaks',
+        description: 'Qui maintient le plus long streak ?',
+        duration: 30,
+        metric: 'streak',
+        unit: 'jours',
+        icon: '🔥'
+    },
+    {
+        id: 'weight-loss',
+        name: '⚖️ Perte de Poids',
+        description: 'Qui perd le plus de kg en 60 jours ?',
+        duration: 60,
+        metric: 'weight',
+        unit: 'kg',
+        icon: '⚖️'
+    },
+    {
+        id: 'study-hours',
+        name: '📚 Heures d\'Étude',
+        description: 'Qui étudie le plus en 14 jours ?',
+        duration: 14,
+        metric: 'hours',
+        unit: 'heures',
+        icon: '📚'
+    }
+];
+
+const allQuests = dailyQuests; // Pour compatibilité avec ancien code
 
 function initDailyQuests() {
     const today = getTodayDate();
@@ -1168,6 +1325,440 @@ function updateQuestTimer() {
     const timerElement = document.getElementById('questTimer');
     if (timerElement) {
         timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+/* ========================================
+   SYSTÈME DE QUÊTES ÉPIQUES
+======================================== */
+
+function displayEpicQuests() {
+    const container = document.getElementById('epicQuestsList');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    epicQuests.forEach(quest => {
+        const progress = getEpicQuestProgress(quest.id);
+        const percentage = calculateEpicProgress(quest, progress);
+        const nextMilestone = getNextMilestone(quest, progress);
+        
+        const questDiv = document.createElement('div');
+        questDiv.className = 'epic-quest-card';
+        
+        questDiv.innerHTML = `
+            <div class="epic-quest-header">
+                <span class="epic-quest-icon">${quest.icon}</span>
+                <div class="epic-quest-title">
+                    <h3>${quest.name}</h3>
+                    <p>${quest.description}</p>
+                </div>
+            </div>
+            <div class="epic-quest-progress">
+                <div class="epic-progress-bar">
+                    <div class="epic-progress-fill" style="width: ${percentage}%"></div>
+                </div>
+                <div class="epic-progress-text">${progress} / ${getEpicTarget(quest)} ${getEpicUnit(quest)}</div>
+            </div>
+            <div class="epic-quest-milestones">
+                ${renderMilestones(quest, progress)}
+            </div>
+            <div class="epic-quest-actions">
+                <button class="epic-quest-btn" onclick="updateEpicProgress('${quest.id}')">
+                    ⚡ Mettre à jour
+                </button>
+                <div class="epic-quest-reward">
+                    Récompense : +${quest.rewards.rankBonus} jours de rang
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(questDiv);
+    });
+}
+
+function getEpicQuestProgress(questId) {
+    return parseFloat(originalGetItem(`epic_${questId}`) || '0');
+}
+
+function calculateEpicProgress(quest, current) {
+    const target = getEpicTarget(quest);
+    return Math.min((current / target) * 100, 100);
+}
+
+function getEpicTarget(quest) {
+    if (quest.targetDays) return quest.targetDays;
+    if (quest.targetAmount) return quest.targetAmount;
+    if (quest.targetKm) return quest.targetKm;
+    if (quest.targetKg) return quest.targetKg;
+    if (quest.targetHours) return quest.targetHours;
+    return 100;
+}
+
+function getEpicUnit(quest) {
+    if (quest.targetDays) return 'jours';
+    if (quest.targetAmount) return '€';
+    if (quest.targetKm) return 'km';
+    if (quest.targetKg) return 'kg';
+    if (quest.targetHours) return 'heures';
+    return '';
+}
+
+function getNextMilestone(quest, current) {
+    for (let milestone of quest.milestones) {
+        const value = milestone.days || milestone.amount || milestone.km || milestone.kg || milestone.hours;
+        if (current < value) {
+            return milestone;
+        }
+    }
+    return null;
+}
+
+function renderMilestones(quest, current) {
+    return quest.milestones.map(milestone => {
+        const value = milestone.days || milestone.amount || milestone.km || milestone.kg || milestone.hours;
+        const reached = current >= value;
+        return `
+            <div class="epic-milestone ${reached ? 'reached' : ''}">
+                <span class="milestone-check">${reached ? '✅' : '⭕'}</span>
+                <span class="milestone-name">${milestone.name}</span>
+                <span class="milestone-bonus">+${milestone.bonus}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateEpicProgress(questId) {
+    const quest = epicQuests.find(q => q.id === questId);
+    if (!quest) return;
+    
+    const current = getEpicQuestProgress(questId);
+    const unit = getEpicUnit(quest);
+    
+    const newValue = prompt(`📊 ${quest.name}\n\nProgression actuelle : ${current} ${unit}\n\nNouvelle valeur :`, current);
+    
+    if (newValue === null) return;
+    
+    const numValue = parseFloat(newValue);
+    if (isNaN(numValue) || numValue < 0) {
+        alert('❌ Valeur invalide !');
+        return;
+    }
+    
+    // Vérifier les milestones franchis
+    const oldMilestones = quest.milestones.filter(m => {
+        const val = m.days || m.amount || m.km || m.kg || m.hours;
+        return current >= val;
+    });
+    
+    const newMilestones = quest.milestones.filter(m => {
+        const val = m.days || m.amount || m.km || m.kg || m.hours;
+        return numValue >= val && current < val;
+    });
+    
+    // Donner les récompenses des nouveaux milestones
+    newMilestones.forEach(milestone => {
+        let currentPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
+        currentPoints += milestone.bonus;
+        originalSetItem('rankProgressPoints', currentPoints.toString());
+        
+        // Particules épiques !
+        createEpicMilestoneEffect(milestone.name, milestone.bonus);
+        
+        playSound('levelUp');
+    });
+    
+    // Sauvegarder
+    originalSetItem(`epic_${questId}`, numValue.toString());
+    
+    // Vérifier si complété
+    if (numValue >= getEpicTarget(quest)) {
+        // QUÊTE ÉPIQUE TERMINÉE !
+        let currentPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
+        currentPoints += quest.rewards.rankBonus;
+        originalSetItem('rankProgressPoints', currentPoints.toString());
+        
+        alert(`🎉 QUÊTE ÉPIQUE TERMINÉE !\n\n${quest.name}\n\n+${quest.rewards.rankBonus} jours de rang !`);
+        playSound('levelUp');
+    }
+    
+    displayEpicQuests();
+    updateRankSystem();
+}
+
+function createEpicMilestoneEffect(name, bonus) {
+    // Effet visuel pour milestone atteint
+    const container = createParticlesContainer();
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Explosion de particules dorées
+    for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+            const angle = (Math.PI * 2 * i) / 30;
+            const radius = 100 + Math.random() * 150;
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+            createParticle(x, y, '#FFD700', 8);
+        }, i * 30);
+    }
+    
+    // Message
+    const message = document.createElement('div');
+    message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        padding: 30px 50px;
+        border-radius: 20px;
+        font-size: 2em;
+        font-weight: bold;
+        color: #000;
+        z-index: 10001;
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+        animation: epicPulse 0.5s ease-out;
+    `;
+    message.textContent = `🎉 ${name} +${bonus} 🎉`;
+    document.body.appendChild(message);
+    
+    setTimeout(() => message.remove(), 3000);
+}
+
+/* ========================================
+   SYSTÈME DE DÉFIS ENTRE AMIS
+======================================== */
+
+function displayChallenges() {
+    const container = document.getElementById('challengesList');
+    if (!container) return;
+    
+    const activeChallenges = getActiveChallenges();
+    
+    container.innerHTML = '';
+    
+    if (activeChallenges.length === 0) {
+        container.innerHTML = `
+            <div class="no-challenges">
+                <p>🎯 Aucun défi actif</p>
+                <button class="create-challenge-btn" onclick="showCreateChallenge()">
+                    ➕ Créer un défi
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    activeChallenges.forEach(challenge => {
+        const challengeDiv = document.createElement('div');
+        challengeDiv.className = 'challenge-card';
+        
+        const daysLeft = getDaysLeft(challenge.endDate);
+        const leaderboard = getChallengeLeaderboard(challenge);
+        
+        challengeDiv.innerHTML = `
+            <div class="challenge-header">
+                <span class="challenge-icon">${challenge.icon}</span>
+                <div class="challenge-info">
+                    <h3>${challenge.name}</h3>
+                    <p>${challenge.description}</p>
+                </div>
+            </div>
+            <div class="challenge-timer">
+                ⏱️ ${daysLeft} jour${daysLeft > 1 ? 's' : ''} restant${daysLeft > 1 ? 's' : ''}
+            </div>
+            <div class="challenge-leaderboard">
+                ${renderChallengeLeaderboard(leaderboard)}
+            </div>
+            <button class="update-challenge-btn" onclick="updateChallengeProgress('${challenge.id}')">
+                📊 Mettre à jour ma progression
+            </button>
+        `;
+        
+        container.appendChild(challengeDiv);
+    });
+}
+
+function getActiveChallenges() {
+    return JSON.parse(originalGetItem('activeChallenges') || '[]');
+}
+
+function getDaysLeft(endDate) {
+    const now = new Date();
+    const end = new Date(endDate);
+    const diff = end - now;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+function getChallengeLeaderboard(challenge) {
+    return challenge.participants.sort((a, b) => b.score - a.score);
+}
+
+function renderChallengeLeaderboard(leaderboard) {
+    const username = localStorage.getItem('username');
+    
+    return leaderboard.map((participant, index) => {
+        const isMe = participant.username === username;
+        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+        
+        return `
+            <div class="challenge-participant ${isMe ? 'me' : ''}">
+                <span class="participant-rank">${medal}</span>
+                <span class="participant-name">${participant.username}${isMe ? ' (TOI)' : ''}</span>
+                <span class="participant-score">${participant.score}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function showCreateChallenge() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        overflow-y: auto;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 600px;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #ffa500;
+            border-radius: 20px;
+            margin: 20px;
+        ">
+            <h2 style="color: #ffa500; text-align: center; margin-bottom: 20px;">🎯 CRÉER UN DÉFI</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="color: #fff; display: block; margin-bottom: 10px;">Type de défi :</label>
+                <select id="challengeType" style="
+                    width: 100%;
+                    padding: 15px;
+                    background: #0a0a0a;
+                    border: 2px solid #ffa500;
+                    color: white;
+                    border-radius: 10px;
+                    font-size: 1.1em;
+                ">
+                    ${challengeTypes.map(ct => `
+                        <option value="${ct.id}">${ct.icon} ${ct.name}</option>
+                    `).join('')}
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="color: #fff; display: block; margin-bottom: 10px;">Pseudo de ton ami :</label>
+                <input type="text" id="friendUsername" placeholder="Pseudo..." style="
+                    width: 100%;
+                    padding: 15px;
+                    background: #0a0a0a;
+                    border: 2px solid #ffa500;
+                    color: white;
+                    border-radius: 10px;
+                    font-size: 1.1em;
+                ">
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="createChallenge()" style="
+                    flex: 1;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #ffa500, #ff6b00);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.2em;
+                    font-weight: bold;
+                    cursor: pointer;
+                ">CRÉER</button>
+                <button onclick="this.closest('[style*=fixed]').remove()" style="
+                    flex: 1;
+                    padding: 15px;
+                    background: #444;
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.2em;
+                    cursor: pointer;
+                ">ANNULER</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function createChallenge() {
+    const typeId = document.getElementById('challengeType').value;
+    const friendUsername = document.getElementById('friendUsername').value.trim();
+    const myUsername = localStorage.getItem('username');
+    
+    if (!friendUsername) {
+        alert('⚠️ Entre le pseudo de ton ami !');
+        return;
+    }
+    
+    const challengeType = challengeTypes.find(ct => ct.id === typeId);
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + challengeType.duration);
+    
+    const challenge = {
+        id: 'challenge_' + Date.now(),
+        ...challengeType,
+        startDate: new Date().toISOString(),
+        endDate: endDate.toISOString(),
+        participants: [
+            { username: myUsername, score: 0 },
+            { username: friendUsername, score: 0 }
+        ]
+    };
+    
+    const activeChallenges = getActiveChallenges();
+    activeChallenges.push(challenge);
+    originalSetItem('activeChallenges', JSON.stringify(activeChallenges));
+    
+    document.querySelector('[style*="position: fixed"]').remove();
+    displayChallenges();
+    
+    alert(`🎯 Défi créé !\n\n${challenge.name}\nDurée : ${challenge.duration} jours\n\nQue le meilleur gagne !`);
+}
+
+function updateChallengeProgress(challengeId) {
+    const challenges = getActiveChallenges();
+    const challenge = challenges.find(c => c.id === challengeId);
+    if (!challenge) return;
+    
+    const myUsername = localStorage.getItem('username');
+    const me = challenge.participants.find(p => p.username === myUsername);
+    
+    const newScore = prompt(`📊 ${challenge.name}\n\nTon score actuel : ${me.score} ${challenge.unit}\n\nNouveau score :`, me.score);
+    
+    if (newScore === null) return;
+    
+    const numScore = parseFloat(newScore);
+    if (isNaN(numScore) || numScore < 0) {
+        alert('❌ Valeur invalide !');
+        return;
+    }
+    
+    me.score = numScore;
+    originalSetItem('activeChallenges', JSON.stringify(challenges));
+    
+    displayChallenges();
+    
+    // Particules si nouveau record
+    if (numScore > (challenge.participants.find(p => p.username !== myUsername)?.score || 0)) {
+        createCheckboxParticles(document.body);
     }
 }
 
@@ -1723,6 +2314,10 @@ window.toggleTheme = toggleTheme;
 window.toggleSound = toggleSound;
 window.completeQuest = completeQuest;
 window.showPage = showPage;
+window.updateEpicProgress = updateEpicProgress;
+window.showCreateChallenge = showCreateChallenge;
+window.createChallenge = createChallenge;
+window.updateChallengeProgress = updateChallengeProgress;
 
 /* ========================================
    NAVIGATION SYSTEM
@@ -2106,6 +2701,10 @@ function initApp() {
     initDailyQuests();
     displayDailyQuests();
     updateQuestTimer();
+    
+    // Nouvelles fonctionnalités
+    displayEpicQuests();
+    displayChallenges();
     
     // Mettre à jour le timer toutes les secondes
     setInterval(updateQuestTimer, 1000);
