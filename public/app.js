@@ -318,35 +318,46 @@ function showReligionSelector() {
 }
 
 function createUser(religion) {
-    const usernameInput = document.getElementById('usernameInput');
-    const username = usernameInput ? usernameInput.value.trim() : '';
+    // Essayer plusieurs fois de récupérer l'input (problème mobile)
+    let usernameInput = document.getElementById('usernameInput');
+    
+    if (!usernameInput) {
+        console.error('Input not found!');
+        alert('⚠️ Erreur : champ de texte introuvable. Recharge la page.');
+        return;
+    }
+    
+    // Forcer le focus puis récupérer la valeur
+    usernameInput.focus();
+    let username = usernameInput.value.trim();
     
     console.log('createUser called with religion:', religion);
+    console.log('Username input element:', usernameInput);
     console.log('Username input value:', username);
+    console.log('Input element HTML:', usernameInput.outerHTML);
     
-    if (!username) {
-        alert('⚠️ Entre un pseudo !');
-        // Re-focus sur l'input
-        if (usernameInput) {
-            usernameInput.focus();
+    // Si l'input est vide, utiliser un prompt comme fallback
+    if (!username || username === '') {
+        username = prompt('⚡ Entre ton pseudo (minimum 3 caractères) :');
+        if (!username) {
+            return;
         }
+        username = username.trim();
+    }
+    
+    if (!username || username === '') {
+        alert('⚠️ Entre un pseudo !');
         return;
     }
     
     if (username.length < 3) {
         alert('⚠️ Le pseudo doit faire au moins 3 caractères !');
-        if (usernameInput) {
-            usernameInput.focus();
-        }
         return;
     }
     
     const users = getAllUsers();
     if (users[username]) {
         alert('⚠️ Ce pseudo existe déjà ! Choisis-en un autre.');
-        if (usernameInput) {
-            usernameInput.focus();
-        }
         return;
     }
     
@@ -361,12 +372,19 @@ function createUser(religion) {
     console.log('User created:', username);
     console.log('All users:', users);
     
-    // Définir comme utilisateur actuel
+    // Définir comme utilisateur actuel - SAUVEGARDER PARTOUT
+    localStorage.setItem('currentUser', username);
+    localStorage.setItem('username', username);
+    localStorage.setItem('selectedReligion', religion);
     originalSetItem('currentUser', username);
-    localStorage.setItem('currentUser', username); // Aussi en localStorage normal
     currentUser = username;
     
     console.log('Current user set to:', currentUser);
+    console.log('localStorage check:', {
+        currentUser: localStorage.getItem('currentUser'),
+        username: localStorage.getItem('username'),
+        selectedReligion: localStorage.getItem('selectedReligion')
+    });
     
     selectReligion(religion);
 }
