@@ -77,14 +77,22 @@ async function isAdmin() {
         return false;
     }
     
+    // Nettoyer l'IP (enlever les espaces, etc.)
+    const cleanIP = ip.trim();
+    
     // Vérifier si l'IP est dans la liste des admins
-    const isAdminIP = ADMIN_IPS.includes(ip);
+    const isAdminIP = ADMIN_IPS.some(adminIP => adminIP.trim() === cleanIP);
     
     if (isAdminIP) {
-        console.log('✅ Accès admin autorisé pour IP:', ip);
+        console.log('✅ Accès admin autorisé pour IP:', cleanIP);
     } else {
-        console.log('❌ Accès admin refusé pour IP:', ip);
+        console.log('❌ Accès admin refusé pour IP:', cleanIP);
         console.log('IPs admin configurées:', ADMIN_IPS);
+        console.log('Comparaison:', {
+            'Votre IP': cleanIP,
+            'Type': typeof cleanIP,
+            'IPs dans ADMIN_IPS': ADMIN_IPS.map(ip => ({ ip: ip.trim(), type: typeof ip, match: ip.trim() === cleanIP }))
+        });
     }
     
     return isAdminIP;
@@ -499,8 +507,18 @@ async function showUserSelector() {
         return;
     }
     
+    // S'assurer que l'IP est chargée
+    if (!userIP) {
+        await getUserIP();
+    }
+    
     // Vérifier si l'utilisateur est admin
     const adminMode = await isAdmin();
+    
+    console.log('🔍 Debug showUserSelector:');
+    console.log('  - userIP:', userIP);
+    console.log('  - ADMIN_IPS:', ADMIN_IPS);
+    console.log('  - adminMode:', adminMode);
     
     const overlay = document.createElement('div');
     overlay.id = 'userOverlay';
@@ -524,6 +542,23 @@ async function showUserSelector() {
         const userData = users[username];
         const config = religionConfigs[userData.religion];
         const isCurrentUser = username === currentUser;
+        
+        // Construire le HTML du bouton de suppression séparément
+        const deleteButtonHTML = adminMode ? `
+            <button onclick="deleteUser('${username}')" style="
+                padding: 20px 15px;
+                background: linear-gradient(135deg, #ff4444, #cc0000);
+                border: 2px solid #ff4444;
+                border-radius: 15px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 1.5em;
+                min-width: 60px;
+            " title="Supprimer ce compte" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                🗑️
+            </button>
+        ` : '';
         
         usersHTML += `
             <div style="
@@ -552,21 +587,7 @@ async function showUserSelector() {
                         </div>
                     </div>
                 </button>
-                ${adminMode ? `
-                    <button onclick="deleteUser('${username}')" style="
-                        padding: 20px 15px;
-                        background: linear-gradient(135deg, #ff4444, #cc0000);
-                        border: 2px solid #ff4444;
-                        border-radius: 15px;
-                        color: white;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                        font-size: 1.5em;
-                        min-width: 60px;
-                    " title="Supprimer ce compte">
-                        🗑️
-                    </button>
-                ` : ''}
+                ${deleteButtonHTML}
             </div>
         `;
     });
@@ -599,7 +620,7 @@ async function showUserSelector() {
                     font-weight: bold;
                 ">
                     🔑 MODE ADMIN ACTIVÉ
-                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">IP: ${userIP || 'Chargement...'}</div>
+                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">IP: ${userIP || 'Non détectée'}</div>
                 </div>
             ` : ''}
             
@@ -2375,6 +2396,7 @@ function showLeaderboard() {
 window.createUser = createUser;
 window.selectUser = selectUser;
 window.showLeaderboard = showLeaderboard;
+window.showUserSelector = showUserSelector;
 
 /* ========================================
    SYSTÈME DE CLASSEMENT
