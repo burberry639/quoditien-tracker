@@ -3359,6 +3359,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         const adminMode = await isAdmin();
         if (adminMode) {
             console.log('🔑 Mode admin activé');
+            // Afficher le bouton admin dans le header
+            setTimeout(() => updateAdminButton(), 500);
         } else {
             console.log('💡 Pour activer l\'admin, ajoutez votre IP dans ADMIN_IPS:', userIP);
         }
@@ -3398,6 +3400,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+// Fonction pour afficher/masquer le bouton admin dans le header
+async function updateAdminButton() {
+    const adminButton = document.getElementById('adminButton');
+    if (!adminButton) return;
+    
+    const adminMode = await isAdmin();
+    if (adminMode) {
+        adminButton.style.display = 'flex';
+        console.log('✅ Bouton admin affiché dans le header');
+    } else {
+        adminButton.style.display = 'none';
+    }
+}
+
 function initApp() {
     updateDate();
     loadHabits();
@@ -3412,6 +3428,9 @@ function initApp() {
     // Nouvelles fonctionnalités
     displayEpicQuests();
     displayChallenges();
+    
+    // Vérifier et afficher le bouton admin
+    updateAdminButton();
     
     // Mettre à jour le timer toutes les secondes
     setInterval(updateQuestTimer, 1000);
