@@ -658,27 +658,94 @@ async function handleLogin() {
     }
 }
 
-// Système de login local (fallback)
-function handleLocalLogin(email, password) {
-    // Utiliser l'email comme username pour le système local
-    const username = email.split('@')[0]; // Prendre la partie avant @
+// Système de login local (fallback) - utilise Firebase Firestore pour synchronisation
+async function handleLocalLogin(email, password) {
+    const errorDiv = document.getElementById('loginError');
+    const normalizedEmail = email.toLowerCase().trim();
     
-    // Vérifier si l'utilisateur existe dans le système local
+    // D'abord, chercher sur Firebase Firestore (même sans Auth)
+    if (window.firebaseDb) {
+        try {
+            // Chercher un utilisateur avec cet email dans Firestore
+            const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
+            const snapshot = await window.firebaseGetDocs(usersCollection);
+            
+            let foundUser = null;
+            snapshot.forEach((doc) => {
+                const userData = doc.data();
+                if (userData.email && userData.email.toLowerCase() === normalizedEmail) {
+                    foundUser = { ...userData, uid: doc.id };
+                }
+            });
+            
+            if (foundUser) {
+                // Vérifier le mot de passe (encodé en base64)
+                const storedPassword = foundUser.password || '';
+                if (storedPassword && btoa(password) === storedPassword) {
+                    // Connexion réussie
+                    currentUser = foundUser.username;
+                    localStorage.setItem('currentUser', foundUser.username);
+                    localStorage.setItem('username', foundUser.username);
+                    localStorage.setItem('selectedReligion', foundUser.religion);
+                    localStorage.setItem('firebaseUID', foundUser.uid);
+                    
+                    const loginOverlay = document.getElementById('loginOverlay');
+                    if (loginOverlay) {
+                        loginOverlay.remove();
+                    }
+                    
+                    currentConfig = religionConfigs[foundUser.religion];
+                    habits = currentConfig.habits;
+                    
+                    // Restaurer les données depuis Firebase
+                    await restoreUserDataFromFirebase(foundUser.uid);
+                    
+                    initApp();
+                    return;
+                } else {
+                    errorDiv.textContent = '❌ Mot de passe incorrect';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la recherche Firebase:', error);
+        }
+    }
+    
+    // Fallback : chercher dans le système local
     const users = getAllUsers();
-    const userData = users[username];
+    let userData = null;
+    let foundUsername = null;
     
-    if (!userData) {
-        const errorDiv = document.getElementById('loginError');
-        errorDiv.textContent = '❌ Aucun compte trouvé. Créez un compte d\'abord.';
+    // Chercher par email dans les comptes locaux
+    for (const [username, data] of Object.entries(users)) {
+        if (data.email && data.email.toLowerCase() === normalizedEmail) {
+            userData = data;
+            foundUsername = username;
+            break;
+        }
+    }
+    
+    if (!userData || !foundUsername) {
+        errorDiv.textContent = '❌ Aucun compte trouvé avec cet email. Créez un compte d\'abord.';
         errorDiv.style.display = 'block';
         showRegisterForm();
         return;
     }
     
+    // Vérifier le mot de passe
+    const storedPassword = userData.password || '';
+    if (storedPassword && btoa(password) !== storedPassword) {
+        errorDiv.textContent = '❌ Mot de passe incorrect';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
     // Connexion réussie avec le système local
-    currentUser = username;
-    localStorage.setItem('currentUser', username);
-    localStorage.setItem('username', username);
+    currentUser = foundUsername;
+    localStorage.setItem('currentUser', foundUsername);
+    localStorage.setItem('username', foundUsername);
     localStorage.setItem('selectedReligion', userData.religion);
     
     const loginOverlay = document.getElementById('loginOverlay');
@@ -780,33 +847,97 @@ async function handleRegister() {
     }
 }
 
-// Système d'inscription local (fallback)
-function handleLocalRegister(username, email, password) {
+// Système d'inscription local (fallback) - sauvegarde sur Firebase Firestore pour synchronisation
+async function handleLocalRegister(username, email, password) {
+    const errorDiv = document.getElementById('registerError');
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // Vérifier d'abord sur Firebase si l'email existe déjà
+    if (window.firebaseDb) {
+        try {
+            const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
+            const snapshot = await window.firebaseGetDocs(usersCollection);
+            
+            snapshot.forEach((doc) => {
+                const userData = doc.data();
+                if (userData.email && userData.email.toLowerCase() === normalizedEmail) {
+                    errorDiv.textContent = '❌ Cet email est déjà utilisé !';
+                    errorDiv.style.display = 'block';
+                    throw new Error('Email déjà utilisé');
+                }
+                if (userData.username === username) {
+                    errorDiv.textContent = '❌ Ce pseudo est déjà utilisé !';
+                    errorDiv.style.display = 'block';
+                    throw new Error('Pseudo déjà utilisé');
+                }
+            });
+        } catch (error) {
+            if (error.message.includes('déjà utilisé')) {
+                return; // L'erreur est déjà affichée
+            }
+            console.error('Erreur lors de la vérification Firebase:', error);
+        }
+    }
+    
+    // Vérifier dans le système local
     const users = getAllUsers();
     
     // Vérifier si le pseudo existe déjà
     if (users[username]) {
-        const errorDiv = document.getElementById('registerError');
         errorDiv.textContent = '❌ Ce pseudo existe déjà !';
         errorDiv.style.display = 'block';
         return;
     }
     
+    // Vérifier si l'email existe déjà
+    for (const [existingUsername, data] of Object.entries(users)) {
+        if (data.email && data.email.toLowerCase() === normalizedEmail) {
+            errorDiv.textContent = '❌ Cet email est déjà utilisé !';
+            errorDiv.style.display = 'block';
+            return;
+        }
+    }
+    
+    // Créer un ID unique basé sur l'email (hash simple)
+    const userId = btoa(normalizedEmail).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+    
     // Créer le compte local
     users[username] = {
         religion: selectedReligion,
-        email: email,
+        email: normalizedEmail,
         password: btoa(password), // Encodage basique (pas sécurisé mais fonctionnel)
+        userId: userId,
         createdAt: new Date().toISOString(),
         lastActive: new Date().toISOString()
     };
     saveAllUsers(users);
+    
+    // Sauvegarder aussi sur Firebase Firestore pour synchronisation entre appareils
+    if (window.firebaseDb) {
+        try {
+            const userRef = window.firebaseDoc(window.firebaseDb, 'users', userId);
+            await window.firebaseSetDoc(userRef, {
+                username: username,
+                email: normalizedEmail,
+                religion: selectedReligion,
+                password: btoa(password), // Stocké pour le système local
+                userId: userId,
+                createdAt: new Date().toISOString(),
+                lastActive: new Date().toISOString()
+            }, { merge: true });
+            console.log('✅ Compte sauvegardé sur Firebase pour synchronisation');
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde Firebase:', error);
+            // Continuer quand même avec le système local
+        }
+    }
     
     // Connecter l'utilisateur
     currentUser = username;
     localStorage.setItem('currentUser', username);
     localStorage.setItem('username', username);
     localStorage.setItem('selectedReligion', selectedReligion);
+    localStorage.setItem('firebaseUID', userId);
     
     const loginOverlay = document.getElementById('loginOverlay');
     if (loginOverlay) {
@@ -4000,7 +4131,47 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Initialiser l'authentification
 function initAuth() {
-    // Écouter les changements d'état d'authentification
+    // Vérifier si Firebase Auth est disponible
+    if (!window.firebaseAuth || !window.firebaseOnAuthStateChanged) {
+        console.log('⚠️ Firebase Auth non disponible, utilisation du système local');
+        // Vérifier s'il y a un utilisateur local sauvegardé
+        const savedCurrentUser = localStorage.getItem('currentUser');
+        const savedUsername = localStorage.getItem('username');
+        const savedReligion = localStorage.getItem('selectedReligion');
+        
+        const username = savedCurrentUser || savedUsername;
+        
+        if (username && savedReligion) {
+            // Utilisateur local trouvé, charger l'app
+            currentUser = username;
+            currentConfig = religionConfigs[savedReligion];
+            
+            if (currentConfig) {
+                habits = currentConfig.habits;
+                const loginOverlay = document.getElementById('loginOverlay');
+                if (loginOverlay) {
+                    loginOverlay.remove();
+                }
+                
+                // Restaurer les données depuis Firebase si disponible
+                const firebaseUID = localStorage.getItem('firebaseUID');
+                if (firebaseUID && window.firebaseDb) {
+                    restoreUserDataFromFirebase(firebaseUID).then(() => {
+                        initApp();
+                    });
+                } else {
+                    initApp();
+                }
+                return;
+            }
+        }
+        
+        // Aucun utilisateur local, afficher le login
+        showLoginScreen();
+        return;
+    }
+    
+    // Écouter les changements d'état d'authentification Firebase
     window.firebaseOnAuthStateChanged(window.firebaseAuth, async (firebaseUser) => {
         if (firebaseUser) {
             // Utilisateur connecté
@@ -4053,7 +4224,37 @@ function initAuth() {
                 showLoginScreen();
             }
         } else {
-            // Utilisateur non connecté
+            // Utilisateur non connecté - vérifier le système local
+            const savedCurrentUser = localStorage.getItem('currentUser');
+            const savedUsername = localStorage.getItem('username');
+            const savedReligion = localStorage.getItem('selectedReligion');
+            
+            const username = savedCurrentUser || savedUsername;
+            
+            if (username && savedReligion) {
+                // Utilisateur local trouvé
+                currentUser = username;
+                currentConfig = religionConfigs[savedReligion];
+                
+                if (currentConfig) {
+                    habits = currentConfig.habits;
+                    const loginOverlay = document.getElementById('loginOverlay');
+                    if (loginOverlay) {
+                        loginOverlay.remove();
+                    }
+                    
+                    // Restaurer les données depuis Firebase si disponible
+                    const firebaseUID = localStorage.getItem('firebaseUID');
+                    if (firebaseUID && window.firebaseDb) {
+                        await restoreUserDataFromFirebase(firebaseUID);
+                    }
+                    
+                    initApp();
+                    return;
+                }
+            }
+            
+            // Aucun utilisateur, afficher le login
             console.log('❌ Aucun utilisateur connecté');
             showLoginScreen();
         }
