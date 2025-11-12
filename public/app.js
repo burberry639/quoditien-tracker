@@ -619,6 +619,15 @@ async function handleLogin() {
         return;
     }
     
+    // Vérifier si Firebase Auth est disponible
+    if (!window.firebaseAuth || !window.firebaseSignIn) {
+        errorDiv.textContent = '⚠️ Firebase Authentication n\'est pas configuré. Utilisez le système local.';
+        errorDiv.style.display = 'block';
+        // Fallback vers le système local
+        handleLocalLogin(email, password);
+        return;
+    }
+    
     try {
         const userCredential = await window.firebaseSignIn(window.firebaseAuth, email, password);
         console.log('✅ Connexion réussie:', userCredential.user.email);
@@ -626,6 +635,15 @@ async function handleLogin() {
     } catch (error) {
         console.error('❌ Erreur de connexion:', error);
         let errorMessage = 'Erreur de connexion';
+        
+        // Si c'est une erreur de configuration, utiliser le système local
+        if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+            errorDiv.textContent = '⚠️ Firebase Auth non configuré. Utilisation du système local...';
+            errorDiv.style.display = 'block';
+            handleLocalLogin(email, password);
+            return;
+        }
+        
         if (error.code === 'auth/user-not-found') {
             errorMessage = '❌ Aucun compte trouvé avec cet email';
         } else if (error.code === 'auth/wrong-password') {
@@ -638,6 +656,40 @@ async function handleLogin() {
         errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
     }
+}
+
+// Système de login local (fallback)
+function handleLocalLogin(email, password) {
+    // Utiliser l'email comme username pour le système local
+    const username = email.split('@')[0]; // Prendre la partie avant @
+    
+    // Vérifier si l'utilisateur existe dans le système local
+    const users = getAllUsers();
+    const userData = users[username];
+    
+    if (!userData) {
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.textContent = '❌ Aucun compte trouvé. Créez un compte d\'abord.';
+        errorDiv.style.display = 'block';
+        showRegisterForm();
+        return;
+    }
+    
+    // Connexion réussie avec le système local
+    currentUser = username;
+    localStorage.setItem('currentUser', username);
+    localStorage.setItem('username', username);
+    localStorage.setItem('selectedReligion', userData.religion);
+    
+    const loginOverlay = document.getElementById('loginOverlay');
+    if (loginOverlay) {
+        loginOverlay.remove();
+    }
+    
+    currentConfig = religionConfigs[userData.religion];
+    habits = currentConfig.habits;
+    
+    initApp();
 }
 
 // Gérer l'inscription
@@ -672,6 +724,13 @@ async function handleRegister() {
         return;
     }
     
+    // Vérifier si Firebase Auth est disponible
+    if (!window.firebaseAuth || !window.firebaseCreateUser) {
+        // Utiliser le système local
+        handleLocalRegister(username, email, password);
+        return;
+    }
+    
     try {
         // Créer le compte Firebase Auth
         const userCredential = await window.firebaseCreateUser(window.firebaseAuth, email, password);
@@ -697,6 +756,15 @@ async function handleRegister() {
         // L'authentification déclenchera onAuthStateChanged qui chargera l'app
     } catch (error) {
         console.error('❌ Erreur d\'inscription:', error);
+        
+        // Si c'est une erreur de configuration, utiliser le système local
+        if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+            errorDiv.textContent = '⚠️ Firebase Auth non configuré. Utilisation du système local...';
+            errorDiv.style.display = 'block';
+            handleLocalRegister(username, email, password);
+            return;
+        }
+        
         let errorMessage = 'Erreur lors de la création du compte';
         if (error.code === 'auth/email-already-in-use') {
             errorMessage = '❌ Cet email est déjà utilisé';
@@ -712,16 +780,60 @@ async function handleRegister() {
     }
 }
 
+// Système d'inscription local (fallback)
+function handleLocalRegister(username, email, password) {
+    const users = getAllUsers();
+    
+    // Vérifier si le pseudo existe déjà
+    if (users[username]) {
+        const errorDiv = document.getElementById('registerError');
+        errorDiv.textContent = '❌ Ce pseudo existe déjà !';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Créer le compte local
+    users[username] = {
+        religion: selectedReligion,
+        email: email,
+        password: btoa(password), // Encodage basique (pas sécurisé mais fonctionnel)
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString()
+    };
+    saveAllUsers(users);
+    
+    // Connecter l'utilisateur
+    currentUser = username;
+    localStorage.setItem('currentUser', username);
+    localStorage.setItem('username', username);
+    localStorage.setItem('selectedReligion', selectedReligion);
+    
+    const loginOverlay = document.getElementById('loginOverlay');
+    if (loginOverlay) {
+        loginOverlay.remove();
+    }
+    
+    currentConfig = religionConfigs[selectedReligion];
+    habits = currentConfig.habits;
+    
+    initApp();
+}
+
 // Gérer la déconnexion
 async function handleLogout() {
     try {
-        await window.firebaseSignOut(window.firebaseAuth);
-        localStorage.clear();
-        currentUser = null;
-        location.reload();
+        // Déconnexion Firebase si disponible
+        if (window.firebaseAuth && window.firebaseSignOut) {
+            await window.firebaseSignOut(window.firebaseAuth);
+        }
     } catch (error) {
-        console.error('Erreur de déconnexion:', error);
+        console.error('Erreur de déconnexion Firebase:', error);
     }
+    
+    // Déconnexion locale
+    localStorage.clear();
+    currentUser = null;
+    location.reload();
 }
 
 function showReligionSelector() {
