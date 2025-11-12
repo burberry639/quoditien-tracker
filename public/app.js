@@ -2256,13 +2256,9 @@ function generateHabitsHTML() {
 document.addEventListener('DOMContentLoaded', function() {
     loadTheme();
     
-    if (loadReligionConfig()) {
-        initializeApp();
-    }
+    // Initialiser l'authentification (qui chargera l'app si un utilisateur est connecté)
+    initAuth();
 });
-
-// Fonction globale pour sélection (appelée depuis HTML inline)
-window.selectReligion = selectReligion;
 
 /* ========================================
    SYSTÈME DE LEADERBOARD
@@ -2860,6 +2856,13 @@ function createParticle(x, y, color, size = 5) {
 // Système de particules pour la page des stats
 let statsParticlesInterval = null;
 
+function stopStatsParticles() {
+    if (statsParticlesInterval) {
+        clearInterval(statsParticlesInterval);
+        statsParticlesInterval = null;
+    }
+}
+
 function startStatsParticles() {
     // Arrêter les particules existantes si elles tournent déjà
     stopStatsParticles();
@@ -2924,13 +2927,6 @@ function startStatsParticles() {
             createFloatingParticle(x, y, '#ffd700', 4 + Math.random() * 2);
         }
     }, 300); // Toutes les 300ms
-}
-
-function stopStatsParticles() {
-    if (statsParticlesInterval) {
-        clearInterval(statsParticlesInterval);
-        statsParticlesInterval = null;
-    }
 }
 
 // Créer une particule flottante (plus lente et douce)
