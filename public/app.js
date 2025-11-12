@@ -1269,6 +1269,15 @@ function initDailyQuests() {
     setInterval(updateQuestTimer, 1000);
 }
 
+// Fonction pour calculer le nombre de pompes selon le rang
+function getPushupsCount() {
+    const currentRankName = getCurrentUserRank();
+    const rankIndex = rankSystem.findIndex(r => r.name === currentRankName);
+    // Rang F (index 0) = 50 pompes, puis +15 par rang
+    // F = 50, E = 65, D = 80, C = 95, etc.
+    return 50 + (rankIndex * 15);
+}
+
 function displayDailyQuests() {
     const dailyQuests = JSON.parse(originalGetItem('dailyQuests') || '[]');
     const container = document.getElementById('dailyQuestsList');
@@ -1282,11 +1291,18 @@ function displayDailyQuests() {
         
         const completed = originalGetItem('quest_' + questId) === 'true';
         
+        // Si c'est la quête de pompes, calculer dynamiquement le nombre selon le rang
+        let questName = quest.name;
+        if (questId === 'quest-pushups') {
+            const pushupsCount = getPushupsCount();
+            questName = `💪 ${pushupsCount} pompes`;
+        }
+        
         const questDiv = document.createElement('div');
         questDiv.className = 'quest-item' + (completed ? ' completed' : '');
         questDiv.innerHTML = `
             <div class="quest-info">
-                <div class="quest-name">${quest.name}</div>
+                <div class="quest-name">${questName}</div>
                 <div class="quest-reward">${quest.bonus}</div>
             </div>
             <button class="quest-btn" onclick="completeQuest('${questId}')" ${completed ? 'disabled' : ''}>
@@ -2117,7 +2133,7 @@ function saveUsername() {
 }
 
 function getCurrentUserRank() {
-    const progressPoints = parseFloat(localStorage.getItem('rankProgressPoints') || '0');
+    const progressPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
     let currentIndex = 0;
     let remainingPoints = progressPoints;
     
@@ -2361,6 +2377,11 @@ function showPage(pageName) {
     const pageIndex = ['daily', 'stats', 'quests', 'leaderboard'].indexOf(pageName);
     if (tabs[pageIndex]) {
         tabs[pageIndex].classList.add('active');
+    }
+    
+    // Mettre à jour les quêtes si on affiche la page des quêtes (pour refléter le rang actuel)
+    if (pageName === 'quests') {
+        displayDailyQuests();
     }
     
     // Joue un son si activé
