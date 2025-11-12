@@ -3407,9 +3407,18 @@ async function saveUserToFirebase(username, religion, rank) {
     }
 }
 
+// Variable pour stocker le listener Firebase et éviter les doublons
+let firebaseLeaderboardUnsubscribe = null;
+
 function displayFirebaseLeaderboard() {
     const container = document.getElementById('leaderboardList');
     if (!container || !window.firebaseDb) return;
+    
+    // Si un listener existe déjà, ne pas en créer un nouveau
+    if (firebaseLeaderboardUnsubscribe) {
+        console.log('Listener Firebase déjà actif, pas de nouveau listener');
+        return;
+    }
     
     const username = localStorage.getItem('username');
     
@@ -3422,7 +3431,8 @@ function displayFirebaseLeaderboard() {
     const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
     const q = window.firebaseQuery(usersCollection, window.firebaseOrderBy('lastUpdated', 'desc'));
     
-    window.firebaseOnSnapshot(q, (snapshot) => {
+    // Stocker la fonction de déconnexion
+    firebaseLeaderboardUnsubscribe = window.firebaseOnSnapshot(q, (snapshot) => {
         const users = [];
         snapshot.forEach((doc) => {
             users.push(doc.data());
@@ -3458,6 +3468,8 @@ function displayFirebaseLeaderboard() {
             container.appendChild(userDiv);
         });
     });
+    
+    console.log('✅ Listener Firebase créé pour le leaderboard');
 }
 
 function updateMyRankOnFirebase() {
@@ -3474,10 +3486,12 @@ function updateMyRankOnFirebase() {
    INITIALISATION
 ======================================== */
 
-// Attendre que Firebase soit chargé
+// Attendre que Firebase soit chargé (une seule fois)
+let firebaseInitDone = false;
 setTimeout(() => {
-    if (window.firebaseDb) {
+    if (window.firebaseDb && !firebaseInitDone) {
         displayFirebaseLeaderboard();
+        firebaseInitDone = true;
     }
 }, 1000);
 
@@ -3577,9 +3591,10 @@ function initApp() {
         }
     }, 5000);
     
-    // Afficher le leaderboard Firebase
-    if (window.firebaseDb) {
+    // Afficher le leaderboard Firebase (seulement si pas déjà initialisé)
+    if (window.firebaseDb && !firebaseInitDone) {
         displayFirebaseLeaderboard();
+        firebaseInitDone = true;
     }
     
     // Afficher la page quotidien par défaut
