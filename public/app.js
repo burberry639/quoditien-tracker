@@ -47,7 +47,7 @@ const religionConfigs = {
         habits: [
             'sommeil', 'sport', 'proteines',
             'douche-matin', 'douche-soir', 
-            'brossage-matin', 'brossage-midi', 'brossage-soir',
+            'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
             'chambre', 'peches'
@@ -74,7 +74,7 @@ const religionConfigs = {
         habits: [
             'sommeil', 'sport', 'proteines',
             'douche-matin', 'douche-soir', 
-            'brossage-matin', 'brossage-midi', 'brossage-soir',
+            'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'priere-matin', 'priere-midi', 'priere-soir', 'priere-repas', 'priere-nuit',
             'chambre', 'commandements'
@@ -101,7 +101,7 @@ const religionConfigs = {
         habits: [
             'sommeil', 'sport', 'proteines',
             'douche-matin', 'douche-soir', 
-            'brossage-matin', 'brossage-midi', 'brossage-soir',
+            'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'meditation-matin', 'meditation-midi', 'meditation-soir', 'gratitude', 'journal',
             'chambre', 'ethique'
@@ -136,7 +136,6 @@ const baseStatMapping = {
     'douche-soir': 'hp',
     'brossage-matin': 'end',
     'brossage-soir': 'end',
-    'brossage-midi': 'men',
     'ongles': 'men',
     'rasage': 'men'
 };
@@ -1981,7 +1980,7 @@ function generateHabitsHTML() {
         sleep: { icon: '😴', name: 'Sommeil', habits: ['sommeil'] },
         sport: { icon: '💪', name: 'Sport', habits: ['sport'] },
         food: { icon: '🍗', name: 'Alimentation', habits: ['proteines'] },
-        hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-matin', 'douche-soir', 'brossage-matin', 'brossage-midi', 'brossage-soir', 'ongles', 'rasage'] },
+        hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-matin', 'douche-soir', 'brossage-matin', 'brossage-soir', 'ongles', 'rasage'] },
         spiritual: { icon: currentConfig.categoryIcons.spiritual, name: currentConfig.categoryNames.spiritual, habits: [] },
         clean: { icon: '🧹', name: 'Rangement', habits: ['chambre'] },
         ethics: { icon: '✨', name: currentConfig.categoryNames.ethics, habits: [] }
@@ -2006,7 +2005,6 @@ function generateHabitsHTML() {
         'douche-matin': 'Douche du matin',
         'douche-soir': 'Douche du soir',
         'brossage-matin': 'Brossage de dents - Matin',
-        'brossage-midi': 'Brossage de dents - Midi',
         'brossage-soir': 'Brossage de dents - Soir',
         'ongles': 'Coupage d\'ongles',
         'rasage': 'Rasage',
