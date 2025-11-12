@@ -493,14 +493,14 @@ function showLoginScreen() {
                     margin-bottom: 15px;
                     box-sizing: border-box;
                 ">
-                <p style="
+            <p style="
                     font-size: 1em;
-                    color: #aaa;
+                color: #aaa;
                     margin-bottom: 20px;
                     text-align: center;
-                ">Choisis ta voie spirituelle</p>
-                <div style="
-                    display: grid;
+            ">Choisis ta voie spirituelle</p>
+            <div style="
+                display: grid;
                     grid-template-columns: repeat(3, 1fr);
                     gap: 10px;
                     margin-bottom: 20px;
@@ -510,18 +510,18 @@ function showLoginScreen() {
                         background: rgba(0, 204, 102, 0.2);
                         border: 2px solid #00cc66;
                         border-radius: 10px;
-                        color: white;
+                    color: white;
                         font-size: 1.2em;
-                        cursor: pointer;
+                    cursor: pointer;
                     ">☪️</button>
                     <button onclick="selectRegisterReligion('christianity')" id="religion-christianity" style="
                         padding: 15px;
                         background: rgba(102, 126, 234, 0.2);
                         border: 2px solid #667eea;
                         border-radius: 10px;
-                        color: white;
+                    color: white;
                         font-size: 1.2em;
-                        cursor: pointer;
+                    cursor: pointer;
                     ">✝️</button>
                     <button onclick="selectRegisterReligion('neutral')" id="religion-neutral" style="
                         padding: 15px;
@@ -1114,25 +1114,25 @@ async function showUserSelector() {
                 width: 100%;
                 margin-bottom: 15px;
             ">
-                <button onclick="selectUser('${username}')" style="
+            <button onclick="selectUser('${username}')" style="
                     flex: 1;
-                    padding: 20px;
-                    background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 150, 200, 0.1));
-                    border: 2px solid #00d9ff;
-                    border-radius: 15px;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    text-align: left;
-                ">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="font-size: 2em;">${config.icon}</div>
-                        <div style="flex: 1;">
+                padding: 20px;
+                background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 150, 200, 0.1));
+                border: 2px solid #00d9ff;
+                border-radius: 15px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s;
+                text-align: left;
+            ">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 2em;">${config.icon}</div>
+                    <div style="flex: 1;">
                             <div style="font-size: 1.3em; font-weight: bold;">${username}${isCurrentUser ? ' (Actuel)' : ''}</div>
-                            <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
-                        </div>
+                        <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
                     </div>
-                </button>
+                </div>
+            </button>
                 ${deleteButtonHTML}
             </div>
         `;
@@ -1451,7 +1451,10 @@ function loadHabits() {
     if (history[today] && history[today].habits) {
         habits.forEach(habit => {
             const checkbox = document.getElementById(habit);
+            // Vérifier que le checkbox existe avant de définir sa propriété
+            if (checkbox) {
             checkbox.checked = history[today].habits[habit] || false;
+            }
         });
     }
 }
@@ -1459,7 +1462,8 @@ function loadHabits() {
 function updateProgress() {
     let completed = 0;
     habits.forEach(habit => {
-        if (document.getElementById(habit).checked) {
+        const checkbox = document.getElementById(habit);
+        if (checkbox && checkbox.checked) {
             completed++;
         }
     });
@@ -3982,6 +3986,11 @@ async function restoreUserDataFromFirebase(uid) {
         console.log('✅ Données restaurées depuis Firebase !');
         return true;
     } catch (error) {
+        // Gérer l'erreur de permissions Firebase gracieusement
+        if (error.code === 'permission-denied' || error.message?.includes('permissions')) {
+            console.warn('⚠️ Permissions Firebase insuffisantes. Les données seront stockées localement uniquement.');
+            return false;
+        }
         console.error('❌ Erreur lors de la restauration Firebase:', error);
         return false;
     }
@@ -4135,16 +4144,16 @@ function initAuth() {
     if (!window.firebaseAuth || !window.firebaseOnAuthStateChanged) {
         console.log('⚠️ Firebase Auth non disponible, utilisation du système local');
         // Vérifier s'il y a un utilisateur local sauvegardé
-        const savedCurrentUser = localStorage.getItem('currentUser');
-        const savedUsername = localStorage.getItem('username');
-        const savedReligion = localStorage.getItem('selectedReligion');
-        
-        const username = savedCurrentUser || savedUsername;
-        
+    const savedCurrentUser = localStorage.getItem('currentUser');
+    const savedUsername = localStorage.getItem('username');
+    const savedReligion = localStorage.getItem('selectedReligion');
+    
+    const username = savedCurrentUser || savedUsername;
+    
         if (username && savedReligion) {
             // Utilisateur local trouvé, charger l'app
-            currentUser = username;
-            currentConfig = religionConfigs[savedReligion];
+        currentUser = username;
+        currentConfig = religionConfigs[savedReligion];
             
             if (currentConfig) {
                 habits = currentConfig.habits;
@@ -4195,15 +4204,15 @@ function initAuth() {
                     
                     currentUser = username;
                     currentConfig = religionConfigs[religion];
-                    
-                    if (!currentConfig) {
+        
+        if (!currentConfig) {
                         console.error('Config not found for religion:', religion);
                         showLoginScreen();
-                        return;
-                    }
-                    
-                    habits = currentConfig.habits;
-                    
+            return;
+        }
+        
+        habits = currentConfig.habits;
+        
                     // Fermer l'overlay de login s'il existe
                     const loginOverlay = document.getElementById('loginOverlay');
                     if (loginOverlay) {
@@ -4214,7 +4223,7 @@ function initAuth() {
                     await restoreUserDataFromFirebase(firebaseUser.uid);
                     
                     // Initialiser l'app
-                    initApp();
+        initApp();
                 } else {
                     console.error('Données utilisateur non trouvées');
                     showLoginScreen();
@@ -4277,8 +4286,19 @@ async function updateAdminButton() {
 
 function initApp() {
     updateDate();
+    
+    // Générer les habitudes HTML d'abord si nécessaire
+    const habitsContainer = document.getElementById('habitsContainer');
+    if (!habitsContainer || !habitsContainer.hasChildNodes()) {
+        generateHabitsHTML();
+    }
+    
+    // Attendre un peu que le DOM soit prêt avant de charger les habitudes
+    setTimeout(() => {
     loadHabits();
-    updateProgress(); // Met à jour la progression et le rang en temps réel
+        updateProgress(); // Met à jour la progression et le rang en temps réel
+    }, 100);
+    
     updateStatsDisplay();
     updateRankSystem();
     calculateStats();
