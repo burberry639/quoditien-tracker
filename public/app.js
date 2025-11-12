@@ -2451,10 +2451,13 @@ function showLeaderboard() {
 }
 
 // Exposer les fonctions globalement
-window.createUser = createUser;
-window.selectUser = selectUser;
 window.showLeaderboard = showLeaderboard;
-window.showUserSelector = showUserSelector;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.handleLogout = handleLogout;
+window.showLoginForm = showLoginForm;
+window.showRegisterForm = showRegisterForm;
+window.selectRegisterReligion = selectRegisterReligion;
 
 /* ========================================
    SYSTÈME DE CLASSEMENT
@@ -3394,7 +3397,12 @@ function updateCursorTrailForRank(rankName) {
 
 // Sauvegarder toutes les données utilisateur sur Firebase
 async function saveAllUserDataToFirebase() {
-    if (!window.firebaseDb || !currentUser) {
+    if (!window.firebaseDb || !window.firebaseAuth) {
+        return;
+    }
+    
+    const firebaseUser = window.firebaseAuth.currentUser;
+    if (!firebaseUser) {
         return;
     }
     
@@ -3425,7 +3433,7 @@ async function saveAllUserDataToFirebase() {
             lastActive: new Date().toISOString()
         };
         
-        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', currentUser);
+        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', firebaseUser.uid);
         await window.firebaseSetDoc(userRef, userData, { merge: true });
         console.log('✅ Toutes les données sauvegardées sur Firebase !');
         return true;
@@ -3436,17 +3444,17 @@ async function saveAllUserDataToFirebase() {
 }
 
 // Restaurer les données utilisateur depuis Firebase
-async function restoreUserDataFromFirebase(username) {
-    if (!window.firebaseDb || !username) {
+async function restoreUserDataFromFirebase(uid) {
+    if (!window.firebaseDb || !uid) {
         return false;
     }
     
     try {
-        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', username);
+        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', uid);
         const userDoc = await window.firebaseGetDoc(userRef);
         
         if (!userDoc.exists()) {
-            console.log('Aucune donnée Firebase trouvée pour', username);
+            console.log('Aucune donnée Firebase trouvée pour', uid);
             return false;
         }
         
@@ -3479,17 +3487,6 @@ async function restoreUserDataFromFirebase(username) {
         }
         if (userData.challenges) {
             originalSetItem('challenges', JSON.stringify(userData.challenges));
-        }
-        
-        // Restaurer les métadonnées utilisateur
-        if (userData.createdAt) {
-            const users = getAllUsers();
-            if (!users[username]) {
-                users[username] = {};
-            }
-            users[username].createdAt = userData.createdAt;
-            users[username].lastActive = userData.lastActive || new Date().toISOString();
-            saveAllUsers(users);
         }
         
         console.log('✅ Données restaurées depuis Firebase !');
@@ -3627,69 +3624,82 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
-    // Vérifier si l'utilisateur existe dans le système multi-utilisateurs
-    const savedCurrentUser = localStorage.getItem('currentUser');
-    const savedUsername = localStorage.getItem('username');
-    const savedReligion = localStorage.getItem('selectedReligion');
-    
-    console.log('Saved data:', { savedCurrentUser, savedUsername, savedReligion });
-    
-    // Utiliser currentUser ou username
-    const username = savedCurrentUser || savedUsername;
-    
-    if (!username || !savedReligion) {
-        console.log('No user found, showing selector');
-        // Afficher le sélecteur de religion
-        showReligionSelector();
+    // Attendre que Firebase Auth soit chargé
+    if (!window.firebaseAuth) {
+        setTimeout(() => {
+            if (window.firebaseAuth) {
+                initAuth();
+            } else {
+                console.error('Firebase Auth non disponible');
+                showLoginScreen();
+            }
+        }, 1000);
     } else {
-        console.log('User found, loading app for:', username);
-        // Charger la configuration et initialiser
-        currentUser = username;
-        localStorage.setItem('username', username); // S'assurer que username est aussi sauvegardé
-        currentConfig = religionConfigs[savedReligion];
-        
-        if (!currentConfig) {
-            console.error('Config not found for religion:', savedReligion);
-            showReligionSelector();
-            return;
-        }
-        
-        habits = currentConfig.habits;
-        
-        // Restaurer les données depuis Firebase si disponibles
-        if (window.firebaseDb) {
-            restoreUserDataFromFirebase(username).then(restored => {
-                if (restored) {
-                    console.log('✅ Données restaurées, rechargement de l\'app...');
-                    // Recharger les habitudes et stats après restauration
-                    loadHabits();
-                    updateProgress();
-                    updateStatsDisplay();
-                    updateRankSystem();
-                }
-                // Initialiser l'app dans tous les cas
-                initApp();
-            });
-        } else {
-            // Si Firebase n'est pas encore chargé, attendre un peu
-            setTimeout(() => {
-                if (window.firebaseDb) {
-                    restoreUserDataFromFirebase(username).then(restored => {
-                        if (restored) {
-                            loadHabits();
-                            updateProgress();
-                            updateStatsDisplay();
-                            updateRankSystem();
-                        }
-                        initApp();
-                    });
-                } else {
-                    initApp();
-                }
-            }, 1500);
-        }
+        initAuth();
     }
 });
+
+// Initialiser l'authentification
+function initAuth() {
+    // Écouter les changements d'état d'authentification
+    window.firebaseOnAuthStateChanged(window.firebaseAuth, async (firebaseUser) => {
+        if (firebaseUser) {
+            // Utilisateur connecté
+            console.log('✅ Utilisateur connecté:', firebaseUser.email);
+            
+            // Récupérer les données utilisateur depuis Firestore
+            try {
+                const userRef = window.firebaseDoc(window.firebaseDb, 'users', firebaseUser.uid);
+                const userDoc = await window.firebaseGetDoc(userRef);
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const username = userData.username;
+                    const religion = userData.religion;
+                    
+                    // Sauvegarder dans localStorage pour compatibilité
+                    localStorage.setItem('currentUser', username);
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('selectedReligion', religion);
+                    localStorage.setItem('firebaseUID', firebaseUser.uid);
+                    
+                    currentUser = username;
+                    currentConfig = religionConfigs[religion];
+                    
+                    if (!currentConfig) {
+                        console.error('Config not found for religion:', religion);
+                        showLoginScreen();
+                        return;
+                    }
+                    
+                    habits = currentConfig.habits;
+                    
+                    // Fermer l'overlay de login s'il existe
+                    const loginOverlay = document.getElementById('loginOverlay');
+                    if (loginOverlay) {
+                        loginOverlay.remove();
+                    }
+                    
+                    // Restaurer les données depuis Firebase
+                    await restoreUserDataFromFirebase(firebaseUser.uid);
+                    
+                    // Initialiser l'app
+                    initApp();
+                } else {
+                    console.error('Données utilisateur non trouvées');
+                    showLoginScreen();
+                }
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données:', error);
+                showLoginScreen();
+            }
+        } else {
+            // Utilisateur non connecté
+            console.log('❌ Aucun utilisateur connecté');
+            showLoginScreen();
+        }
+    });
+}
 
 // Fonction pour afficher/masquer le bouton admin dans le header
 async function updateAdminButton() {
@@ -3722,6 +3732,12 @@ function initApp() {
     
     // Vérifier et afficher le bouton admin
     updateAdminButton();
+    
+    // Afficher le bouton de déconnexion
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.style.display = 'flex';
+    }
     
     // Mettre à jour le timer toutes les secondes
     setInterval(updateQuestTimer, 1000);

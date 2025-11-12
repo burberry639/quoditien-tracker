@@ -256,6 +256,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, orderBy, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyD_ztzn3IaW7zA65QZky0ehQA4ryaZqUXY",
@@ -268,8 +269,10 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
         
         window.firebaseDb = db;
+        window.firebaseAuth = auth;
         window.firebaseDoc = doc;
         window.firebaseSetDoc = setDoc;
         window.firebaseGetDoc = getDoc;
@@ -279,6 +282,10 @@
         window.firebaseCollection = collection;
         window.firebaseGetDocs = getDocs;
         window.firebaseDeleteDoc = deleteDoc;
+        window.firebaseCreateUser = createUserWithEmailAndPassword;
+        window.firebaseSignIn = signInWithEmailAndPassword;
+        window.firebaseSignOut = signOut;
+        window.firebaseOnAuthStateChanged = onAuthStateChanged;
     </script>
     <script src="app.js"></script>
 </body>
