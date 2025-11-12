@@ -712,12 +712,8 @@ function updateProgress() {
     document.getElementById('progressFill').style.width = percentage + '%';
     document.getElementById('progressFill').textContent = percentage + '%';
     
-    // Ajouter des points de rang selon progression
-    if (percentage === 100) {
-        addRankProgress(1); // Journée parfaite = +1 jour
-    } else if (percentage >= 50) {
-        addRankProgress(0.5); // Demi-journée = +0.5 jour
-    }
+    // Mettre à jour le rang en temps réel selon la progression actuelle
+    updateRankProgressRealtime(percentage);
 }
 
 function addRankProgress(points) {
@@ -731,6 +727,48 @@ function addRankProgress(points) {
         originalSetItem('lastRankUpdate', today);
         updateRankSystem();
     }
+}
+
+// Nouvelle fonction pour mettre à jour le rang en temps réel
+function updateRankProgressRealtime(currentPercentage) {
+    const today = getTodayDate();
+    const lastUpdate = originalGetItem('lastRankUpdate') || '';
+    
+    // Récupérer les points actuels
+    let currentPoints = parseFloat(originalGetItem('rankProgressPoints') || '0');
+    
+    // Si c'est un nouveau jour, on commence avec les points de base
+    if (lastUpdate !== today) {
+        // Nouveau jour : les points actuels sont déjà corrects (sans contribution d'aujourd'hui)
+        // On va juste ajouter la contribution actuelle
+    } else {
+        // Même jour : retirer la contribution précédente pour recalculer
+        const previousContribution = parseFloat(originalGetItem('todayRankContribution') || '0');
+        currentPoints -= previousContribution;
+    }
+    
+    // Calculer la contribution actuelle selon la progression
+    let todayContribution = 0;
+    if (currentPercentage === 100) {
+        todayContribution = 1; // Journée parfaite = +1 jour
+    } else if (currentPercentage >= 50) {
+        todayContribution = 0.5; // Demi-journée = +0.5 jour
+    }
+    
+    // Calculer les points totaux avec la contribution actuelle
+    const totalPoints = currentPoints + todayContribution;
+    
+    // Sauvegarder la contribution d'aujourd'hui pour les prochains calculs
+    originalSetItem('todayRankContribution', todayContribution.toString());
+    originalSetItem('lastRankUpdate', today);
+    
+    // Sauvegarder les points pour l'affichage en temps réel
+    // Si la journée est complète (100%), les points sont définitifs
+    // Sinon, ils seront recalculés à chaque changement
+    originalSetItem('rankProgressPoints', totalPoints.toString());
+    
+    // Mettre à jour l'affichage du rang en temps réel
+    updateRankSystem();
 }
 
 function resetAll() {
@@ -2695,6 +2733,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initApp() {
     updateDate();
     loadHabits();
+    updateProgress(); // Met à jour la progression et le rang en temps réel
     updateStatsDisplay();
     updateRankSystem();
     calculateStats();
