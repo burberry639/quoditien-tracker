@@ -1256,6 +1256,7 @@ function initDailyQuests() {
     const savedDate = originalGetItem('questsDate');
     
     if (savedDate !== today) {
+        // Nouveau jour : générer de nouvelles quêtes
         // S'assurer que la quête de pompes est toujours incluse
         const pushupsQuest = allQuests.find(q => q.id === 'quest-pushups');
         const otherQuests = allQuests.filter(q => q.id !== 'quest-pushups');
@@ -1271,6 +1272,24 @@ function initDailyQuests() {
         originalSetItem('questsDate', today);
         
         dailyQuests.forEach(qid => localStorage.removeItem('quest_' + qid));
+    } else {
+        // Même jour : vérifier si la quête de pompes est présente
+        const currentQuests = JSON.parse(originalGetItem('dailyQuests') || '[]');
+        if (!currentQuests.includes('quest-pushups')) {
+            // La quête de pompes n'est pas présente, l'ajouter
+            const pushupsQuest = allQuests.find(q => q.id === 'quest-pushups');
+            if (pushupsQuest) {
+                // Remplacer une quête aléatoire par la quête de pompes, ou l'ajouter si moins de 5
+                if (currentQuests.length < 5) {
+                    currentQuests.push('quest-pushups');
+                } else {
+                    // Remplacer une quête aléatoire (sauf si c'est déjà la quête de pompes)
+                    const indexToReplace = Math.floor(Math.random() * currentQuests.length);
+                    currentQuests[indexToReplace] = 'quest-pushups';
+                }
+                originalSetItem('dailyQuests', JSON.stringify(currentQuests));
+            }
+        }
     }
     
     displayDailyQuests();
@@ -1304,7 +1323,10 @@ function displayDailyQuests() {
     
     dailyQuests.forEach(questId => {
         const quest = allQuests.find(q => q.id === questId);
-        if (!quest) return;
+        if (!quest) {
+            console.warn(`Quête non trouvée: ${questId}`);
+            return;
+        }
         
         const completed = originalGetItem('quest_' + questId) === 'true';
         
