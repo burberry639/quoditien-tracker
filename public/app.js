@@ -944,6 +944,11 @@ function saveHabits() {
     });
     
     originalSetItem('habitHistory', JSON.stringify(history));
+    
+    // Sauvegarder sur Firebase en arrière-plan (sans bloquer)
+    if (currentUser && window.firebaseDb) {
+        saveAllUserDataToFirebase().catch(err => console.error('Erreur sauvegarde Firebase:', err));
+    }
 }
 
 function loadHabits() {
@@ -3387,6 +3392,114 @@ function updateCursorTrailForRank(rankName) {
    FIREBASE REAL-TIME LEADERBOARD
 ======================================== */
 
+// Sauvegarder toutes les données utilisateur sur Firebase
+async function saveAllUserDataToFirebase() {
+    if (!window.firebaseDb || !currentUser) {
+        return;
+    }
+    
+    try {
+        const userData = {
+            username: currentUser,
+            religion: localStorage.getItem('selectedReligion'),
+            rank: getCurrentUserRank(),
+            lastUpdated: new Date().toISOString(),
+            
+            // Données de progression
+            habitHistory: JSON.parse(originalGetItem('habitHistory') || '{}'),
+            rankProgressPoints: parseFloat(originalGetItem('rankProgressPoints') || '0'),
+            currentRankIndex: parseInt(originalGetItem('currentRankIndex') || '0'),
+            currentStreak: parseInt(originalGetItem('currentStreak') || '0'),
+            bestStreak: parseInt(originalGetItem('bestStreak') || '0'),
+            
+            // Données des quêtes
+            dailyQuests: JSON.parse(originalGetItem('dailyQuests') || '[]'),
+            epicQuests: JSON.parse(originalGetItem('epicQuests') || '[]'),
+            challenges: JSON.parse(originalGetItem('challenges') || '[]'),
+            
+            // Stats RPG
+            stats: calculateStats(),
+            
+            // Métadonnées
+            createdAt: getCurrentUserData('createdAt') || new Date().toISOString(),
+            lastActive: new Date().toISOString()
+        };
+        
+        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', currentUser);
+        await window.firebaseSetDoc(userRef, userData, { merge: true });
+        console.log('✅ Toutes les données sauvegardées sur Firebase !');
+        return true;
+    } catch (error) {
+        console.error('❌ Erreur lors de la sauvegarde Firebase:', error);
+        return false;
+    }
+}
+
+// Restaurer les données utilisateur depuis Firebase
+async function restoreUserDataFromFirebase(username) {
+    if (!window.firebaseDb || !username) {
+        return false;
+    }
+    
+    try {
+        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', username);
+        const userDoc = await window.firebaseGetDoc(userRef);
+        
+        if (!userDoc.exists()) {
+            console.log('Aucune donnée Firebase trouvée pour', username);
+            return false;
+        }
+        
+        const userData = userDoc.data();
+        console.log('📥 Restauration des données depuis Firebase...', userData);
+        
+        // Restaurer les données de progression
+        if (userData.habitHistory) {
+            originalSetItem('habitHistory', JSON.stringify(userData.habitHistory));
+        }
+        if (userData.rankProgressPoints !== undefined) {
+            originalSetItem('rankProgressPoints', userData.rankProgressPoints.toString());
+        }
+        if (userData.currentRankIndex !== undefined) {
+            originalSetItem('currentRankIndex', userData.currentRankIndex.toString());
+        }
+        if (userData.currentStreak !== undefined) {
+            originalSetItem('currentStreak', userData.currentStreak.toString());
+        }
+        if (userData.bestStreak !== undefined) {
+            originalSetItem('bestStreak', userData.bestStreak.toString());
+        }
+        
+        // Restaurer les quêtes
+        if (userData.dailyQuests) {
+            originalSetItem('dailyQuests', JSON.stringify(userData.dailyQuests));
+        }
+        if (userData.epicQuests) {
+            originalSetItem('epicQuests', JSON.stringify(userData.epicQuests));
+        }
+        if (userData.challenges) {
+            originalSetItem('challenges', JSON.stringify(userData.challenges));
+        }
+        
+        // Restaurer les métadonnées utilisateur
+        if (userData.createdAt) {
+            const users = getAllUsers();
+            if (!users[username]) {
+                users[username] = {};
+            }
+            users[username].createdAt = userData.createdAt;
+            users[username].lastActive = userData.lastActive || new Date().toISOString();
+            saveAllUsers(users);
+        }
+        
+        console.log('✅ Données restaurées depuis Firebase !');
+        return true;
+    } catch (error) {
+        console.error('❌ Erreur lors de la restauration Firebase:', error);
+        return false;
+    }
+}
+
 async function saveUserToFirebase(username, religion, rank) {
     if (!window.firebaseDb) {
         console.log('Firebase pas encore chargé...');
@@ -3543,8 +3656,38 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         habits = currentConfig.habits;
         
-        // Initialiser toutes les fonctions
-        initApp();
+        // Restaurer les données depuis Firebase si disponibles
+        if (window.firebaseDb) {
+            restoreUserDataFromFirebase(username).then(restored => {
+                if (restored) {
+                    console.log('✅ Données restaurées, rechargement de l\'app...');
+                    // Recharger les habitudes et stats après restauration
+                    loadHabits();
+                    updateProgress();
+                    updateStatsDisplay();
+                    updateRankSystem();
+                }
+                // Initialiser l'app dans tous les cas
+                initApp();
+            });
+        } else {
+            // Si Firebase n'est pas encore chargé, attendre un peu
+            setTimeout(() => {
+                if (window.firebaseDb) {
+                    restoreUserDataFromFirebase(username).then(restored => {
+                        if (restored) {
+                            loadHabits();
+                            updateProgress();
+                            updateStatsDisplay();
+                            updateRankSystem();
+                        }
+                        initApp();
+                    });
+                } else {
+                    initApp();
+                }
+            }, 1500);
+        }
     }
 });
 
@@ -3590,6 +3733,21 @@ function initApp() {
             createRankParticles(currentRankEl.textContent);
         }
     }, 5000);
+    
+    // Sauvegarder automatiquement toutes les données sur Firebase toutes les 30 secondes
+    if (window.firebaseDb && currentUser) {
+        setInterval(() => {
+            saveAllUserDataToFirebase().catch(err => console.error('Erreur sauvegarde auto:', err));
+        }, 30000); // Toutes les 30 secondes
+    }
+    
+    // Sauvegarder aussi quand l'utilisateur quitte la page
+    window.addEventListener('beforeunload', () => {
+        if (currentUser && window.firebaseDb) {
+            // Utiliser sendBeacon pour une sauvegarde synchrone
+            saveAllUserDataToFirebase();
+        }
+    });
     
     // Afficher le leaderboard Firebase (seulement si pas déjà initialisé)
     if (window.firebaseDb && !firebaseInitDone) {

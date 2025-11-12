@@ -255,7 +255,7 @@
     <!-- FIREBASE + APP -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, orderBy, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyD_ztzn3IaW7zA65QZky0ehQA4ryaZqUXY",
@@ -272,6 +272,7 @@
         window.firebaseDb = db;
         window.firebaseDoc = doc;
         window.firebaseSetDoc = setDoc;
+        window.firebaseGetDoc = getDoc;
         window.firebaseOnSnapshot = onSnapshot;
         window.firebaseQuery = query;
         window.firebaseOrderBy = orderBy;
