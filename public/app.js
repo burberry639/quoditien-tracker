@@ -14,13 +14,7 @@ const originalSetItem = (key, value) => {
     localStorage.setItem(key, value);
 };
 
-function getAllUsers() {
-    return JSON.parse(originalGetItem('allUsers') || '{}');
-}
-
-function saveAllUsers(users) {
-    originalSetItem('allUsers', JSON.stringify(users));
-}
+// Fonctions getAllUsers et saveAllUsers supprimées - utilisation exclusive de Firebase Firestore
 
 /* ========================================
    SYSTÈME D'ADMINISTRATION PAR IP
@@ -99,38 +93,7 @@ async function isAdmin() {
 }
 
 // Fonction pour supprimer un compte utilisateur (local)
-function deleteUser(username) {
-    if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer le compte "${username}" ?\n\nCette action est irréversible !`)) {
-        return;
-    }
-    
-    const users = getAllUsers();
-    
-    if (!users[username]) {
-        alert('❌ Utilisateur introuvable localement !');
-        return;
-    }
-    
-    // Supprimer l'utilisateur
-    delete users[username];
-    saveAllUsers(users);
-    
-    // Si c'est l'utilisateur actuel, le déconnecter
-    if (currentUser === username) {
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('username');
-        currentUser = null;
-        alert('✅ Compte supprimé. Redirection...');
-        location.reload();
-    } else {
-        alert(`✅ Compte "${username}" supprimé avec succès !`);
-        // Rafraîchir l'affichage si on est dans le sélecteur
-        const overlay = document.getElementById('userOverlay');
-        if (overlay) {
-            showUserSelector();
-        }
-    }
-}
+// Fonction deleteUser supprimée - utilisation exclusive de Firebase Firestore via showAdminPanel
 
 // Fonction pour supprimer un utilisateur depuis Firebase
 async function deleteUserFromFirebase(username) {
@@ -155,52 +118,45 @@ async function deleteUserFromFirebase(username) {
     }
 }
 
-// Fonction pour supprimer un utilisateur (local + Firebase)
-async function deleteUserCompletely(username) {
-    if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer COMPLÈTEMENT le compte "${username}" ?\n\nCette action supprimera le compte localement ET sur Firebase.\n\nCette action est irréversible !`)) {
+// Fonction pour supprimer un utilisateur depuis Firebase uniquement
+async function deleteUserCompletely(uid) {
+    if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer ce compte ?\n\nCette action est irréversible !`)) {
         return;
     }
     
-    // Supprimer localement
-    const users = getAllUsers();
-    if (users[username]) {
-        delete users[username];
-        saveAllUsers(users);
+    if (!window.firebaseDb) {
+        alert('❌ Firebase n\'est pas disponible !');
+        return;
     }
     
-    // Supprimer de Firebase
-    if (window.firebaseDb) {
-        await deleteUserFromFirebase(username);
-    }
-    
-    // Si c'est l'utilisateur actuel, le déconnecter
-    if (currentUser === username) {
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('username');
-        currentUser = null;
-        alert('✅ Compte supprimé complètement. Redirection...');
-        location.reload();
-    } else {
-        alert(`✅ Compte "${username}" supprimé complètement !`);
+    try {
+        // Supprimer de la collection users
+        const userRef = window.firebaseDoc(window.firebaseDb, 'users', uid);
+        await window.firebaseDeleteDoc(userRef);
+        
+        // Supprimer aussi les données utilisateur
+        const userDataRef = window.firebaseDoc(window.firebaseDb, 'userData', uid);
+        await window.firebaseDeleteDoc(userDataRef);
+        
+        // Si c'est l'utilisateur actuel, le déconnecter
+        const currentUID = localStorage.getItem('firebaseUID');
+        if (currentUID === uid) {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('username');
+            localStorage.removeItem('firebaseUID');
+            currentUser = null;
+            alert('✅ Compte supprimé. Redirection...');
+            location.reload();
+        } else {
+            alert(`✅ Compte supprimé avec succès !`);
+        }
+    } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        alert(`❌ Erreur lors de la suppression: ${error.message}`);
     }
 }
 
-function getCurrentUserData(key, defaultValue = null) {
-    if (!currentUser) return defaultValue;
-    const users = getAllUsers();
-    const userData = users[currentUser] || {};
-    return userData[key] !== undefined ? userData[key] : defaultValue;
-}
-
-function setCurrentUserData(key, value) {
-    if (!currentUser) return;
-    const users = getAllUsers();
-    if (!users[currentUser]) {
-        users[currentUser] = {};
-    }
-    users[currentUser][key] = value;
-    saveAllUsers(users);
-}
+// Fonctions getCurrentUserData et setCurrentUserData supprimées - utilisation exclusive de localStorage et Firebase
 
 // Configurations par religion
 const religionConfigs = {
@@ -607,7 +563,7 @@ function selectRegisterReligion(religion) {
     });
 }
 
-// Gérer la connexion
+// Gérer la connexion - Utilise uniquement Firebase Firestore
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -619,147 +575,71 @@ async function handleLogin() {
         return;
     }
     
-    // Vérifier si Firebase Auth est disponible
-    if (!window.firebaseAuth || !window.firebaseSignIn) {
-        errorDiv.textContent = '⚠️ Firebase Authentication n\'est pas configuré. Utilisez le système local.';
+    if (!window.firebaseDb) {
+        errorDiv.textContent = '❌ Firebase n\'est pas disponible. Vérifiez votre connexion.';
         errorDiv.style.display = 'block';
-        // Fallback vers le système local
-        handleLocalLogin(email, password);
         return;
     }
     
     try {
-        const userCredential = await window.firebaseSignIn(window.firebaseAuth, email, password);
-        console.log('✅ Connexion réussie:', userCredential.user.email);
-        // L'authentification déclenchera onAuthStateChanged qui chargera l'app
-    } catch (error) {
-        console.error('❌ Erreur de connexion:', error);
-        let errorMessage = 'Erreur de connexion';
+        const normalizedEmail = email.toLowerCase().trim();
         
-        // Si c'est une erreur de configuration, utiliser le système local
-        if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
-            errorDiv.textContent = '⚠️ Firebase Auth non configuré. Utilisation du système local...';
+        // Chercher l'utilisateur dans Firebase Firestore
+        const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
+        const snapshot = await window.firebaseGetDocs(usersCollection);
+        
+        let foundUser = null;
+        snapshot.forEach((doc) => {
+            const userData = doc.data();
+            if (userData.email && userData.email.toLowerCase() === normalizedEmail) {
+                foundUser = { ...userData, uid: doc.id };
+            }
+        });
+        
+        if (!foundUser) {
+            errorDiv.textContent = '❌ Aucun compte trouvé avec cet email';
             errorDiv.style.display = 'block';
-            handleLocalLogin(email, password);
             return;
         }
         
-        if (error.code === 'auth/user-not-found') {
-            errorMessage = '❌ Aucun compte trouvé avec cet email';
-        } else if (error.code === 'auth/wrong-password') {
-            errorMessage = '❌ Mot de passe incorrect';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = '❌ Email invalide';
-        } else {
-            errorMessage = `❌ ${error.message}`;
+        // Vérifier le mot de passe (encodé en base64)
+        const storedPassword = foundUser.password || '';
+        if (!storedPassword || btoa(password) !== storedPassword) {
+            errorDiv.textContent = '❌ Mot de passe incorrect';
+            errorDiv.style.display = 'block';
+            return;
         }
-        errorDiv.textContent = errorMessage;
+        
+        // Connexion réussie
+        currentUser = foundUser.username;
+        localStorage.setItem('currentUser', foundUser.username);
+        localStorage.setItem('username', foundUser.username);
+        localStorage.setItem('selectedReligion', foundUser.religion);
+        localStorage.setItem('firebaseUID', foundUser.uid);
+        
+        const loginOverlay = document.getElementById('loginOverlay');
+        if (loginOverlay) {
+            loginOverlay.remove();
+        }
+        
+        currentConfig = religionConfigs[foundUser.religion];
+        habits = currentConfig.habits;
+        
+        // Restaurer les données depuis Firebase
+        await restoreUserDataFromFirebase(foundUser.uid);
+        
+        initApp();
+        
+    } catch (error) {
+        console.error('❌ Erreur de connexion:', error);
+        errorDiv.textContent = `❌ Erreur de connexion: ${error.message}`;
         errorDiv.style.display = 'block';
     }
 }
 
-// Système de login local (fallback) - utilise Firebase Firestore pour synchronisation
-async function handleLocalLogin(email, password) {
-    const errorDiv = document.getElementById('loginError');
-    const normalizedEmail = email.toLowerCase().trim();
-    
-    // D'abord, chercher sur Firebase Firestore (même sans Auth)
-    if (window.firebaseDb) {
-        try {
-            // Chercher un utilisateur avec cet email dans Firestore
-            const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
-            const snapshot = await window.firebaseGetDocs(usersCollection);
-            
-            let foundUser = null;
-            snapshot.forEach((doc) => {
-                const userData = doc.data();
-                if (userData.email && userData.email.toLowerCase() === normalizedEmail) {
-                    foundUser = { ...userData, uid: doc.id };
-                }
-            });
-            
-            if (foundUser) {
-                // Vérifier le mot de passe (encodé en base64)
-                const storedPassword = foundUser.password || '';
-                if (storedPassword && btoa(password) === storedPassword) {
-                    // Connexion réussie
-                    currentUser = foundUser.username;
-                    localStorage.setItem('currentUser', foundUser.username);
-                    localStorage.setItem('username', foundUser.username);
-                    localStorage.setItem('selectedReligion', foundUser.religion);
-                    localStorage.setItem('firebaseUID', foundUser.uid);
-                    
-                    const loginOverlay = document.getElementById('loginOverlay');
-                    if (loginOverlay) {
-                        loginOverlay.remove();
-                    }
-                    
-                    currentConfig = religionConfigs[foundUser.religion];
-                    habits = currentConfig.habits;
-                    
-                    // Restaurer les données depuis Firebase
-                    await restoreUserDataFromFirebase(foundUser.uid);
-                    
-                    initApp();
-                    return;
-                } else {
-                    errorDiv.textContent = '❌ Mot de passe incorrect';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-            }
-        } catch (error) {
-            console.error('Erreur lors de la recherche Firebase:', error);
-        }
-    }
-    
-    // Fallback : chercher dans le système local
-    const users = getAllUsers();
-    let userData = null;
-    let foundUsername = null;
-    
-    // Chercher par email dans les comptes locaux
-    for (const [username, data] of Object.entries(users)) {
-        if (data.email && data.email.toLowerCase() === normalizedEmail) {
-            userData = data;
-            foundUsername = username;
-            break;
-        }
-    }
-    
-    if (!userData || !foundUsername) {
-        errorDiv.textContent = '❌ Aucun compte trouvé avec cet email. Créez un compte d\'abord.';
-        errorDiv.style.display = 'block';
-        showRegisterForm();
-        return;
-    }
-    
-    // Vérifier le mot de passe
-    const storedPassword = userData.password || '';
-    if (storedPassword && btoa(password) !== storedPassword) {
-        errorDiv.textContent = '❌ Mot de passe incorrect';
-        errorDiv.style.display = 'block';
-        return;
-    }
-    
-    // Connexion réussie avec le système local
-    currentUser = foundUsername;
-    localStorage.setItem('currentUser', foundUsername);
-    localStorage.setItem('username', foundUsername);
-    localStorage.setItem('selectedReligion', userData.religion);
-    
-    const loginOverlay = document.getElementById('loginOverlay');
-    if (loginOverlay) {
-        loginOverlay.remove();
-    }
-    
-    currentConfig = religionConfigs[userData.religion];
-    habits = currentConfig.habits;
-    
-    initApp();
-}
+// Fonction handleLocalLogin supprimée - utilisation exclusive de Firebase Firestore
 
-// Gérer l'inscription
+// Gérer l'inscription - Utilise uniquement Firebase Firestore
 async function handleRegister() {
     const username = document.getElementById('registerUsername').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
@@ -791,54 +671,70 @@ async function handleRegister() {
         return;
     }
     
-    // Vérifier si Firebase Auth est disponible
-    if (!window.firebaseAuth || !window.firebaseCreateUser) {
-        // Utiliser le système local
-        handleLocalRegister(username, email, password);
+    if (!window.firebaseDb) {
+        errorDiv.textContent = '❌ Firebase n\'est pas disponible. Vérifiez votre connexion.';
+        errorDiv.style.display = 'block';
         return;
     }
     
     try {
-        // Créer le compte Firebase Auth
-        const userCredential = await window.firebaseCreateUser(window.firebaseAuth, email, password);
-        const user = userCredential.user;
+        const normalizedEmail = email.toLowerCase().trim();
         
-        // Sauvegarder les infos utilisateur dans Firestore
-        const userRef = window.firebaseDoc(window.firebaseDb, 'users', user.uid);
+        // Vérifier si l'email ou le pseudo existe déjà dans Firebase
+        const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
+        const snapshot = await window.firebaseGetDocs(usersCollection);
+        
+        snapshot.forEach((doc) => {
+            const userData = doc.data();
+            if (userData.email && userData.email.toLowerCase() === normalizedEmail) {
+                throw new Error('EMAIL_EXISTS');
+            }
+            if (userData.username === username) {
+                throw new Error('USERNAME_EXISTS');
+            }
+        });
+        
+        // Créer un ID unique basé sur l'email
+        const userId = btoa(normalizedEmail).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+        
+        // Créer le compte dans Firebase Firestore
+        const userRef = window.firebaseDoc(window.firebaseDb, 'users', userId);
         await window.firebaseSetDoc(userRef, {
             username: username,
-            email: email,
+            email: normalizedEmail,
             religion: selectedReligion,
+            password: btoa(password), // Encodage base64 (pas sécurisé mais fonctionnel)
+            userId: userId,
             createdAt: new Date().toISOString(),
             lastActive: new Date().toISOString()
         }, { merge: true });
         
-        // Sauvegarder aussi dans localStorage pour compatibilité
+        // Connecter l'utilisateur
+        currentUser = username;
         localStorage.setItem('currentUser', username);
         localStorage.setItem('username', username);
         localStorage.setItem('selectedReligion', selectedReligion);
-        localStorage.setItem('firebaseUID', user.uid);
+        localStorage.setItem('firebaseUID', userId);
+        
+        const loginOverlay = document.getElementById('loginOverlay');
+        if (loginOverlay) {
+            loginOverlay.remove();
+        }
+        
+        currentConfig = religionConfigs[selectedReligion];
+        habits = currentConfig.habits;
         
         console.log('✅ Compte créé avec succès!');
-        // L'authentification déclenchera onAuthStateChanged qui chargera l'app
+        initApp();
+        
     } catch (error) {
         console.error('❌ Erreur d\'inscription:', error);
         
-        // Si c'est une erreur de configuration, utiliser le système local
-        if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
-            errorDiv.textContent = '⚠️ Firebase Auth non configuré. Utilisation du système local...';
-            errorDiv.style.display = 'block';
-            handleLocalRegister(username, email, password);
-            return;
-        }
-        
         let errorMessage = 'Erreur lors de la création du compte';
-        if (error.code === 'auth/email-already-in-use') {
+        if (error.message === 'EMAIL_EXISTS') {
             errorMessage = '❌ Cet email est déjà utilisé';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = '❌ Email invalide';
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = '❌ Mot de passe trop faible';
+        } else if (error.message === 'USERNAME_EXISTS') {
+            errorMessage = '❌ Ce pseudo est déjà utilisé';
         } else {
             errorMessage = `❌ ${error.message}`;
         }
@@ -847,108 +743,7 @@ async function handleRegister() {
     }
 }
 
-// Système d'inscription local (fallback) - sauvegarde sur Firebase Firestore pour synchronisation
-async function handleLocalRegister(username, email, password) {
-    const errorDiv = document.getElementById('registerError');
-    const normalizedEmail = email.toLowerCase().trim();
-    
-    // Vérifier d'abord sur Firebase si l'email existe déjà
-    if (window.firebaseDb) {
-        try {
-            const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
-            const snapshot = await window.firebaseGetDocs(usersCollection);
-            
-            snapshot.forEach((doc) => {
-                const userData = doc.data();
-                if (userData.email && userData.email.toLowerCase() === normalizedEmail) {
-                    errorDiv.textContent = '❌ Cet email est déjà utilisé !';
-                    errorDiv.style.display = 'block';
-                    throw new Error('Email déjà utilisé');
-                }
-                if (userData.username === username) {
-                    errorDiv.textContent = '❌ Ce pseudo est déjà utilisé !';
-                    errorDiv.style.display = 'block';
-                    throw new Error('Pseudo déjà utilisé');
-                }
-            });
-        } catch (error) {
-            if (error.message.includes('déjà utilisé')) {
-                return; // L'erreur est déjà affichée
-            }
-            console.error('Erreur lors de la vérification Firebase:', error);
-        }
-    }
-    
-    // Vérifier dans le système local
-    const users = getAllUsers();
-    
-    // Vérifier si le pseudo existe déjà
-    if (users[username]) {
-        errorDiv.textContent = '❌ Ce pseudo existe déjà !';
-        errorDiv.style.display = 'block';
-        return;
-    }
-    
-    // Vérifier si l'email existe déjà
-    for (const [existingUsername, data] of Object.entries(users)) {
-        if (data.email && data.email.toLowerCase() === normalizedEmail) {
-            errorDiv.textContent = '❌ Cet email est déjà utilisé !';
-            errorDiv.style.display = 'block';
-            return;
-        }
-    }
-    
-    // Créer un ID unique basé sur l'email (hash simple)
-    const userId = btoa(normalizedEmail).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
-    
-    // Créer le compte local
-    users[username] = {
-        religion: selectedReligion,
-        email: normalizedEmail,
-        password: btoa(password), // Encodage basique (pas sécurisé mais fonctionnel)
-        userId: userId,
-        createdAt: new Date().toISOString(),
-        lastActive: new Date().toISOString()
-    };
-    saveAllUsers(users);
-    
-    // Sauvegarder aussi sur Firebase Firestore pour synchronisation entre appareils
-    if (window.firebaseDb) {
-        try {
-            const userRef = window.firebaseDoc(window.firebaseDb, 'users', userId);
-            await window.firebaseSetDoc(userRef, {
-                username: username,
-                email: normalizedEmail,
-                religion: selectedReligion,
-                password: btoa(password), // Stocké pour le système local
-                userId: userId,
-                createdAt: new Date().toISOString(),
-                lastActive: new Date().toISOString()
-            }, { merge: true });
-            console.log('✅ Compte sauvegardé sur Firebase pour synchronisation');
-        } catch (error) {
-            console.error('Erreur lors de la sauvegarde Firebase:', error);
-            // Continuer quand même avec le système local
-        }
-    }
-    
-    // Connecter l'utilisateur
-    currentUser = username;
-    localStorage.setItem('currentUser', username);
-    localStorage.setItem('username', username);
-    localStorage.setItem('selectedReligion', selectedReligion);
-    localStorage.setItem('firebaseUID', userId);
-    
-    const loginOverlay = document.getElementById('loginOverlay');
-    if (loginOverlay) {
-        loginOverlay.remove();
-    }
-    
-    currentConfig = religionConfigs[selectedReligion];
-    habits = currentConfig.habits;
-    
-    initApp();
-}
+// Fonction handleLocalRegister supprimée - utilisation exclusive de Firebase Firestore
 
 // Gérer la déconnexion
 async function handleLogout() {
@@ -972,309 +767,13 @@ function showReligionSelector() {
     showLoginScreen();
 }
 
-function createUser(religion) {
-    // Essayer plusieurs fois de récupérer l'input (problème mobile)
-    let usernameInput = document.getElementById('usernameInput');
-    
-    if (!usernameInput) {
-        console.error('Input not found!');
-        alert('⚠️ Erreur : champ de texte introuvable. Recharge la page.');
-        return;
-    }
-    
-    // Forcer le focus puis récupérer la valeur
-    usernameInput.focus();
-    let username = usernameInput.value.trim();
-    
-    console.log('createUser called with religion:', religion);
-    console.log('Username input element:', usernameInput);
-    console.log('Username input value:', username);
-    console.log('Input element HTML:', usernameInput.outerHTML);
-    
-    // Si l'input est vide, utiliser un prompt comme fallback
-    if (!username || username === '') {
-        username = prompt('⚡ Entre ton pseudo (minimum 3 caractères) :');
-        if (!username) {
-            return;
-        }
-        username = username.trim();
-    }
-    
-    if (!username || username === '') {
-        alert('⚠️ Entre un pseudo !');
-        return;
-    }
-    
-    if (username.length < 3) {
-        alert('⚠️ Le pseudo doit faire au moins 3 caractères !');
-        return;
-    }
-    
-    const users = getAllUsers();
-    if (users[username]) {
-        alert('⚠️ Ce pseudo existe déjà ! Choisis-en un autre.');
-        return;
-    }
-    
-    // Créer le nouvel utilisateur
-    users[username] = {
-        religion: religion,
-        createdAt: new Date().toISOString(),
-        lastActive: new Date().toISOString()
-    };
-    saveAllUsers(users);
-    
-    console.log('User created:', username);
-    console.log('All users:', users);
-    
-    // Définir comme utilisateur actuel - SAUVEGARDER PARTOUT
-    localStorage.setItem('currentUser', username);
-    localStorage.setItem('username', username);
-    localStorage.setItem('selectedReligion', religion);
-    originalSetItem('currentUser', username);
-    currentUser = username;
-    
-    console.log('Current user set to:', currentUser);
-    console.log('localStorage check:', {
-        currentUser: localStorage.getItem('currentUser'),
-        username: localStorage.getItem('username'),
-        selectedReligion: localStorage.getItem('selectedReligion')
-    });
-    
-    selectReligion(religion);
-}
+// Fonction createUser supprimée - utilisation exclusive de Firebase Firestore via handleRegister
 
-async function showUserSelector() {
-    const users = getAllUsers();
-    const userList = Object.keys(users);
-    
-    if (userList.length === 0) {
-        showReligionSelector();
-        return;
-    }
-    
-    // S'assurer que l'IP est chargée
-    if (!userIP) {
-        await getUserIP();
-    }
-    
-    // Vérifier si l'utilisateur est admin
-    const adminMode = await isAdmin();
-    
-    console.log('🔍 Debug showUserSelector:');
-    console.log('  - userIP:', userIP);
-    console.log('  - ADMIN_IPS:', ADMIN_IPS);
-    console.log('  - adminMode:', adminMode);
-    
-    const overlay = document.createElement('div');
-    overlay.id = 'userOverlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        backdrop-filter: blur(10px);
-        overflow-y: auto;
-    `;
-    
-    let usersHTML = '';
-    userList.forEach(username => {
-        const userData = users[username];
-        const config = religionConfigs[userData.religion];
-        const isCurrentUser = username === currentUser;
-        
-        // Construire le HTML du bouton de suppression séparément
-        const deleteButtonHTML = adminMode ? `
-            <button onclick="deleteUser('${username}')" style="
-                padding: 20px 15px;
-                background: linear-gradient(135deg, #ff4444, #cc0000);
-                border: 2px solid #ff4444;
-                border-radius: 15px;
-                color: white;
-                cursor: pointer;
-                transition: all 0.3s;
-                font-size: 1.5em;
-                min-width: 60px;
-            " title="Supprimer ce compte" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                🗑️
-            </button>
-        ` : '';
-        
-        usersHTML += `
-            <div style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                width: 100%;
-                margin-bottom: 15px;
-            ">
-            <button onclick="selectUser('${username}')" style="
-                    flex: 1;
-                padding: 20px;
-                background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 150, 200, 0.1));
-                border: 2px solid #00d9ff;
-                border-radius: 15px;
-                color: white;
-                cursor: pointer;
-                transition: all 0.3s;
-                text-align: left;
-            ">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 2em;">${config.icon}</div>
-                    <div style="flex: 1;">
-                            <div style="font-size: 1.3em; font-weight: bold;">${username}${isCurrentUser ? ' (Actuel)' : ''}</div>
-                        <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
-                    </div>
-                </div>
-            </button>
-                ${deleteButtonHTML}
-            </div>
-        `;
-    });
-    
-    overlay.innerHTML = `
-        <div style="
-            max-width: 600px;
-            padding: 40px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border: 3px solid #00d9ff;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0, 217, 255, 0.5);
-        ">
-            <h1 style="
-                font-size: 2.5em;
-                color: #00d9ff;
-                margin-bottom: 30px;
-                text-align: center;
-                text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
-            ">👥 SÉLECTIONNE TON PROFIL</h1>
-            ${adminMode ? `
-                <div style="
-                    padding: 15px;
-                    background: rgba(255, 215, 0, 0.1);
-                    border: 2px solid #ffd700;
-                    border-radius: 10px;
-                    margin-bottom: 20px;
-                    text-align: center;
-                    color: #ffd700;
-                    font-weight: bold;
-                ">
-                    🔑 MODE ADMIN ACTIVÉ
-                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">IP: ${userIP || 'Non détectée'}</div>
-                </div>
-            ` : ''}
-            
-            <div style="margin-bottom: 20px;">
-                ${usersHTML}
-            </div>
-            
-            <button onclick="showReligionSelector(); document.getElementById('userOverlay').remove();" style="
-                width: 100%;
-                padding: 15px;
-                background: linear-gradient(135deg, #ff6b6b, #ff4444);
-                border: none;
-                border-radius: 10px;
-                color: white;
-                font-size: 1.1em;
-                font-weight: bold;
-                cursor: pointer;
-            ">
-                ➕ CRÉER UN NOUVEAU PROFIL
-            </button>
-            
-            <button onclick="showLeaderboard()" style="
-                width: 100%;
-                margin-top: 15px;
-                padding: 15px;
-                background: linear-gradient(135deg, #ffd700, #ffaa00);
-                border: none;
-                border-radius: 10px;
-                color: white;
-                font-size: 1.1em;
-                font-weight: bold;
-                cursor: pointer;
-            ">
-                🏆 VOIR LE CLASSEMENT
-            </button>
-            
-            ${adminMode ? `
-                <button onclick="showAdminPanel()" style="
-                    width: 100%;
-                    margin-top: 15px;
-                    padding: 15px;
-                    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-                    border: none;
-                    border-radius: 10px;
-                    color: white;
-                    font-size: 1.1em;
-                    font-weight: bold;
-                    cursor: pointer;
-                ">
-                    ⚙️ PANEL ADMIN
-                </button>
-            ` : ''}
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
-}
+// Fonction showUserSelector supprimée - utilisation exclusive de Firebase Firestore via showLoginScreen
 
-function selectUser(username) {
-    currentUser = username;
-    originalSetItem('currentUser', username);
-    
-    const users = getAllUsers();
-    const userData = users[username];
-    
-    // Mettre à jour la dernière activité
-    userData.lastActive = new Date().toISOString();
-    users[username] = userData;
-    saveAllUsers(users);
-    
-    const overlay = document.getElementById('userOverlay');
-    if (overlay) {
-        overlay.remove();
-    }
-    
-    loadReligionConfig();
-    initializeApp();
-}
+// Fonction selectUser supprimée - utilisation exclusive de Firebase Firestore
 
-function selectReligion(religion) {
-    // Sauvegarder la religion dans localStorage classique pour compatibilité
-    localStorage.setItem('selectedReligion', religion);
-    
-    // Sauvegarder aussi dans les données utilisateur
-    if (currentUser) {
-        const users = getAllUsers();
-        if (users[currentUser]) {
-            users[currentUser].religion = religion;
-            saveAllUsers(users);
-        }
-    }
-    
-    // Sauvegarder username dans localStorage aussi
-    if (currentUser) {
-        localStorage.setItem('username', currentUser);
-    }
-    
-    currentConfig = religionConfigs[religion];
-    habits = currentConfig.habits;
-    
-    const overlay = document.getElementById('religionOverlay');
-    if (overlay) {
-        overlay.style.animation = 'fadeOut 0.3s forwards';
-        setTimeout(() => overlay.remove(), 300);
-    }
-    
-    initializeApp();
-}
+// Fonction selectReligion supprimée - la religion est gérée lors de l'inscription
 
 function updateHabitLabels() {
     if (!currentConfig) return;
@@ -1293,29 +792,7 @@ function updateHabitLabels() {
     }
 }
 
-function loadReligionConfig() {
-    // Charger l'utilisateur actuel
-    currentUser = originalGetItem('currentUser');
-    
-    if (!currentUser) {
-        showUserSelector();
-        return false;
-    }
-    
-    // Vérifier que l'utilisateur existe
-    const users = getAllUsers();
-    if (!users[currentUser]) {
-        localStorage.removeItem('currentUser');
-        showUserSelector();
-        return false;
-    }
-    
-    // Charger la religion de l'utilisateur
-    const userData = users[currentUser];
-    currentConfig = religionConfigs[userData.religion];
-    habits = currentConfig.habits;
-    return true;
-}
+// Fonction loadReligionConfig supprimée - la configuration est chargée depuis Firebase lors de la connexion
 
 function getTodayDate() {
     return new Date().toISOString().split('T')[0];
@@ -2791,160 +2268,15 @@ window.selectReligion = selectReligion;
    SYSTÈME DE LEADERBOARD
 ======================================== */
 
-function showLeaderboard() {
-    const users = getAllUsers();
-    const userList = Object.keys(users);
-    
-    if (userList.length === 0) {
-        alert('Aucun utilisateur pour le moment !');
+// Fonction showLeaderboard modifiée pour utiliser uniquement Firebase
+async function showLeaderboard() {
+    if (!window.firebaseDb) {
+        alert('❌ Firebase n\'est pas disponible. Le classement nécessite Firebase.');
         return;
     }
     
-    // Calculer les stats de chaque utilisateur
-    const rankings = userList.map(username => {
-        const userData = users[username];
-        const savedUser = currentUser;
-        currentUser = username;
-        
-        const rankIndex = parseInt(originalGetItem('currentRankIndex', '0'));
-        const progressPoints = parseFloat(originalGetItem('rankProgressPoints', '0'));
-        const currentStreak = parseInt(originalGetItem('currentStreak', '0'));
-        const bestStreak = parseInt(originalGetItem('bestStreak', '0'));
-        
-        // Calculer le power level
-        const history = JSON.parse(originalGetItem('habitHistory', '{}'));
-        let powerLevel = 0;
-        Object.keys(history).forEach(date => {
-            const dayData = history[date];
-            if (dayData && dayData.habits) {
-                Object.keys(dayData.habits).forEach(habit => {
-                    if (dayData.habits[habit]) powerLevel += 1;
-                });
-            }
-        });
-        
-        currentUser = savedUser;
-        
-        return {
-            username,
-            religion: userData.religion,
-            rankIndex,
-            progressPoints,
-            currentStreak,
-            bestStreak,
-            powerLevel,
-            rank: rankSystem[Math.min(rankIndex, rankSystem.length - 1)].name
-        };
-    });
-    
-    // Trier par progression totale
-    rankings.sort((a, b) => b.progressPoints - a.progressPoints);
-    
-    let leaderboardHTML = '';
-    rankings.forEach((user, index) => {
-        const config = religionConfigs[user.religion];
-        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-        const isCurrentUser = user.username === currentUser;
-        
-        leaderboardHTML += `
-            <div style="
-                padding: 20px;
-                background: ${isCurrentUser ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2))' : 'linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(0, 150, 200, 0.05))'};
-                border: 2px solid ${isCurrentUser ? '#ffd700' : '#00d9ff'};
-                border-radius: 15px;
-                margin-bottom: 15px;
-                ${isCurrentUser ? 'box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);' : ''}
-            ">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                    <div style="font-size: 2em; min-width: 40px;">${medal}</div>
-                    <div style="font-size: 2em;">${config.icon}</div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 1.4em; font-weight: bold; color: ${isCurrentUser ? '#ffd700' : 'white'};">
-                            ${user.username} ${isCurrentUser ? '(TOI)' : ''}
-                        </div>
-                        <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; font-size: 0.9em;">
-                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
-                        <div style="color: #aaa; margin-bottom: 5px;">RANG</div>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #ffd700;">${user.rank}</div>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
-                        <div style="color: #aaa; margin-bottom: 5px;">POWER LEVEL</div>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #00d9ff;">${user.powerLevel}</div>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
-                        <div style="color: #aaa; margin-bottom: 5px;">STREAK</div>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #ff6b6b;">🔥 ${user.currentStreak}</div>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px;">
-                        <div style="color: #aaa; margin-bottom: 5px;">RECORD</div>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #00cc66;">🏆 ${user.bestStreak}</div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    const overlay = document.createElement('div');
-    overlay.id = 'leaderboardOverlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        backdrop-filter: blur(10px);
-        overflow-y: auto;
-        padding: 20px;
-    `;
-    
-    overlay.innerHTML = `
-        <div style="
-            max-width: 900px;
-            width: 100%;
-            padding: 40px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border: 3px solid #ffd700;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
-            max-height: 90vh;
-            overflow-y: auto;
-        ">
-            <h1 style="
-                font-size: 2.5em;
-                color: #ffd700;
-                margin-bottom: 30px;
-                text-align: center;
-                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-            ">🏆 CLASSEMENT DES GUERRIERS 🏆</h1>
-            
-            <div>${leaderboardHTML}</div>
-            
-            <button onclick="document.getElementById('leaderboardOverlay').remove()" style="
-                width: 100%;
-                margin-top: 20px;
-                padding: 15px;
-                background: linear-gradient(135deg, #667eea, #4a5fd4);
-                border: none;
-                border-radius: 10px;
-                color: white;
-                font-size: 1.1em;
-                font-weight: bold;
-                cursor: pointer;
-            ">
-                ✖️ FERMER
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
+    // Utiliser le leaderboard Firebase
+    displayFirebaseLeaderboard();
 }
 
 // Exposer les fonctions globalement
@@ -3243,25 +2575,32 @@ async function showAdminPanel() {
         return;
     }
     
-    const users = getAllUsers();
-    const localUserList = Object.keys(users);
-    
-    // Récupérer les utilisateurs Firebase
+    // Récupérer les utilisateurs Firebase uniquement
     let firebaseUsers = [];
     if (window.firebaseDb) {
         try {
             const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
             const snapshot = await window.firebaseGetDocs(usersCollection);
             snapshot.forEach((doc) => {
-                firebaseUsers.push(doc.data());
+                firebaseUsers.push({ ...doc.data(), uid: doc.id });
             });
         } catch (error) {
             console.error('Erreur lors de la récupération des utilisateurs Firebase:', error);
+            alert('❌ Erreur lors de la récupération des utilisateurs: ' + error.message);
+            return;
         }
+    } else {
+        alert('❌ Firebase n\'est pas disponible.');
+        return;
+    }
+    
+    if (firebaseUsers.length === 0) {
+        alert('Aucun utilisateur trouvé.');
+        return;
     }
     
     // Créer un Set de tous les usernames uniques
-    const allUsernames = new Set([...localUserList, ...firebaseUsers.map(u => u.username)]);
+    const allUsernames = new Set(firebaseUsers.map(u => u.username));
     
     const overlay = document.createElement('div');
     overlay.id = 'adminOverlay';
@@ -3282,29 +2621,20 @@ async function showAdminPanel() {
     `;
     
     let adminHTML = '';
-    allUsernames.forEach(username => {
-        const userData = users[username];
-        const firebaseUser = firebaseUsers.find(u => u.username === username);
-        const isLocal = !!userData;
-        const isFirebase = !!firebaseUser;
+    firebaseUsers.forEach(firebaseUser => {
+        const username = firebaseUser.username;
+        const uid = firebaseUser.uid;
+        const isFirebase = true;
         
         let config = { icon: '🌟', name: 'Inconnu' };
-        if (userData && userData.religion) {
-            config = religionConfigs[userData.religion];
-        } else if (firebaseUser && firebaseUser.religion) {
+        if (firebaseUser.religion) {
             const religionConfig = religionConfigs[firebaseUser.religion];
             if (religionConfig) config = religionConfig;
         }
         
-        const createdAt = userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString('fr-FR') : 
-                         (firebaseUser?.lastUpdated ? new Date(firebaseUser.lastUpdated).toLocaleDateString('fr-FR') : 'Inconnu');
-        const lastActive = userData?.lastActive ? new Date(userData.lastActive).toLocaleDateString('fr-FR') : 
-                          (firebaseUser?.lastUpdated ? new Date(firebaseUser.lastUpdated).toLocaleDateString('fr-FR') : 'Jamais');
-        const rank = firebaseUser?.rank || 'F';
-        
-        const sourceBadge = [];
-        if (isLocal) sourceBadge.push('<span style="background: #00d9ff; color: #000; padding: 2px 8px; border-radius: 5px; font-size: 0.75em; margin-left: 5px;">LOCAL</span>');
-        if (isFirebase) sourceBadge.push('<span style="background: #ffaa00; color: #000; padding: 2px 8px; border-radius: 5px; font-size: 0.75em; margin-left: 5px;">FIREBASE</span>');
+        const createdAt = firebaseUser.createdAt ? new Date(firebaseUser.createdAt).toLocaleDateString('fr-FR') : 'Inconnu';
+        const lastActive = firebaseUser.lastActive ? new Date(firebaseUser.lastActive).toLocaleDateString('fr-FR') : 'Jamais';
+        const rank = firebaseUser.rank || 'F';
         
         adminHTML += `
             <div style="
@@ -3322,7 +2652,7 @@ async function showAdminPanel() {
                         <span style="font-size: 1.5em;">${config.icon}</span>
                         <div>
                             <div style="font-size: 1.2em; font-weight: bold; color: white;">
-                                ${username} ${sourceBadge.join('')}
+                                ${username}
                             </div>
                             <div style="font-size: 0.9em; color: #aaa;">
                                 ${config.name} | Rang: ${rank}
@@ -3334,51 +2664,19 @@ async function showAdminPanel() {
                     </div>
                 </div>
                 <div style="display: flex; gap: 5px; flex-direction: column;">
-                    ${isLocal ? `
-                        <button onclick="deleteUser('${username}'); document.getElementById('adminOverlay').remove(); setTimeout(() => showAdminPanel(), 500);" style="
-                            padding: 8px 15px;
-                            background: linear-gradient(135deg, #ff4444, #cc0000);
-                            border: 2px solid #ff4444;
-                            border-radius: 8px;
-                            color: white;
-                            cursor: pointer;
-                            font-weight: bold;
-                            font-size: 0.85em;
-                            transition: all 0.3s;
-                        " title="Supprimer localement">
-                            🗑️ Local
-                        </button>
-                    ` : ''}
-                    ${isFirebase ? `
-                        <button onclick="deleteUserFromFirebase('${username}'); document.getElementById('adminOverlay').remove(); setTimeout(() => showAdminPanel(), 500);" style="
-                            padding: 8px 15px;
-                            background: linear-gradient(135deg, #ff8800, #ff6600);
-                            border: 2px solid #ff8800;
-                            border-radius: 8px;
-                            color: white;
-                            cursor: pointer;
-                            font-weight: bold;
-                            font-size: 0.85em;
-                            transition: all 0.3s;
-                        " title="Supprimer de Firebase">
-                            🔥 Firebase
-                        </button>
-                    ` : ''}
-                    ${isLocal && isFirebase ? `
-                        <button onclick="deleteUserCompletely('${username}'); document.getElementById('adminOverlay').remove(); setTimeout(() => showAdminPanel(), 1000);" style="
-                            padding: 8px 15px;
-                            background: linear-gradient(135deg, #cc0000, #990000);
-                            border: 2px solid #cc0000;
-                            border-radius: 8px;
-                            color: white;
-                            cursor: pointer;
-                            font-weight: bold;
-                            font-size: 0.85em;
-                            transition: all 0.3s;
-                        " title="Supprimer complètement (local + Firebase)">
-                            ⚡ Tout
-                        </button>
-                    ` : ''}
+                    <button onclick="deleteUserCompletely('${uid}'); document.getElementById('adminOverlay').remove(); setTimeout(() => showAdminPanel(), 1000);" style="
+                        padding: 8px 15px;
+                        background: linear-gradient(135deg, #cc0000, #990000);
+                        border: 2px solid #cc0000;
+                        border-radius: 8px;
+                        color: white;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 0.85em;
+                        transition: all 0.3s;
+                    " title="Supprimer complètement">
+                        🗑️ Supprimer
+                    </button>
                 </div>
             </div>
         `;
@@ -4138,136 +3436,58 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// Initialiser l'authentification
+// Initialiser l'authentification - Utilise uniquement Firebase Firestore
 function initAuth() {
-    // Vérifier si Firebase Auth est disponible
-    if (!window.firebaseAuth || !window.firebaseOnAuthStateChanged) {
-        console.log('⚠️ Firebase Auth non disponible, utilisation du système local');
-        // Vérifier s'il y a un utilisateur local sauvegardé
-    const savedCurrentUser = localStorage.getItem('currentUser');
-    const savedUsername = localStorage.getItem('username');
-    const savedReligion = localStorage.getItem('selectedReligion');
-    
-    const username = savedCurrentUser || savedUsername;
-    
-        if (username && savedReligion) {
-            // Utilisateur local trouvé, charger l'app
-        currentUser = username;
-        currentConfig = religionConfigs[savedReligion];
-            
-            if (currentConfig) {
-                habits = currentConfig.habits;
-                const loginOverlay = document.getElementById('loginOverlay');
-                if (loginOverlay) {
-                    loginOverlay.remove();
-                }
-                
-                // Restaurer les données depuis Firebase si disponible
-                const firebaseUID = localStorage.getItem('firebaseUID');
-                if (firebaseUID && window.firebaseDb) {
-                    restoreUserDataFromFirebase(firebaseUID).then(() => {
-                        initApp();
-                    });
-                } else {
-                    initApp();
-                }
-                return;
-            }
-        }
-        
-        // Aucun utilisateur local, afficher le login
+    // Vérifier si Firebase est disponible
+    if (!window.firebaseDb) {
+        console.log('⚠️ Firebase n\'est pas disponible');
         showLoginScreen();
         return;
     }
     
-    // Écouter les changements d'état d'authentification Firebase
-    window.firebaseOnAuthStateChanged(window.firebaseAuth, async (firebaseUser) => {
-        if (firebaseUser) {
-            // Utilisateur connecté
-            console.log('✅ Utilisateur connecté:', firebaseUser.email);
-            
-            // Récupérer les données utilisateur depuis Firestore
+    // Vérifier s'il y a un utilisateur sauvegardé dans localStorage
+    const savedCurrentUser = localStorage.getItem('currentUser');
+    const firebaseUID = localStorage.getItem('firebaseUID');
+    
+    if (savedCurrentUser && firebaseUID) {
+        // Vérifier si l'utilisateur existe toujours dans Firestore
+        (async () => {
             try {
-                const userRef = window.firebaseDoc(window.firebaseDb, 'users', firebaseUser.uid);
+                const userRef = window.firebaseDoc(window.firebaseDb, 'users', firebaseUID);
                 const userDoc = await window.firebaseGetDoc(userRef);
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    const username = userData.username;
-                    const religion = userData.religion;
+                    currentUser = userData.username;
+                    localStorage.setItem('currentUser', userData.username);
+                    localStorage.setItem('username', userData.username);
+                    localStorage.setItem('selectedReligion', userData.religion);
+                    localStorage.setItem('firebaseUID', firebaseUID);
                     
-                    // Sauvegarder dans localStorage pour compatibilité
-                    localStorage.setItem('currentUser', username);
-                    localStorage.setItem('username', username);
-                    localStorage.setItem('selectedReligion', religion);
-                    localStorage.setItem('firebaseUID', firebaseUser.uid);
+                    currentConfig = religionConfigs[userData.religion];
+                    habits = currentConfig.habits;
                     
-                    currentUser = username;
-                    currentConfig = religionConfigs[religion];
-        
-        if (!currentConfig) {
-                        console.error('Config not found for religion:', religion);
-                        showLoginScreen();
-            return;
-        }
-        
-        habits = currentConfig.habits;
-        
-                    // Fermer l'overlay de login s'il existe
                     const loginOverlay = document.getElementById('loginOverlay');
                     if (loginOverlay) {
                         loginOverlay.remove();
                     }
                     
                     // Restaurer les données depuis Firebase
-                    await restoreUserDataFromFirebase(firebaseUser.uid);
-                    
-                    // Initialiser l'app
-        initApp();
-                } else {
-                    console.error('Données utilisateur non trouvées');
-                    showLoginScreen();
-                }
-            } catch (error) {
-                console.error('Erreur lors de la récupération des données:', error);
-                showLoginScreen();
-            }
-        } else {
-            // Utilisateur non connecté - vérifier le système local
-            const savedCurrentUser = localStorage.getItem('currentUser');
-            const savedUsername = localStorage.getItem('username');
-            const savedReligion = localStorage.getItem('selectedReligion');
-            
-            const username = savedCurrentUser || savedUsername;
-            
-            if (username && savedReligion) {
-                // Utilisateur local trouvé
-                currentUser = username;
-                currentConfig = religionConfigs[savedReligion];
-                
-                if (currentConfig) {
-                    habits = currentConfig.habits;
-                    const loginOverlay = document.getElementById('loginOverlay');
-                    if (loginOverlay) {
-                        loginOverlay.remove();
-                    }
-                    
-                    // Restaurer les données depuis Firebase si disponible
-                    const firebaseUID = localStorage.getItem('firebaseUID');
-                    if (firebaseUID && window.firebaseDb) {
-                        await restoreUserDataFromFirebase(firebaseUID);
-                    }
-                    
+                    await restoreUserDataFromFirebase(firebaseUID);
                     initApp();
                     return;
                 }
+            } catch (error) {
+                console.error('Erreur lors de la vérification:', error);
             }
             
-            // Aucun utilisateur, afficher le login
-            console.log('❌ Aucun utilisateur connecté');
+            // Si l'utilisateur n'existe plus, afficher le login
             showLoginScreen();
-        }
-    });
+        })();
+    } else {
+        // Aucun utilisateur sauvegardé, afficher le login
+        showLoginScreen();
+    }
 }
 
 // Fonction pour afficher/masquer le bouton admin dans le header
