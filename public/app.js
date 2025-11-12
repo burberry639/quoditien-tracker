@@ -314,6 +314,9 @@ let lastCursorTime = 0;
 // Système de particules pour la page des stats
 let statsParticlesInterval = null;
 
+// Flag pour éviter l'initialisation multiple du leaderboard Firebase
+let firebaseInitDone = false;
+
 /* ========================================
    FONCTIONS UTILITAIRES
 ======================================== */
@@ -2753,7 +2756,6 @@ window.updateEpicProgress = updateEpicProgress;
 window.showCreateChallenge = showCreateChallenge;
 window.createChallenge = createChallenge;
 window.updateChallengeProgress = updateChallengeProgress;
-window.deleteUser = deleteUser;
 window.deleteUserFromFirebase = deleteUserFromFirebase;
 window.deleteUserCompletely = deleteUserCompletely;
 window.showAdminPanel = showAdminPanel;
@@ -3374,13 +3376,23 @@ function displayFirebaseLeaderboard() {
     console.log('✅ Listener Firebase créé pour le leaderboard');
 }
 
-function updateMyRankOnFirebase() {
+async function updateMyRankOnFirebase() {
     const username = localStorage.getItem('username');
     const religion = localStorage.getItem('selectedReligion');
     const rank = getCurrentUserRank();
+    const firebaseUID = localStorage.getItem('firebaseUID');
     
-    if (username && religion && rank) {
-        saveUserToFirebase(username, religion, rank);
+    if (window.firebaseDb && username && religion && rank && firebaseUID) {
+        // Mettre à jour dans la collection 'users' avec le firebaseUID comme ID
+        const userRef = window.firebaseDoc(window.firebaseDb, 'users', firebaseUID);
+        await window.firebaseSetDoc(userRef, {
+            username: username,
+            religion: religion,
+            rank: rank,
+            lastUpdated: new Date().toISOString()
+        }, { merge: true });
+        
+        console.log('✅ Rang synchronisé sur Firebase !');
     }
 }
 
@@ -3389,7 +3401,6 @@ function updateMyRankOnFirebase() {
 ======================================== */
 
 // Attendre que Firebase soit chargé (une seule fois)
-let firebaseInitDone = false;
 setTimeout(() => {
     if (window.firebaseDb && !firebaseInitDone) {
         displayFirebaseLeaderboard();
