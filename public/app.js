@@ -594,6 +594,33 @@ function getTodayDate() {
     return new Date().toISOString().split('T')[0];
 }
 
+// Fonction pour obtenir le jour de la semaine (0 = dimanche, 6 = samedi)
+function getDayOfWeek() {
+    return new Date().getDay();
+}
+
+// Fonction pour obtenir la quête d'exercice du jour (rotation pompes/abdos/squats)
+function getExerciseQuestForToday() {
+    const dayOfWeek = getDayOfWeek();
+    
+    // Samedi (6) = pas de quête
+    if (dayOfWeek === 6) {
+        return null;
+    }
+    
+    // Rotation : pompes (0,3), abdos (1,4), squats (2,5)
+    // Dimanche=0, Lundi=1, Mardi=2, Mercredi=3, Jeudi=4, Vendredi=5
+    const exerciseRotation = dayOfWeek % 3;
+    
+    if (exerciseRotation === 0) {
+        return 'quest-pushups'; // Dimanche, Mercredi
+    } else if (exerciseRotation === 1) {
+        return 'quest-abs'; // Lundi, Jeudi
+    } else {
+        return 'quest-squats'; // Mardi, Vendredi
+    }
+}
+
 function updateDate() {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const today = new Date();
@@ -1112,6 +1139,8 @@ const dailyQuests = [
     { id: 'quest-sport', name: '💪 Séance de sport intense', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-prayers', name: '🕌 Toutes les 5 prières à l\'heure', reward: 'spi', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-pushups', name: '💪 50 pompes', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-abs', name: '💪 50 abdos', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-squats', name: '💪 50 squats', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-hygiene', name: '🧼 Hygiène parfaite toute la journée', reward: 'hp', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-discipline', name: '🎯 Zéro distraction aujourd\'hui', reward: 'dis', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-cardio', name: '🏃 30min de cardio', reward: 'end', bonus: '+0.5 jour de rang', points: 5 },
@@ -1254,18 +1283,37 @@ const allQuests = dailyQuests; // Pour compatibilité avec ancien code
 function initDailyQuests() {
     const today = getTodayDate();
     const savedDate = originalGetItem('questsDate');
+    const dayOfWeek = getDayOfWeek();
+    
+    // Samedi : pas de quêtes quotidiennes
+    if (dayOfWeek === 6) {
+        originalSetItem('dailyQuests', JSON.stringify([]));
+        originalSetItem('questsDate', today);
+        displayDailyQuests();
+        return;
+    }
     
     if (savedDate !== today) {
         // Nouveau jour : générer de nouvelles quêtes
-        // S'assurer que la quête de pompes est toujours incluse
-        const pushupsQuest = allQuests.find(q => q.id === 'quest-pushups');
-        const otherQuests = allQuests.filter(q => q.id !== 'quest-pushups');
+        // Obtenir la quête d'exercice du jour (rotation pompes/abdos/squats)
+        const exerciseQuestId = getExerciseQuestForToday();
+        const exerciseQuest = exerciseQuestId ? allQuests.find(q => q.id === exerciseQuestId) : null;
+        
+        // Exclure toutes les quêtes d'exercice (pompes, abdos, squats) sauf celle du jour
+        const otherQuests = allQuests.filter(q => 
+            q.id !== 'quest-pushups' && 
+            q.id !== 'quest-abs' && 
+            q.id !== 'quest-squats'
+        );
         
         // Mélanger les autres quêtes
         const shuffled = [...otherQuests].sort(() => Math.random() - 0.5);
         
-        // Prendre 4 autres quêtes + la quête de pompes = 5 quêtes au total
-        const selectedQuests = [pushupsQuest, ...shuffled.slice(0, 4)].filter(q => q !== undefined);
+        // Prendre 4 autres quêtes + la quête d'exercice du jour = 5 quêtes au total
+        const selectedQuests = exerciseQuest 
+            ? [exerciseQuest, ...shuffled.slice(0, 4)].filter(q => q !== undefined)
+            : shuffled.slice(0, 5).filter(q => q !== undefined);
+        
         const dailyQuests = selectedQuests.map(q => q.id);
         
         originalSetItem('dailyQuests', JSON.stringify(dailyQuests));
@@ -1273,21 +1321,45 @@ function initDailyQuests() {
         
         dailyQuests.forEach(qid => localStorage.removeItem('quest_' + qid));
     } else {
-        // Même jour : vérifier si la quête de pompes est présente
-        const currentQuests = JSON.parse(originalGetItem('dailyQuests') || '[]');
-        if (!currentQuests.includes('quest-pushups')) {
-            // La quête de pompes n'est pas présente, l'ajouter
-            const pushupsQuest = allQuests.find(q => q.id === 'quest-pushups');
-            if (pushupsQuest) {
-                // Remplacer une quête aléatoire par la quête de pompes, ou l'ajouter si moins de 5
-                if (currentQuests.length < 5) {
-                    currentQuests.push('quest-pushups');
-                } else {
-                    // Remplacer une quête aléatoire (sauf si c'est déjà la quête de pompes)
-                    const indexToReplace = Math.floor(Math.random() * currentQuests.length);
-                    currentQuests[indexToReplace] = 'quest-pushups';
+        // Même jour : vérifier si la quête d'exercice du jour est présente
+        const exerciseQuestId = getExerciseQuestForToday();
+        if (exerciseQuestId) {
+            const currentQuests = JSON.parse(originalGetItem('dailyQuests') || '[]');
+            const hasExerciseQuest = currentQuests.some(qid => 
+                qid === 'quest-pushups' || qid === 'quest-abs' || qid === 'quest-squats'
+            );
+            
+            if (!hasExerciseQuest) {
+                // Aucune quête d'exercice présente, ajouter celle du jour
+                const exerciseQuest = allQuests.find(q => q.id === exerciseQuestId);
+                if (exerciseQuest) {
+                    // Retirer les autres quêtes d'exercice si présentes
+                    const filteredQuests = currentQuests.filter(qid => 
+                        qid !== 'quest-pushups' && qid !== 'quest-abs' && qid !== 'quest-squats'
+                    );
+                    
+                    if (filteredQuests.length < 5) {
+                        filteredQuests.push(exerciseQuestId);
+                    } else {
+                        // Remplacer une quête aléatoire
+                        const indexToReplace = Math.floor(Math.random() * filteredQuests.length);
+                        filteredQuests[indexToReplace] = exerciseQuestId;
+                    }
+                    originalSetItem('dailyQuests', JSON.stringify(filteredQuests));
                 }
-                originalSetItem('dailyQuests', JSON.stringify(currentQuests));
+            } else {
+                // Vérifier si c'est la bonne quête d'exercice
+                const hasCorrectExercise = currentQuests.includes(exerciseQuestId);
+                if (!hasCorrectExercise) {
+                    // Remplacer la quête d'exercice par celle du jour
+                    const filteredQuests = currentQuests.map(qid => {
+                        if (qid === 'quest-pushups' || qid === 'quest-abs' || qid === 'quest-squats') {
+                            return exerciseQuestId;
+                        }
+                        return qid;
+                    });
+                    originalSetItem('dailyQuests', JSON.stringify(filteredQuests));
+                }
             }
         }
     }
@@ -1297,29 +1369,54 @@ function initDailyQuests() {
     setInterval(updateQuestTimer, 1000);
 }
 
-// Fonction pour calculer le nombre de pompes selon le rang
-function getPushupsCount() {
+// Fonction pour calculer le nombre d'exercices selon le rang (pompes, abdos, squats)
+function getExerciseCount() {
     try {
         const currentRankName = getCurrentUserRank();
         if (!currentRankName) return 50; // Valeur par défaut si pas de rang
         
         const rankIndex = rankSystem.findIndex(r => r.name === currentRankName);
-        // Rang F (index 0) = 50 pompes, puis +15 par rang
+        // Rang F (index 0) = 50, puis +15 par rang
         // F = 50, E = 65, D = 80, C = 95, etc.
         const count = 50 + (Math.max(0, rankIndex) * 15);
         return count;
     } catch (error) {
-        console.error('Erreur dans getPushupsCount:', error);
+        console.error('Erreur dans getExerciseCount:', error);
         return 50; // Valeur par défaut en cas d'erreur
     }
 }
 
 function displayDailyQuests() {
+    const dayOfWeek = getDayOfWeek();
     const dailyQuests = JSON.parse(originalGetItem('dailyQuests') || '[]');
     const container = document.getElementById('dailyQuestsList');
     if (!container) return;
     
     container.innerHTML = '';
+    
+    // Samedi : afficher un message spécial
+    if (dayOfWeek === 6) {
+        container.innerHTML = `
+            <div style="
+                text-align: center;
+                padding: 40px 20px;
+                color: var(--text-secondary);
+                font-size: 1.3em;
+                background: var(--bg-card);
+                border: 2px dashed var(--border-color);
+                border-radius: 15px;
+            ">
+                🎉 <strong>JOUR DE REPOS !</strong> 🎉<br><br>
+                Profite de ton samedi, pas de quêtes aujourd'hui !
+            </div>
+        `;
+        // Mettre à jour les stats des quêtes
+        const completedEl = document.getElementById('dailyQuestsCompleted');
+        const bonusEl = document.getElementById('dailyQuestBonus');
+        if (completedEl) completedEl.textContent = '0/0';
+        if (bonusEl) bonusEl.textContent = '+0';
+        return;
+    }
     
     dailyQuests.forEach(questId => {
         const quest = allQuests.find(q => q.id === questId);
@@ -1330,15 +1427,31 @@ function displayDailyQuests() {
         
         const completed = originalGetItem('quest_' + questId) === 'true';
         
-        // Si c'est la quête de pompes, calculer dynamiquement le nombre selon le rang
+        // Si c'est une quête d'exercice, calculer dynamiquement le nombre selon le rang
         let questName = quest.name;
         if (questId === 'quest-pushups') {
             try {
-                const pushupsCount = getPushupsCount();
-                questName = `💪 ${pushupsCount} pompes`;
+                const count = getExerciseCount();
+                questName = `💪 ${count} pompes`;
             } catch (error) {
                 console.error('Erreur lors du calcul des pompes:', error);
                 questName = `💪 50 pompes`; // Valeur par défaut
+            }
+        } else if (questId === 'quest-abs') {
+            try {
+                const count = getExerciseCount();
+                questName = `💪 ${count} abdos`;
+            } catch (error) {
+                console.error('Erreur lors du calcul des abdos:', error);
+                questName = `💪 50 abdos`; // Valeur par défaut
+            }
+        } else if (questId === 'quest-squats') {
+            try {
+                const count = getExerciseCount();
+                questName = `💪 ${count} squats`;
+            } catch (error) {
+                console.error('Erreur lors du calcul des squats:', error);
+                questName = `💪 50 squats`; // Valeur par défaut
             }
         }
         
