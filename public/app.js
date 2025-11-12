@@ -311,6 +311,9 @@ let soundEnabled = true;
 let cursorTrailEnabled = false;
 let lastCursorTime = 0;
 
+// Système de particules pour la page des stats
+let statsParticlesInterval = null;
+
 /* ========================================
    FONCTIONS UTILITAIRES
 ======================================== */
@@ -2707,9 +2710,8 @@ async function showAdminPanel() {
             ">
                 <div style="font-weight: bold; margin-bottom: 5px;">Votre IP: ${userIP || 'Chargement...'}</div>
                 <div style="font-size: 0.9em; color: #aaa; margin-top: 10px;">
-                    <div>📊 Utilisateurs locaux: ${localUserList.length}</div>
                     <div>🔥 Utilisateurs Firebase: ${firebaseUsers.length}</div>
-                    <div>👥 Total unique: ${allUsernames.size}</div>
+                    <div>👥 Total: ${firebaseUsers.length}</div>
                 </div>
             </div>
             
@@ -2852,9 +2854,6 @@ function createParticle(x, y, color, size = 5) {
         }
     }, duration * 1000);
 }
-
-// Système de particules pour la page des stats
-let statsParticlesInterval = null;
 
 function stopStatsParticles() {
     if (statsParticlesInterval) {
@@ -3185,12 +3184,12 @@ function updateCursorTrailForRank(rankName) {
 
 // Sauvegarder toutes les données utilisateur sur Firebase
 async function saveAllUserDataToFirebase() {
-    if (!window.firebaseDb || !window.firebaseAuth) {
+    if (!window.firebaseDb || !currentUser) {
         return;
     }
     
-    const firebaseUser = window.firebaseAuth.currentUser;
-    if (!firebaseUser) {
+    const firebaseUID = localStorage.getItem('firebaseUID');
+    if (!firebaseUID) {
         return;
     }
     
@@ -3217,11 +3216,11 @@ async function saveAllUserDataToFirebase() {
             stats: calculateStats(),
             
             // Métadonnées
-            createdAt: getCurrentUserData('createdAt') || new Date().toISOString(),
+            createdAt: localStorage.getItem('userCreatedAt') || new Date().toISOString(),
             lastActive: new Date().toISOString()
         };
         
-        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', firebaseUser.uid);
+        const userRef = window.firebaseDoc(window.firebaseDb, 'userData', firebaseUID);
         await window.firebaseSetDoc(userRef, userData, { merge: true });
         console.log('✅ Toutes les données sauvegardées sur Firebase !');
         return true;
