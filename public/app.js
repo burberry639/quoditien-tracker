@@ -351,13 +351,25 @@ const rankSystem = [
 
 let soundEnabled = true;
 
+// Traînée de curseur (effet premium) - déclaré tôt pour éviter les erreurs d'initialisation
+let cursorTrailEnabled = false;
+let lastCursorTime = 0;
+
 /* ========================================
    FONCTIONS UTILITAIRES
 ======================================== */
 
-function showReligionSelector() {
+/* ========================================
+   SYSTÈME D'AUTHENTIFICATION
+======================================== */
+
+// Variables pour le système de login
+let selectedReligion = null;
+
+// Afficher l'interface de login
+function showLoginScreen() {
     const overlay = document.createElement('div');
-    overlay.id = 'religionOverlay';
+    overlay.id = 'loginOverlay';
     overlay.style.cssText = `
         position: fixed;
         top: 0;
@@ -374,109 +386,347 @@ function showReligionSelector() {
     
     overlay.innerHTML = `
         <div style="
-            max-width: 800px;
+            max-width: 500px;
+            width: 90%;
             padding: 40px;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             border: 3px solid #00d9ff;
             border-radius: 20px;
-            text-align: center;
             box-shadow: 0 0 50px rgba(0, 217, 255, 0.5);
         ">
             <h1 style="
                 font-size: 2.5em;
                 color: #00d9ff;
-                margin-bottom: 20px;
+                margin-bottom: 30px;
+                text-align: center;
                 text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
-            ">⚔️ CRÉATION DE PERSONNAGE ⚔️</h1>
+            ">⚔️ CONNEXION ⚔️</h1>
             
-            <div style="margin-bottom: 30px;">
-                <input type="text" id="usernameInput" placeholder="Entre ton pseudo..." style="
+            <div id="loginForm" style="display: block;">
+                <input type="email" id="loginEmail" placeholder="Email" style="
                     width: 100%;
                     padding: 15px;
-                    font-size: 1.2em;
+                    font-size: 1.1em;
                     background: rgba(0, 0, 0, 0.5);
                     border: 2px solid #00d9ff;
                     color: white;
                     border-radius: 10px;
-                    text-align: center;
-                    margin-bottom: 20px;
+                    margin-bottom: 15px;
+                    box-sizing: border-box;
                 ">
+                <input type="password" id="loginPassword" placeholder="Mot de passe" style="
+                    width: 100%;
+                    padding: 15px;
+                    font-size: 1.1em;
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 2px solid #00d9ff;
+                    color: white;
+                    border-radius: 10px;
+                    margin-bottom: 20px;
+                    box-sizing: border-box;
+                ">
+                <button onclick="handleLogin()" style="
+                    width: 100%;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #00d9ff, #0088cc);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.2em;
+                    font-weight: bold;
+                    cursor: pointer;
+                    margin-bottom: 15px;
+                ">🔐 SE CONNECTER</button>
+                <button onclick="showRegisterForm()" style="
+                    width: 100%;
+                    padding: 15px;
+                    background: transparent;
+                    border: 2px solid #00d9ff;
+                    border-radius: 10px;
+                    color: #00d9ff;
+                    font-size: 1em;
+                    cursor: pointer;
+                ">📝 Créer un compte</button>
+                <div id="loginError" style="
+                    margin-top: 15px;
+                    padding: 10px;
+                    background: rgba(255, 0, 0, 0.1);
+                    border: 1px solid #ff4444;
+                    border-radius: 8px;
+                    color: #ff4444;
+                    display: none;
+                    text-align: center;
+                "></div>
             </div>
             
-            <p style="
-                font-size: 1.2em;
-                color: #aaa;
-                margin-bottom: 30px;
-            ">Choisis ta voie spirituelle</p>
-            
-            <div style="
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            ">
-                <button data-religion="islam" onclick="createUser('islam')" class="religion-btn" style="
-                    padding: 30px 20px;
-                    background: linear-gradient(135deg, #00cc66, #008844);
-                    border: none;
-                    border-radius: 15px;
+            <div id="registerForm" style="display: none;">
+                <input type="text" id="registerUsername" placeholder="Pseudo (minimum 3 caractères)" style="
+                    width: 100%;
+                    padding: 15px;
+                    font-size: 1.1em;
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 2px solid #00d9ff;
                     color: white;
-                    font-size: 1.5em;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    box-shadow: 0 5px 20px rgba(0, 204, 102, 0.4);
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                    box-sizing: border-box;
                 ">
-                    <div style="font-size: 3em; margin-bottom: 10px;">☪️</div>
-                    <div style="font-weight: bold;">ISLAM</div>
-                </button>
-                
-                <button data-religion="christianity" onclick="createUser('christianity')" class="religion-btn" style="
-                    padding: 30px 20px;
-                    background: linear-gradient(135deg, #667eea, #4a5fd4);
-                    border: none;
-                    border-radius: 15px;
+                <input type="email" id="registerEmail" placeholder="Email" style="
+                    width: 100%;
+                    padding: 15px;
+                    font-size: 1.1em;
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 2px solid #00d9ff;
                     color: white;
-                    font-size: 1.5em;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                    box-sizing: border-box;
                 ">
-                    <div style="font-size: 3em; margin-bottom: 10px;">✝️</div>
-                    <div style="font-weight: bold;">CHRISTIANISME</div>
-                </button>
-                
-                <button data-religion="neutral" onclick="createUser('neutral')" class="religion-btn" style="
-                    padding: 30px 20px;
-                    background: linear-gradient(135deg, #ffa500, #ff6b00);
-                    border: none;
-                    border-radius: 15px;
+                <input type="password" id="registerPassword" placeholder="Mot de passe (minimum 6 caractères)" style="
+                    width: 100%;
+                    padding: 15px;
+                    font-size: 1.1em;
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 2px solid #00d9ff;
                     color: white;
-                    font-size: 1.5em;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    box-shadow: 0 5px 20px rgba(255, 165, 0, 0.4);
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                    box-sizing: border-box;
                 ">
-                    <div style="font-size: 3em; margin-bottom: 10px;">🌟</div>
-                    <div style="font-weight: bold;">NEUTRE</div>
-                </button>
+                <p style="
+                    font-size: 1em;
+                    color: #aaa;
+                    margin-bottom: 20px;
+                    text-align: center;
+                ">Choisis ta voie spirituelle</p>
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 10px;
+                    margin-bottom: 20px;
+                ">
+                    <button onclick="selectRegisterReligion('islam')" id="religion-islam" style="
+                        padding: 15px;
+                        background: rgba(0, 204, 102, 0.2);
+                        border: 2px solid #00cc66;
+                        border-radius: 10px;
+                        color: white;
+                        font-size: 1.2em;
+                        cursor: pointer;
+                    ">☪️</button>
+                    <button onclick="selectRegisterReligion('christianity')" id="religion-christianity" style="
+                        padding: 15px;
+                        background: rgba(102, 126, 234, 0.2);
+                        border: 2px solid #667eea;
+                        border-radius: 10px;
+                        color: white;
+                        font-size: 1.2em;
+                        cursor: pointer;
+                    ">✝️</button>
+                    <button onclick="selectRegisterReligion('neutral')" id="religion-neutral" style="
+                        padding: 15px;
+                        background: rgba(255, 165, 0, 0.2);
+                        border: 2px solid #ffa500;
+                        border-radius: 10px;
+                        color: white;
+                        font-size: 1.2em;
+                        cursor: pointer;
+                    ">🌟</button>
+                </div>
+                <button onclick="handleRegister()" style="
+                    width: 100%;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #00d9ff, #0088cc);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.2em;
+                    font-weight: bold;
+                    cursor: pointer;
+                    margin-bottom: 15px;
+                ">✨ CRÉER LE COMPTE</button>
+                <button onclick="showLoginForm()" style="
+                    width: 100%;
+                    padding: 15px;
+                    background: transparent;
+                    border: 2px solid #00d9ff;
+                    border-radius: 10px;
+                    color: #00d9ff;
+                    font-size: 1em;
+                    cursor: pointer;
+                ">← Retour à la connexion</button>
+                <div id="registerError" style="
+                    margin-top: 15px;
+                    padding: 10px;
+                    background: rgba(255, 0, 0, 0.1);
+                    border: 1px solid #ff4444;
+                    border-radius: 8px;
+                    color: #ff4444;
+                    display: none;
+                    text-align: center;
+                "></div>
             </div>
         </div>
     `;
     
     document.body.appendChild(overlay);
+}
+
+function showRegisterForm() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    selectedReligion = null;
+    // Réinitialiser les sélections de religion
+    ['islam', 'christianity', 'neutral'].forEach(rel => {
+        const btn = document.getElementById(`religion-${rel}`);
+        if (btn) {
+            btn.style.background = `rgba(${rel === 'islam' ? '0, 204, 102' : rel === 'christianity' ? '102, 126, 234' : '255, 165, 0'}, 0.2)`;
+            btn.style.border = `2px solid ${rel === 'islam' ? '#00cc66' : rel === 'christianity' ? '#667eea' : '#ffa500'}`;
+        }
+    });
+}
+
+function showLoginForm() {
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+}
+
+function selectRegisterReligion(religion) {
+    selectedReligion = religion;
+    ['islam', 'christianity', 'neutral'].forEach(rel => {
+        const btn = document.getElementById(`religion-${rel}`);
+        if (btn) {
+            if (rel === religion) {
+                btn.style.background = rel === 'islam' ? '#00cc66' : rel === 'christianity' ? '#667eea' : '#ffa500';
+                btn.style.border = `2px solid ${rel === 'islam' ? '#00ff88' : rel === 'christianity' ? '#8b9aff' : '#ffcc00'}`;
+            } else {
+                btn.style.background = `rgba(${rel === 'islam' ? '0, 204, 102' : rel === 'christianity' ? '102, 126, 234' : '255, 165, 0'}, 0.2)`;
+                btn.style.border = `2px solid ${rel === 'islam' ? '#00cc66' : rel === 'christianity' ? '#667eea' : '#ffa500'}`;
+            }
+        }
+    });
+}
+
+// Gérer la connexion
+async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorDiv = document.getElementById('loginError');
     
-    // Attacher aussi les événements touch pour mobile
-    setTimeout(() => {
-        const buttons = overlay.querySelectorAll('[data-religion]');
-        buttons.forEach(btn => {
-            const religion = btn.getAttribute('data-religion');
-            btn.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                createUser(religion);
-            }, { passive: false });
-        });
-    }, 100);
+    if (!email || !password) {
+        errorDiv.textContent = '⚠️ Veuillez remplir tous les champs';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    try {
+        const userCredential = await window.firebaseSignIn(window.firebaseAuth, email, password);
+        console.log('✅ Connexion réussie:', userCredential.user.email);
+        // L'authentification déclenchera onAuthStateChanged qui chargera l'app
+    } catch (error) {
+        console.error('❌ Erreur de connexion:', error);
+        let errorMessage = 'Erreur de connexion';
+        if (error.code === 'auth/user-not-found') {
+            errorMessage = '❌ Aucun compte trouvé avec cet email';
+        } else if (error.code === 'auth/wrong-password') {
+            errorMessage = '❌ Mot de passe incorrect';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = '❌ Email invalide';
+        } else {
+            errorMessage = `❌ ${error.message}`;
+        }
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = 'block';
+    }
+}
+
+// Gérer l'inscription
+async function handleRegister() {
+    const username = document.getElementById('registerUsername').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const errorDiv = document.getElementById('registerError');
+    
+    // Validation
+    if (!username || !email || !password) {
+        errorDiv.textContent = '⚠️ Veuillez remplir tous les champs';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (username.length < 3) {
+        errorDiv.textContent = '⚠️ Le pseudo doit faire au moins 3 caractères';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (password.length < 6) {
+        errorDiv.textContent = '⚠️ Le mot de passe doit faire au moins 6 caractères';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (!selectedReligion) {
+        errorDiv.textContent = '⚠️ Veuillez choisir une voie spirituelle';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    try {
+        // Créer le compte Firebase Auth
+        const userCredential = await window.firebaseCreateUser(window.firebaseAuth, email, password);
+        const user = userCredential.user;
+        
+        // Sauvegarder les infos utilisateur dans Firestore
+        const userRef = window.firebaseDoc(window.firebaseDb, 'users', user.uid);
+        await window.firebaseSetDoc(userRef, {
+            username: username,
+            email: email,
+            religion: selectedReligion,
+            createdAt: new Date().toISOString(),
+            lastActive: new Date().toISOString()
+        }, { merge: true });
+        
+        // Sauvegarder aussi dans localStorage pour compatibilité
+        localStorage.setItem('currentUser', username);
+        localStorage.setItem('username', username);
+        localStorage.setItem('selectedReligion', selectedReligion);
+        localStorage.setItem('firebaseUID', user.uid);
+        
+        console.log('✅ Compte créé avec succès!');
+        // L'authentification déclenchera onAuthStateChanged qui chargera l'app
+    } catch (error) {
+        console.error('❌ Erreur d\'inscription:', error);
+        let errorMessage = 'Erreur lors de la création du compte';
+        if (error.code === 'auth/email-already-in-use') {
+            errorMessage = '❌ Cet email est déjà utilisé';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = '❌ Email invalide';
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage = '❌ Mot de passe trop faible';
+        } else {
+            errorMessage = `❌ ${error.message}`;
+        }
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = 'block';
+    }
+}
+
+// Gérer la déconnexion
+async function handleLogout() {
+    try {
+        await window.firebaseSignOut(window.firebaseAuth);
+        localStorage.clear();
+        currentUser = null;
+        location.reload();
+    } catch (error) {
+        console.error('Erreur de déconnexion:', error);
+    }
+}
+
+function showReligionSelector() {
+    // Rediriger vers le login
+    showLoginScreen();
 }
 
 function createUser(religion) {
@@ -3360,10 +3610,7 @@ function createCheckboxParticles(checkbox) {
     }
 }
 
-// Traînée de curseur (effet premium)
-let cursorTrailEnabled = false;
-let lastCursorTime = 0;
-
+// Fonction pour activer/désactiver la traînée de curseur
 function enableCursorTrail(enabled) {
     cursorTrailEnabled = enabled;
 }
