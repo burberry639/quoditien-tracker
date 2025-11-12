@@ -22,6 +22,108 @@ function saveAllUsers(users) {
     originalSetItem('allUsers', JSON.stringify(users));
 }
 
+/* ========================================
+   SYSTÈME D'ADMINISTRATION PAR IP
+======================================== */
+
+// Liste des IPs autorisées pour l'administration
+// Remplacez par votre IP réelle
+const ADMIN_IPS = [
+    '213.44.129.20'  // IP admin
+];
+
+// Variable pour stocker l'IP de l'utilisateur
+let userIP = null;
+
+// Fonction pour récupérer l'IP de l'utilisateur
+async function getUserIP() {
+    if (userIP) return userIP;
+    
+    try {
+        // Essayer plusieurs services pour récupérer l'IP
+        const services = [
+            'https://api.ipify.org?format=json',
+            'https://api64.ipify.org?format=json',
+            'https://ipapi.co/json/'
+        ];
+        
+        for (const service of services) {
+            try {
+                const response = await fetch(service);
+                const data = await response.json();
+                userIP = data.ip || data.query || null;
+                if (userIP) {
+                    console.log('IP détectée:', userIP);
+                    return userIP;
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+        
+        // Fallback : essayer avec une autre méthode
+        return null;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'IP:', error);
+        return null;
+    }
+}
+
+// Fonction pour vérifier si l'utilisateur est admin
+async function isAdmin() {
+    const ip = await getUserIP();
+    if (!ip) {
+        console.warn('Impossible de récupérer l\'IP, accès admin refusé');
+        return false;
+    }
+    
+    // Vérifier si l'IP est dans la liste des admins
+    const isAdminIP = ADMIN_IPS.includes(ip);
+    
+    if (isAdminIP) {
+        console.log('✅ Accès admin autorisé pour IP:', ip);
+    } else {
+        console.log('❌ Accès admin refusé pour IP:', ip);
+        console.log('IPs admin configurées:', ADMIN_IPS);
+    }
+    
+    return isAdminIP;
+}
+
+// Fonction pour supprimer un compte utilisateur
+function deleteUser(username) {
+    if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer le compte "${username}" ?\n\nCette action est irréversible !`)) {
+        return;
+    }
+    
+    const users = getAllUsers();
+    
+    if (!users[username]) {
+        alert('❌ Utilisateur introuvable !');
+        return;
+    }
+    
+    // Supprimer l'utilisateur
+    delete users[username];
+    saveAllUsers(users);
+    
+    // Si c'est l'utilisateur actuel, le déconnecter
+    if (currentUser === username) {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('username');
+        currentUser = null;
+        alert('✅ Compte supprimé. Redirection...');
+        location.reload();
+    } else {
+        alert(`✅ Compte "${username}" supprimé avec succès !`);
+        // Rafraîchir l'affichage si on est dans le sélecteur
+        const overlay = document.getElementById('userOverlay');
+        if (overlay) {
+            showUserSelector();
+        }
+    }
+}
+
 function getCurrentUserData(key, defaultValue = null) {
     if (!currentUser) return defaultValue;
     const users = getAllUsers();
@@ -388,7 +490,7 @@ function createUser(religion) {
     selectReligion(religion);
 }
 
-function showUserSelector() {
+async function showUserSelector() {
     const users = getAllUsers();
     const userList = Object.keys(users);
     
@@ -396,6 +498,9 @@ function showUserSelector() {
         showReligionSelector();
         return;
     }
+    
+    // Vérifier si l'utilisateur est admin
+    const adminMode = await isAdmin();
     
     const overlay = document.createElement('div');
     overlay.id = 'userOverlay';
@@ -418,27 +523,51 @@ function showUserSelector() {
     userList.forEach(username => {
         const userData = users[username];
         const config = religionConfigs[userData.religion];
+        const isCurrentUser = username === currentUser;
+        
         usersHTML += `
-            <button onclick="selectUser('${username}')" style="
-                padding: 20px;
-                background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 150, 200, 0.1));
-                border: 2px solid #00d9ff;
-                border-radius: 15px;
-                color: white;
-                cursor: pointer;
-                transition: all 0.3s;
-                text-align: left;
+            <div style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
                 width: 100%;
                 margin-bottom: 15px;
             ">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 2em;">${config.icon}</div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 1.3em; font-weight: bold;">${username}</div>
-                        <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
+                <button onclick="selectUser('${username}')" style="
+                    flex: 1;
+                    padding: 20px;
+                    background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(0, 150, 200, 0.1));
+                    border: 2px solid #00d9ff;
+                    border-radius: 15px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    text-align: left;
+                ">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 2em;">${config.icon}</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 1.3em; font-weight: bold;">${username}${isCurrentUser ? ' (Actuel)' : ''}</div>
+                            <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
+                        </div>
                     </div>
-                </div>
-            </button>
+                </button>
+                ${adminMode ? `
+                    <button onclick="deleteUser('${username}')" style="
+                        padding: 20px 15px;
+                        background: linear-gradient(135deg, #ff4444, #cc0000);
+                        border: 2px solid #ff4444;
+                        border-radius: 15px;
+                        color: white;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        font-size: 1.5em;
+                        min-width: 60px;
+                    " title="Supprimer ce compte">
+                        🗑️
+                    </button>
+                ` : ''}
+            </div>
         `;
     });
     
@@ -458,6 +587,21 @@ function showUserSelector() {
                 text-align: center;
                 text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
             ">👥 SÉLECTIONNE TON PROFIL</h1>
+            ${adminMode ? `
+                <div style="
+                    padding: 15px;
+                    background: rgba(255, 215, 0, 0.1);
+                    border: 2px solid #ffd700;
+                    border-radius: 10px;
+                    margin-bottom: 20px;
+                    text-align: center;
+                    color: #ffd700;
+                    font-weight: bold;
+                ">
+                    🔑 MODE ADMIN ACTIVÉ
+                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">IP: ${userIP || 'Chargement...'}</div>
+                </div>
+            ` : ''}
             
             <div style="margin-bottom: 20px;">
                 ${usersHTML}
@@ -491,6 +635,23 @@ function showUserSelector() {
             ">
                 🏆 VOIR LE CLASSEMENT
             </button>
+            
+            ${adminMode ? `
+                <button onclick="showAdminPanel()" style="
+                    width: 100%;
+                    margin-top: 15px;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.1em;
+                    font-weight: bold;
+                    cursor: pointer;
+                ">
+                    ⚙️ PANEL ADMIN
+                </button>
+            ` : ''}
         </div>
     `;
     
@@ -2494,6 +2655,138 @@ window.saveUsername = saveUsername;
 window.addFriend = addFriend;
 window.showAddUserDialog = showAddUserDialog;
 
+// Fonction pour afficher le panel admin
+async function showAdminPanel() {
+    const adminMode = await isAdmin();
+    if (!adminMode) {
+        alert('❌ Accès refusé. Vous n\'êtes pas administrateur.');
+        return;
+    }
+    
+    const users = getAllUsers();
+    const userList = Object.keys(users);
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'adminOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10001;
+        backdrop-filter: blur(10px);
+        overflow-y: auto;
+        padding: 20px;
+    `;
+    
+    let adminHTML = '';
+    userList.forEach(username => {
+        const userData = users[username];
+        const config = religionConfigs[userData.religion];
+        const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('fr-FR') : 'Inconnu';
+        const lastActive = userData.lastActive ? new Date(userData.lastActive).toLocaleDateString('fr-FR') : 'Jamais';
+        
+        adminHTML += `
+            <div style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 15px;
+                background: rgba(155, 89, 182, 0.1);
+                border: 2px solid #9b59b6;
+                border-radius: 15px;
+                margin-bottom: 15px;
+            ">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span style="font-size: 1.5em;">${config.icon}</span>
+                        <div>
+                            <div style="font-size: 1.2em; font-weight: bold; color: white;">${username}</div>
+                            <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.85em; color: #888;">
+                        Créé: ${createdAt} | Dernière activité: ${lastActive}
+                    </div>
+                </div>
+                <button onclick="deleteUser('${username}'); document.getElementById('adminOverlay').remove(); showAdminPanel();" style="
+                    padding: 12px 20px;
+                    background: linear-gradient(135deg, #ff4444, #cc0000);
+                    border: 2px solid #ff4444;
+                    border-radius: 10px;
+                    color: white;
+                    cursor: pointer;
+                    font-weight: bold;
+                    transition: all 0.3s;
+                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    🗑️ Supprimer
+                </button>
+            </div>
+        `;
+    });
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid #9b59b6;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(155, 89, 182, 0.5);
+        ">
+            <h1 style="
+                font-size: 2.5em;
+                color: #9b59b6;
+                margin-bottom: 20px;
+                text-align: center;
+                text-shadow: 0 0 20px rgba(155, 89, 182, 0.8);
+            ">⚙️ PANEL ADMINISTRATEUR</h1>
+            
+            <div style="
+                padding: 15px;
+                background: rgba(155, 89, 182, 0.1);
+                border: 2px solid #9b59b6;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                text-align: center;
+                color: #9b59b6;
+            ">
+                <div style="font-weight: bold; margin-bottom: 5px;">Votre IP: ${userIP || 'Chargement...'}</div>
+                <div style="font-size: 0.9em; color: #aaa;">
+                    Ajoutez cette IP dans ADMIN_IPS pour activer l'admin
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h2 style="color: #9b59b6; margin-bottom: 15px; font-size: 1.5em;">👥 GESTION DES COMPTES</h2>
+                ${userList.length === 0 ? '<p style="text-align: center; color: #aaa;">Aucun utilisateur</p>' : adminHTML}
+            </div>
+            
+            <button onclick="document.getElementById('adminOverlay').remove()" style="
+                width: 100%;
+                padding: 15px;
+                background: linear-gradient(135deg, #667eea, #4a5fd4);
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-size: 1.1em;
+                font-weight: bold;
+                cursor: pointer;
+            ">
+                ✖️ FERMER
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
 // EXPOSE TOUTES LES FONCTIONS NÉCESSAIRES
 window.toggleCheckbox = toggleCheckbox;
 window.resetAll = resetAll;
@@ -2505,6 +2798,8 @@ window.updateEpicProgress = updateEpicProgress;
 window.showCreateChallenge = showCreateChallenge;
 window.createChallenge = createChallenge;
 window.updateChallengeProgress = updateChallengeProgress;
+window.deleteUser = deleteUser;
+window.showAdminPanel = showAdminPanel;
 
 /* ========================================
    NAVIGATION SYSTEM
@@ -3031,8 +3326,21 @@ setTimeout(() => {
 }, 1000);
 
 // Initialiser l'application au chargement
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('App starting...');
+    
+    // Récupérer l'IP de l'utilisateur au démarrage
+    await getUserIP();
+    if (userIP) {
+        console.log('IP de l\'utilisateur:', userIP);
+        // Vérifier si c'est un admin et afficher un message
+        const adminMode = await isAdmin();
+        if (adminMode) {
+            console.log('🔑 Mode admin activé');
+        } else {
+            console.log('💡 Pour activer l\'admin, ajoutez votre IP dans ADMIN_IPS:', userIP);
+        }
+    }
     
     // Vérifier si l'utilisateur existe dans le système multi-utilisateurs
     const savedCurrentUser = localStorage.getItem('currentUser');
