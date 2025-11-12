@@ -158,6 +158,37 @@
     }
 }
 
+/* Animation pour particules flottantes (page stats) */
+.floating-particle {
+    animation: floatingParticleMove 4s ease-in-out infinite;
+}
+
+@keyframes floatingParticleMove {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(var(--drift-x, 0px), var(--drift-y, -50px)) scale(1.2);
+        opacity: 0.8;
+    }
+    90% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translate(calc(var(--drift-x, 0px) * 1.5), calc(var(--drift-y, -50px) * 1.5)) scale(0.8);
+        opacity: 0;
+    }
+}
+
+/* Animation pour particules des barres de stats */
+.stat-bar-particle {
+    transition: transform 0.1s linear, opacity 0.1s linear;
+}
+
 /* Effets de rang (autour du badge de rang) */
 .rank-badge {
     position: relative;
@@ -1273,6 +1304,38 @@ label {
    SYSTÈME DE STATS
 ======================================== */
 
+/* Effet de particules en arrière-plan pour la page stats */
+#page-stats {
+    position: relative;
+    overflow: visible;
+}
+
+#page-stats::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(123, 104, 238, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(255, 215, 0, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+    animation: statsBackgroundGlow 8s ease-in-out infinite;
+}
+
+@keyframes statsBackgroundGlow {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
 .stats-system {
     margin-top: 30px;
     padding: 25px;
@@ -1280,6 +1343,8 @@ label {
     border: 2px solid var(--accent-primary);
     box-shadow: 0 0 30px var(--accent-glow);
     clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    position: relative;
+    z-index: 1;
 }
 
 .stats-system h2 {
@@ -1299,6 +1364,8 @@ label {
     padding: 30px;
     box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
     clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    position: relative;
+    z-index: 1;
 }
 
 .stats-display {
@@ -1318,6 +1385,14 @@ label {
     transition: all 0.3s ease;
     position: relative;
     clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+    overflow: visible;
+}
+
+.stat-item-detailed:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
+    background: var(--bg-hover);
 }
 
 .stat-item-detailed::before {

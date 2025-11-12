@@ -2384,6 +2384,14 @@ function showPage(pageName) {
         displayDailyQuests();
     }
     
+    // Activer les particules sur la page des stats
+    if (pageName === 'stats') {
+        startStatsParticles();
+        updateStatsDisplay(); // Mettre à jour l'affichage des stats
+    } else {
+        stopStatsParticles();
+    }
+    
     // Joue un son si activé
     if (soundEnabled) {
         playSound('assets/ui-click.mp3');
@@ -2438,6 +2446,172 @@ function createParticle(x, y, color, size = 5) {
             particle.remove();
         }
     }, duration * 1000);
+}
+
+// Système de particules pour la page des stats
+let statsParticlesInterval = null;
+
+function startStatsParticles() {
+    // Arrêter les particules existantes si elles tournent déjà
+    stopStatsParticles();
+    
+    const statsPage = document.getElementById('page-stats');
+    if (!statsPage || !statsPage.classList.contains('active')) return;
+    
+    // Créer des particules flottantes en continu
+    statsParticlesInterval = setInterval(() => {
+        if (!document.getElementById('page-stats')?.classList.contains('active')) {
+            stopStatsParticles();
+            return;
+        }
+        
+        // Particules aléatoires dans la zone des stats
+        const statsSystem = document.querySelector('.stats-system');
+        const rankSystem = document.querySelector('.rank-system');
+        
+        if (statsSystem) {
+            const rect = statsSystem.getBoundingClientRect();
+            const x = rect.left + Math.random() * rect.width;
+            const y = rect.top + Math.random() * rect.height;
+            const colors = ['#00d4ff', '#7b68ee', '#ffd700', '#00ff88', '#ff6b6b'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            createFloatingParticle(x, y, color, 3 + Math.random() * 3);
+        }
+        
+        if (rankSystem) {
+            const rect = rankSystem.getBoundingClientRect();
+            const x = rect.left + Math.random() * rect.width;
+            const y = rect.top + Math.random() * rect.height;
+            const colors = ['#ffd700', '#00d4ff', '#7b68ee'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            createFloatingParticle(x, y, color, 3 + Math.random() * 3);
+        }
+        
+        // Particules autour des barres de stats
+        const statBars = document.querySelectorAll('.stat-bar-fill');
+        statBars.forEach(bar => {
+            if (Math.random() > 0.7) { // 30% de chance
+                const rect = bar.getBoundingClientRect();
+                const percentage = parseFloat(bar.style.width) || 0;
+                if (percentage > 0) {
+                    const x = rect.left + (percentage / 100) * rect.width;
+                    const y = rect.top + rect.height / 2;
+                    const color = getComputedStyle(bar).background || '#00d4ff';
+                    createStatBarParticle(x, y, color);
+                }
+            }
+        });
+        
+        // Particules autour du power level
+        const powerLevel = document.querySelector('.power-level');
+        if (powerLevel && Math.random() > 0.8) { // 20% de chance
+            const rect = powerLevel.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 30 + Math.random() * 40;
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+            createFloatingParticle(x, y, '#ffd700', 4 + Math.random() * 2);
+        }
+    }, 300); // Toutes les 300ms
+}
+
+function stopStatsParticles() {
+    if (statsParticlesInterval) {
+        clearInterval(statsParticlesInterval);
+        statsParticlesInterval = null;
+    }
+}
+
+// Créer une particule flottante (plus lente et douce)
+function createFloatingParticle(x, y, color, size = 3) {
+    const container = createParticlesContainer();
+    if (!container) return;
+    
+    const particle = document.createElement('div');
+    particle.className = 'particle floating-particle';
+    
+    const driftX = (Math.random() - 0.5) * 50;
+    const driftY = (Math.random() - 0.5) * 50;
+    const duration = 4 + Math.random() * 3;
+    
+    particle.style.cssText = `
+        left: ${x}px;
+        top: ${y}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: ${color};
+        --drift-x: ${driftX}px;
+        --drift-y: ${driftY}px;
+        animation-duration: ${duration}s;
+        box-shadow: 0 0 ${size * 3}px ${color};
+        opacity: 0.6;
+    `;
+    
+    container.appendChild(particle);
+    
+    setTimeout(() => {
+        if (particle && particle.parentNode) {
+            particle.remove();
+        }
+    }, duration * 1000);
+}
+
+// Créer une particule autour d'une barre de stat
+function createStatBarParticle(x, y, color) {
+    const container = createParticlesContainer();
+    if (!container) return;
+    
+    const particle = document.createElement('div');
+    particle.className = 'particle stat-bar-particle';
+    
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 20 + Math.random() * 30;
+    const finalX = x + Math.cos(angle) * radius;
+    const finalY = y + Math.sin(angle) * radius;
+    const duration = 1.5 + Math.random() * 1;
+    const deltaX = finalX - x;
+    const deltaY = finalY - y;
+    
+    particle.style.cssText = `
+        left: ${x}px;
+        top: ${y}px;
+        width: 4px;
+        height: 4px;
+        background: ${color};
+        box-shadow: 0 0 8px ${color};
+        --delta-x: ${deltaX}px;
+        --delta-y: ${deltaY}px;
+    `;
+    
+    // Animation avec requestAnimationFrame pour un mouvement fluide
+    let startTime = null;
+    const animate = (currentTime) => {
+        if (!startTime) startTime = currentTime;
+        const elapsed = (currentTime - startTime) / 1000;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        const currentX = x + deltaX * easeOut;
+        const currentY = y + deltaY * easeOut;
+        const scale = 1 - easeOut;
+        const opacity = 1 - easeOut;
+        
+        particle.style.transform = `translate(${currentX - x}px, ${currentY - y}px) scale(${scale})`;
+        particle.style.opacity = opacity;
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            if (particle && particle.parentNode) {
+                particle.remove();
+            }
+        }
+    };
+    
+    container.appendChild(particle);
+    requestAnimationFrame(animate);
 }
 
 // Effet de particules selon le rang
