@@ -713,7 +713,8 @@ function updateProgress() {
     document.getElementById('progressFill').textContent = percentage + '%';
     
     // Mettre à jour le rang en temps réel selon la progression actuelle
-    updateRankProgressRealtime(percentage);
+    // Passer aussi le nombre d'habitudes complétées pour calculer la contribution
+    updateRankProgressRealtime(completed, habits.length);
 }
 
 function addRankProgress(points) {
@@ -730,7 +731,7 @@ function addRankProgress(points) {
 }
 
 // Nouvelle fonction pour mettre à jour le rang en temps réel
-function updateRankProgressRealtime(currentPercentage) {
+function updateRankProgressRealtime(completed, total) {
     const today = getTodayDate();
     const lastUpdate = originalGetItem('lastRankUpdate') || '';
     
@@ -747,13 +748,11 @@ function updateRankProgressRealtime(currentPercentage) {
         currentPoints -= previousContribution;
     }
     
-    // Calculer la contribution actuelle selon la progression
-    let todayContribution = 0;
-    if (currentPercentage === 100) {
-        todayContribution = 1; // Journée parfaite = +1 jour
-    } else if (currentPercentage >= 50) {
-        todayContribution = 0.5; // Demi-journée = +0.5 jour
-    }
+    // Calculer la contribution actuelle proportionnellement
+    // Chaque habitude complétée = 1/total de jour
+    // Exemple : 7 habitudes complétées sur 14 = 7/14 = 0.5 jour
+    // Toutes les habitudes complétées = 1 jour complet
+    const todayContribution = completed / total;
     
     // Calculer les points totaux avec la contribution actuelle
     const totalPoints = currentPoints + todayContribution;
@@ -763,8 +762,7 @@ function updateRankProgressRealtime(currentPercentage) {
     originalSetItem('lastRankUpdate', today);
     
     // Sauvegarder les points pour l'affichage en temps réel
-    // Si la journée est complète (100%), les points sont définitifs
-    // Sinon, ils seront recalculés à chaque changement
+    // La progression est visible immédiatement et se met à jour à chaque habitude cochée
     originalSetItem('rankProgressPoints', totalPoints.toString());
     
     // Mettre à jour l'affichage du rang en temps réel
