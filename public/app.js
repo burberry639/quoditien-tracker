@@ -1111,12 +1111,11 @@ function updateStreaks() {
 const dailyQuests = [
     { id: 'quest-sport', name: '💪 Séance de sport intense', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-prayers', name: '🕌 Toutes les 5 prières à l\'heure', reward: 'spi', bonus: '+0.5 jour de rang', points: 5 },
-    { id: 'quest-study', name: '📚 1h d\'étude/lecture', reward: 'men', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-pushups', name: '💪 50 pompes', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-hygiene', name: '🧼 Hygiène parfaite toute la journée', reward: 'hp', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-discipline', name: '🎯 Zéro distraction aujourd\'hui', reward: 'dis', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-cardio', name: '🏃 30min de cardio', reward: 'end', bonus: '+0.5 jour de rang', points: 5 },
-    { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
-    { id: 'quest-wake', name: '⏰ Réveil à 5h du matin', reward: 'dis', bonus: '+0.5 jour de rang', points: 5 }
+    { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang', points: 5 }
 ];
 
 // QUÊTES ÉPIQUES - Objectifs à long terme
@@ -1197,25 +1196,6 @@ const epicQuests = [
             { kg: 5, name: '+5kg - Moitié', bonus: 10 },
             { kg: 8, name: '+8kg - Presque là', bonus: 20 },
             { kg: 10, name: '+10KG DE MUSCLE 💪', bonus: 35 }
-        ]
-    },
-    {
-        id: 'epic-meditation',
-        name: '🧘 MAÎTRE ZEN',
-        description: '1000 heures de méditation',
-        category: 'spiritual',
-        icon: '🧘',
-        targetHours: 1000,
-        currentHours: 0,
-        rewards: {
-            rankBonus: 40,
-            stats: { spi: 70, men: 60, dis: 40 }
-        },
-        milestones: [
-            { hours: 100, name: '100h - Initié', bonus: 5 },
-            { hours: 250, name: '250h - Pratiquant', bonus: 10 },
-            { hours: 500, name: '500h - Avancé', bonus: 20 },
-            { hours: 1000, name: 'MAÎTRE ZEN 🧘', bonus: 40 }
         ]
     }
 ];
