@@ -2397,9 +2397,10 @@ function showPage(pageName) {
 
 // Créer le conteneur de particules
 function createParticlesContainer() {
-    if (document.getElementById('particles-container')) return;
+    let container = document.getElementById('particles-container');
+    if (container) return container;
     
-    const container = document.createElement('div');
+    container = document.createElement('div');
     container.id = 'particles-container';
     container.className = 'particles-container';
     document.body.appendChild(container);
@@ -2409,6 +2410,11 @@ function createParticlesContainer() {
 // Créer une particule
 function createParticle(x, y, color, size = 5) {
     const container = createParticlesContainer();
+    if (!container) {
+        console.warn('Impossible de créer le conteneur de particules');
+        return;
+    }
+    
     const particle = document.createElement('div');
     particle.className = 'particle';
     
@@ -2428,7 +2434,11 @@ function createParticle(x, y, color, size = 5) {
     
     container.appendChild(particle);
     
-    setTimeout(() => particle.remove(), duration * 1000);
+    setTimeout(() => {
+        if (particle && particle.parentNode) {
+            particle.remove();
+        }
+    }, duration * 1000);
 }
 
 // Effet de particules selon le rang
