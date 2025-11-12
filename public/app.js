@@ -98,7 +98,7 @@ async function isAdmin() {
     return isAdminIP;
 }
 
-// Fonction pour supprimer un compte utilisateur
+// Fonction pour supprimer un compte utilisateur (local)
 function deleteUser(username) {
     if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer le compte "${username}" ?\n\nCette action est irréversible !`)) {
         return;
@@ -107,7 +107,7 @@ function deleteUser(username) {
     const users = getAllUsers();
     
     if (!users[username]) {
-        alert('❌ Utilisateur introuvable !');
+        alert('❌ Utilisateur introuvable localement !');
         return;
     }
     
@@ -129,6 +129,59 @@ function deleteUser(username) {
         if (overlay) {
             showUserSelector();
         }
+    }
+}
+
+// Fonction pour supprimer un utilisateur depuis Firebase
+async function deleteUserFromFirebase(username) {
+    if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer le compte "${username}" depuis Firebase ?\n\nCette action est irréversible !`)) {
+        return;
+    }
+    
+    if (!window.firebaseDb) {
+        alert('❌ Firebase n\'est pas disponible !');
+        return;
+    }
+    
+    try {
+        const userRef = window.firebaseDoc(window.firebaseDb, 'users', username);
+        await window.firebaseDeleteDoc(userRef);
+        alert(`✅ Compte "${username}" supprimé de Firebase avec succès !`);
+        return true;
+    } catch (error) {
+        console.error('Erreur lors de la suppression Firebase:', error);
+        alert(`❌ Erreur lors de la suppression: ${error.message}`);
+        return false;
+    }
+}
+
+// Fonction pour supprimer un utilisateur (local + Firebase)
+async function deleteUserCompletely(username) {
+    if (!confirm(`⚠️ Êtes-vous sûr de vouloir supprimer COMPLÈTEMENT le compte "${username}" ?\n\nCette action supprimera le compte localement ET sur Firebase.\n\nCette action est irréversible !`)) {
+        return;
+    }
+    
+    // Supprimer localement
+    const users = getAllUsers();
+    if (users[username]) {
+        delete users[username];
+        saveAllUsers(users);
+    }
+    
+    // Supprimer de Firebase
+    if (window.firebaseDb) {
+        await deleteUserFromFirebase(username);
+    }
+    
+    // Si c'est l'utilisateur actuel, le déconnecter
+    if (currentUser === username) {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('username');
+        currentUser = null;
+        alert('✅ Compte supprimé complètement. Redirection...');
+        location.reload();
+    } else {
+        alert(`✅ Compte "${username}" supprimé complètement !`);
     }
 }
 
@@ -2686,7 +2739,24 @@ async function showAdminPanel() {
     }
     
     const users = getAllUsers();
-    const userList = Object.keys(users);
+    const localUserList = Object.keys(users);
+    
+    // Récupérer les utilisateurs Firebase
+    let firebaseUsers = [];
+    if (window.firebaseDb) {
+        try {
+            const usersCollection = window.firebaseCollection(window.firebaseDb, 'users');
+            const snapshot = await window.firebaseGetDocs(usersCollection);
+            snapshot.forEach((doc) => {
+                firebaseUsers.push(doc.data());
+            });
+        } catch (error) {
+            console.error('Erreur lors de la récupération des utilisateurs Firebase:', error);
+        }
+    }
+    
+    // Créer un Set de tous les usernames uniques
+    const allUsernames = new Set([...localUserList, ...firebaseUsers.map(u => u.username)]);
     
     const overlay = document.createElement('div');
     overlay.id = 'adminOverlay';
@@ -2707,11 +2777,29 @@ async function showAdminPanel() {
     `;
     
     let adminHTML = '';
-    userList.forEach(username => {
+    allUsernames.forEach(username => {
         const userData = users[username];
-        const config = religionConfigs[userData.religion];
-        const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('fr-FR') : 'Inconnu';
-        const lastActive = userData.lastActive ? new Date(userData.lastActive).toLocaleDateString('fr-FR') : 'Jamais';
+        const firebaseUser = firebaseUsers.find(u => u.username === username);
+        const isLocal = !!userData;
+        const isFirebase = !!firebaseUser;
+        
+        let config = { icon: '🌟', name: 'Inconnu' };
+        if (userData && userData.religion) {
+            config = religionConfigs[userData.religion];
+        } else if (firebaseUser && firebaseUser.religion) {
+            const religionConfig = religionConfigs[firebaseUser.religion];
+            if (religionConfig) config = religionConfig;
+        }
+        
+        const createdAt = userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString('fr-FR') : 
+                         (firebaseUser?.lastUpdated ? new Date(firebaseUser.lastUpdated).toLocaleDateString('fr-FR') : 'Inconnu');
+        const lastActive = userData?.lastActive ? new Date(userData.lastActive).toLocaleDateString('fr-FR') : 
+                          (firebaseUser?.lastUpdated ? new Date(firebaseUser.lastUpdated).toLocaleDateString('fr-FR') : 'Jamais');
+        const rank = firebaseUser?.rank || 'F';
+        
+        const sourceBadge = [];
+        if (isLocal) sourceBadge.push('<span style="background: #00d9ff; color: #000; padding: 2px 8px; border-radius: 5px; font-size: 0.75em; margin-left: 5px;">LOCAL</span>');
+        if (isFirebase) sourceBadge.push('<span style="background: #ffaa00; color: #000; padding: 2px 8px; border-radius: 5px; font-size: 0.75em; margin-left: 5px;">FIREBASE</span>');
         
         adminHTML += `
             <div style="
@@ -2728,33 +2816,72 @@ async function showAdminPanel() {
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                         <span style="font-size: 1.5em;">${config.icon}</span>
                         <div>
-                            <div style="font-size: 1.2em; font-weight: bold; color: white;">${username}</div>
-                            <div style="font-size: 0.9em; color: #aaa;">${config.name}</div>
+                            <div style="font-size: 1.2em; font-weight: bold; color: white;">
+                                ${username} ${sourceBadge.join('')}
+                            </div>
+                            <div style="font-size: 0.9em; color: #aaa;">
+                                ${config.name} | Rang: ${rank}
+                            </div>
                         </div>
                     </div>
                     <div style="font-size: 0.85em; color: #888;">
                         Créé: ${createdAt} | Dernière activité: ${lastActive}
                     </div>
                 </div>
-                <button onclick="deleteUser('${username}'); document.getElementById('adminOverlay').remove(); showAdminPanel();" style="
-                    padding: 12px 20px;
-                    background: linear-gradient(135deg, #ff4444, #cc0000);
-                    border: 2px solid #ff4444;
-                    border-radius: 10px;
-                    color: white;
-                    cursor: pointer;
-                    font-weight: bold;
-                    transition: all 0.3s;
-                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    🗑️ Supprimer
-                </button>
+                <div style="display: flex; gap: 5px; flex-direction: column;">
+                    ${isLocal ? `
+                        <button onclick="deleteUser('${username}'); document.getElementById('adminOverlay').remove(); setTimeout(() => showAdminPanel(), 500);" style="
+                            padding: 8px 15px;
+                            background: linear-gradient(135deg, #ff4444, #cc0000);
+                            border: 2px solid #ff4444;
+                            border-radius: 8px;
+                            color: white;
+                            cursor: pointer;
+                            font-weight: bold;
+                            font-size: 0.85em;
+                            transition: all 0.3s;
+                        " title="Supprimer localement">
+                            🗑️ Local
+                        </button>
+                    ` : ''}
+                    ${isFirebase ? `
+                        <button onclick="deleteUserFromFirebase('${username}'); document.getElementById('adminOverlay').remove(); setTimeout(() => showAdminPanel(), 500);" style="
+                            padding: 8px 15px;
+                            background: linear-gradient(135deg, #ff8800, #ff6600);
+                            border: 2px solid #ff8800;
+                            border-radius: 8px;
+                            color: white;
+                            cursor: pointer;
+                            font-weight: bold;
+                            font-size: 0.85em;
+                            transition: all 0.3s;
+                        " title="Supprimer de Firebase">
+                            🔥 Firebase
+                        </button>
+                    ` : ''}
+                    ${isLocal && isFirebase ? `
+                        <button onclick="deleteUserCompletely('${username}'); document.getElementById('adminOverlay').remove(); setTimeout(() => showAdminPanel(), 1000);" style="
+                            padding: 8px 15px;
+                            background: linear-gradient(135deg, #cc0000, #990000);
+                            border: 2px solid #cc0000;
+                            border-radius: 8px;
+                            color: white;
+                            cursor: pointer;
+                            font-weight: bold;
+                            font-size: 0.85em;
+                            transition: all 0.3s;
+                        " title="Supprimer complètement (local + Firebase)">
+                            ⚡ Tout
+                        </button>
+                    ` : ''}
+                </div>
             </div>
         `;
     });
     
     overlay.innerHTML = `
         <div style="
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             padding: 40px;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -2780,14 +2907,19 @@ async function showAdminPanel() {
                 color: #9b59b6;
             ">
                 <div style="font-weight: bold; margin-bottom: 5px;">Votre IP: ${userIP || 'Chargement...'}</div>
-                <div style="font-size: 0.9em; color: #aaa;">
-                    Ajoutez cette IP dans ADMIN_IPS pour activer l'admin
+                <div style="font-size: 0.9em; color: #aaa; margin-top: 10px;">
+                    <div>📊 Utilisateurs locaux: ${localUserList.length}</div>
+                    <div>🔥 Utilisateurs Firebase: ${firebaseUsers.length}</div>
+                    <div>👥 Total unique: ${allUsernames.size}</div>
                 </div>
             </div>
             
             <div style="margin-bottom: 20px;">
                 <h2 style="color: #9b59b6; margin-bottom: 15px; font-size: 1.5em;">👥 GESTION DES COMPTES</h2>
-                ${userList.length === 0 ? '<p style="text-align: center; color: #aaa;">Aucun utilisateur</p>' : adminHTML}
+                <div style="margin-bottom: 10px; padding: 10px; background: rgba(255, 170, 0, 0.1); border: 1px solid #ffaa00; border-radius: 8px; font-size: 0.9em; color: #ffaa00;">
+                    💡 <strong>LOCAL</strong> = Compte stocké localement | <strong>FIREBASE</strong> = Compte sur le classement en ligne
+                </div>
+                ${allUsernames.size === 0 ? '<p style="text-align: center; color: #aaa;">Aucun utilisateur</p>' : adminHTML}
             </div>
             
             <button onclick="document.getElementById('adminOverlay').remove()" style="
@@ -2821,6 +2953,8 @@ window.showCreateChallenge = showCreateChallenge;
 window.createChallenge = createChallenge;
 window.updateChallengeProgress = updateChallengeProgress;
 window.deleteUser = deleteUser;
+window.deleteUserFromFirebase = deleteUserFromFirebase;
+window.deleteUserCompletely = deleteUserCompletely;
 window.showAdminPanel = showAdminPanel;
 
 /* ========================================
