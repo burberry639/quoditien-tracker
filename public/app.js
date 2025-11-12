@@ -1256,8 +1256,17 @@ function initDailyQuests() {
     const savedDate = originalGetItem('questsDate');
     
     if (savedDate !== today) {
-        const shuffled = [...allQuests].sort(() => Math.random() - 0.5);
-        const dailyQuests = shuffled.slice(0, 5).map(q => q.id);
+        // S'assurer que la quête de pompes est toujours incluse
+        const pushupsQuest = allQuests.find(q => q.id === 'quest-pushups');
+        const otherQuests = allQuests.filter(q => q.id !== 'quest-pushups');
+        
+        // Mélanger les autres quêtes
+        const shuffled = [...otherQuests].sort(() => Math.random() - 0.5);
+        
+        // Prendre 4 autres quêtes + la quête de pompes = 5 quêtes au total
+        const selectedQuests = [pushupsQuest, ...shuffled.slice(0, 4)].filter(q => q !== undefined);
+        const dailyQuests = selectedQuests.map(q => q.id);
+        
         originalSetItem('dailyQuests', JSON.stringify(dailyQuests));
         originalSetItem('questsDate', today);
         
@@ -1271,11 +1280,19 @@ function initDailyQuests() {
 
 // Fonction pour calculer le nombre de pompes selon le rang
 function getPushupsCount() {
-    const currentRankName = getCurrentUserRank();
-    const rankIndex = rankSystem.findIndex(r => r.name === currentRankName);
-    // Rang F (index 0) = 50 pompes, puis +15 par rang
-    // F = 50, E = 65, D = 80, C = 95, etc.
-    return 50 + (rankIndex * 15);
+    try {
+        const currentRankName = getCurrentUserRank();
+        if (!currentRankName) return 50; // Valeur par défaut si pas de rang
+        
+        const rankIndex = rankSystem.findIndex(r => r.name === currentRankName);
+        // Rang F (index 0) = 50 pompes, puis +15 par rang
+        // F = 50, E = 65, D = 80, C = 95, etc.
+        const count = 50 + (Math.max(0, rankIndex) * 15);
+        return count;
+    } catch (error) {
+        console.error('Erreur dans getPushupsCount:', error);
+        return 50; // Valeur par défaut en cas d'erreur
+    }
 }
 
 function displayDailyQuests() {
@@ -1294,8 +1311,13 @@ function displayDailyQuests() {
         // Si c'est la quête de pompes, calculer dynamiquement le nombre selon le rang
         let questName = quest.name;
         if (questId === 'quest-pushups') {
-            const pushupsCount = getPushupsCount();
-            questName = `💪 ${pushupsCount} pompes`;
+            try {
+                const pushupsCount = getPushupsCount();
+                questName = `💪 ${pushupsCount} pompes`;
+            } catch (error) {
+                console.error('Erreur lors du calcul des pompes:', error);
+                questName = `💪 50 pompes`; // Valeur par défaut
+            }
         }
         
         const questDiv = document.createElement('div');
