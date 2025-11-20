@@ -184,7 +184,7 @@ const religionConfigs = {
         },
         categoryNames: {
             spiritual: 'Prières',
-            ethics: 'Spiritualité'
+            ethics: 'Mental'
         }
     },
     christianity: {
@@ -211,7 +211,7 @@ const religionConfigs = {
         },
         categoryNames: {
             spiritual: 'Prières',
-            ethics: 'Spiritualité'
+            ethics: 'Mental'
         }
     },
     neutral: {
@@ -1122,6 +1122,12 @@ function calculateStats() {
 }
 
 function getStatRank(value) {
+    if (value >= 30000) return { rank: 'X', class: 'rank-x' };
+    if (value >= 10000) return { rank: 'MR', class: 'rank-mr' };
+    if (value >= 8000) return { rank: 'UR', class: 'rank-ur' };
+    if (value >= 4000) return { rank: 'LR', class: 'rank-lr' };
+    if (value >= 2000) return { rank: 'SSR', class: 'rank-ssr' };
+    if (value >= 1000) return { rank: 'SR', class: 'rank-sr' };
     if (value >= 500) return { rank: 'SSS', class: 'rank-sss' };
     if (value >= 400) return { rank: 'SS', class: 'rank-ss' };
     if (value >= 300) return { rank: 'S', class: 'rank-s' };
