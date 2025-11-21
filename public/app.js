@@ -1394,26 +1394,6 @@ const epicQuests = [
         ]
     },
     {
-        id: 'epic-wealth',
-        name: '💰 FORTUNE',
-        description: 'Gagner 10 000€ grâce à tes efforts',
-        category: 'wealth',
-        icon: '💰',
-        targetAmount: 10000,
-        currentAmount: 0,
-        rewards: {
-            rankBonus: 50,
-            stats: { dis: 60, men: 50 }
-        },
-        milestones: [
-            { amount: 1000, name: 'Premiers 1000€', bonus: 5 },
-            { amount: 2500, name: '2500€ - En route', bonus: 10 },
-            { amount: 5000, name: '5000€ - Mi-chemin', bonus: 20 },
-            { amount: 7500, name: '7500€ - Presque là', bonus: 30 },
-            { amount: 10000, name: '10 000€ ATTEINTS 💰', bonus: 50 }
-        ]
-    },
-    {
         id: 'epic-marathon',
         name: '🏃 MARATHON',
         description: 'Courir un marathon complet (42.195 km)',
