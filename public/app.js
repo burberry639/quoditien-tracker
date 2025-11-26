@@ -330,6 +330,12 @@ let selectedReligion = null;
 
 // Afficher l'interface de login
 function showLoginScreen() {
+    // Si un overlay existe déjà (ex: multiples appels sur mobile), on le remplace
+    const existingOverlay = document.getElementById('loginOverlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
+
     const overlay = document.createElement('div');
     overlay.id = 'loginOverlay';
     overlay.style.cssText = `
