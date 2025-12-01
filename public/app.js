@@ -5,6 +5,12 @@
 // Système d'utilisateurs
 let currentUser = null;
 
+// Variable pour le timer des quêtes (éviter les doublons)
+let questTimerInterval = null;
+
+// Flag pour éviter l'initialisation multiple de l'application
+let appInitialized = false;
+
 // Fonctions de stockage de base (utilise directement localStorage)
 const originalGetItem = (key) => {
     return localStorage.getItem(key);
@@ -371,7 +377,12 @@ function showLoginScreen() {
             ">⚔️ CONNEXION ⚔️</h1>
             
             <div id="loginForm" style="display: block;">
-                <input type="email" id="loginEmail" placeholder="Email" style="
+                <input type="email" id="loginEmail" placeholder="Email" 
+                    inputmode="email" 
+                    autocomplete="email" 
+                    required
+                    aria-label="Adresse email"
+                    style="
                     width: 100%;
                     padding: 15px;
                     font-size: 1.1em;
@@ -381,8 +392,13 @@ function showLoginScreen() {
                     border-radius: 10px;
                     margin-bottom: 15px;
                     box-sizing: border-box;
+                    min-height: 44px;
                 ">
-                <input type="password" id="loginPassword" placeholder="Mot de passe" style="
+                <input type="password" id="loginPassword" placeholder="Mot de passe" 
+                    autocomplete="current-password" 
+                    required
+                    aria-label="Mot de passe"
+                    style="
                     width: 100%;
                     padding: 15px;
                     font-size: 1.1em;
@@ -392,10 +408,14 @@ function showLoginScreen() {
                     border-radius: 10px;
                     margin-bottom: 20px;
                     box-sizing: border-box;
+                    min-height: 44px;
                 ">
-                <button onclick="handleLogin()" style="
+                <button onclick="handleLogin()" 
+                    aria-label="Se connecter"
+                    style="
                     width: 100%;
                     padding: 15px;
+                    min-height: 44px;
                     background: linear-gradient(135deg, #00d9ff, #0088cc);
                     border: none;
                     border-radius: 10px;
@@ -404,16 +424,21 @@ function showLoginScreen() {
                     font-weight: bold;
                     cursor: pointer;
                     margin-bottom: 15px;
+                    transition: transform 0.1s ease, opacity 0.1s ease;
                 ">🔐 SE CONNECTER</button>
-                <button onclick="showRegisterForm()" style="
+                <button onclick="showRegisterForm()" 
+                    aria-label="Créer un compte"
+                    style="
                     width: 100%;
                     padding: 15px;
+                    min-height: 44px;
                     background: transparent;
                     border: 2px solid #00d9ff;
                     border-radius: 10px;
                     color: #00d9ff;
                     font-size: 1em;
                     cursor: pointer;
+                    transition: transform 0.1s ease, opacity 0.1s ease;
                 ">📝 Créer un compte</button>
                 <div id="loginError" style="
                     margin-top: 15px;
@@ -428,7 +453,13 @@ function showLoginScreen() {
             </div>
             
             <div id="registerForm" style="display: none;">
-                <input type="text" id="registerUsername" placeholder="Pseudo (minimum 3 caractères)" style="
+                <input type="text" id="registerUsername" placeholder="Pseudo (minimum 3 caractères)" 
+                    inputmode="text" 
+                    autocomplete="username" 
+                    minlength="3"
+                    required
+                    aria-label="Pseudo (minimum 3 caractères)"
+                    style="
                     width: 100%;
                     padding: 15px;
                     font-size: 1.1em;
@@ -438,8 +469,14 @@ function showLoginScreen() {
                     border-radius: 10px;
                     margin-bottom: 15px;
                     box-sizing: border-box;
+                    min-height: 44px;
                 ">
-                <input type="email" id="registerEmail" placeholder="Email" style="
+                <input type="email" id="registerEmail" placeholder="Email" 
+                    inputmode="email" 
+                    autocomplete="email" 
+                    required
+                    aria-label="Adresse email"
+                    style="
                     width: 100%;
                     padding: 15px;
                     font-size: 1.1em;
@@ -449,8 +486,14 @@ function showLoginScreen() {
                     border-radius: 10px;
                     margin-bottom: 15px;
                     box-sizing: border-box;
+                    min-height: 44px;
                 ">
-                <input type="password" id="registerPassword" placeholder="Mot de passe (minimum 6 caractères)" style="
+                <input type="password" id="registerPassword" placeholder="Mot de passe (minimum 6 caractères)" 
+                    autocomplete="new-password" 
+                    minlength="6"
+                    required
+                    aria-label="Mot de passe (minimum 6 caractères)"
+                    style="
                     width: 100%;
                     padding: 15px;
                     font-size: 1.1em;
@@ -460,6 +503,7 @@ function showLoginScreen() {
                     border-radius: 10px;
                     margin-bottom: 15px;
                     box-sizing: border-box;
+                    min-height: 44px;
                 ">
             <p style="
                     font-size: 1em;
@@ -473,37 +517,52 @@ function showLoginScreen() {
                     gap: 10px;
                     margin-bottom: 20px;
                 ">
-                    <button onclick="selectRegisterReligion('islam')" id="religion-islam" style="
+                    <button onclick="selectRegisterReligion('islam')" id="religion-islam" 
+                        aria-label="Choisir l'Islam"
+                        style="
                         padding: 15px;
+                        min-height: 44px;
                         background: rgba(0, 204, 102, 0.2);
                         border: 2px solid #00cc66;
                         border-radius: 10px;
                     color: white;
                         font-size: 1.2em;
                     cursor: pointer;
+                    transition: transform 0.1s ease, opacity 0.1s ease;
                     ">☪️</button>
-                    <button onclick="selectRegisterReligion('christianity')" id="religion-christianity" style="
+                    <button onclick="selectRegisterReligion('christianity')" id="religion-christianity" 
+                        aria-label="Choisir le Christianisme"
+                        style="
                         padding: 15px;
+                        min-height: 44px;
                         background: rgba(102, 126, 234, 0.2);
                         border: 2px solid #667eea;
                         border-radius: 10px;
                     color: white;
                         font-size: 1.2em;
                     cursor: pointer;
+                    transition: transform 0.1s ease, opacity 0.1s ease;
                     ">✝️</button>
-                    <button onclick="selectRegisterReligion('neutral')" id="religion-neutral" style="
+                    <button onclick="selectRegisterReligion('neutral')" id="religion-neutral" 
+                        aria-label="Choisir voie neutre"
+                        style="
                         padding: 15px;
+                        min-height: 44px;
                         background: rgba(255, 165, 0, 0.2);
                         border: 2px solid #ffa500;
                         border-radius: 10px;
                         color: white;
                         font-size: 1.2em;
                         cursor: pointer;
+                        transition: transform 0.1s ease, opacity 0.1s ease;
                     ">🌟</button>
                 </div>
-                <button onclick="handleRegister()" style="
+                <button onclick="handleRegister()" 
+                    aria-label="Créer un compte"
+                    style="
                     width: 100%;
                     padding: 15px;
+                    min-height: 44px;
                     background: linear-gradient(135deg, #00d9ff, #0088cc);
                     border: none;
                     border-radius: 10px;
@@ -512,16 +571,21 @@ function showLoginScreen() {
                     font-weight: bold;
                     cursor: pointer;
                     margin-bottom: 15px;
+                    transition: transform 0.1s ease, opacity 0.1s ease;
                 ">✨ CRÉER LE COMPTE</button>
-                <button onclick="showLoginForm()" style="
+                <button onclick="showLoginForm()" 
+                    aria-label="Retour à la connexion"
+                    style="
                     width: 100%;
                     padding: 15px;
+                    min-height: 44px;
                     background: transparent;
                     border: 2px solid #00d9ff;
                     border-radius: 10px;
                     color: #00d9ff;
                     font-size: 1em;
                     cursor: pointer;
+                    transition: transform 0.1s ease, opacity 0.1s ease;
                 ">← Retour à la connexion</button>
                 <div id="registerError" style="
                     margin-top: 15px;
@@ -577,12 +641,38 @@ function selectRegisterReligion(religion) {
 
 // Gérer la connexion - Utilise uniquement Firebase Firestore
 async function handleLogin() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
     const errorDiv = document.getElementById('loginError');
     
+    // Réinitialiser les erreurs
+    errorDiv.style.display = 'none';
+    emailInput.style.borderColor = '#00d9ff';
+    passwordInput.style.borderColor = '#00d9ff';
+    
+    // Validation des champs
     if (!email || !password) {
         errorDiv.textContent = '⚠️ Veuillez remplir tous les champs';
+        errorDiv.style.display = 'block';
+        if (!email) emailInput.style.borderColor = '#ff4444';
+        if (!password) passwordInput.style.borderColor = '#ff4444';
+        return;
+    }
+    
+    // Validation du format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        errorDiv.textContent = '⚠️ Format d\'email invalide';
+        errorDiv.style.display = 'block';
+        emailInput.style.borderColor = '#ff4444';
+        return;
+    }
+    
+    // Vérifier la connexion réseau
+    if (!navigator.onLine) {
+        errorDiv.textContent = '❌ Pas de connexion internet. Vérifiez votre réseau.';
         errorDiv.style.display = 'block';
         return;
     }
@@ -591,6 +681,13 @@ async function handleLogin() {
         errorDiv.textContent = '❌ Firebase n\'est pas disponible. Vérifiez votre connexion.';
         errorDiv.style.display = 'block';
         return;
+    }
+    
+    // Afficher un indicateur de chargement
+    const loginButton = emailInput.nextElementSibling;
+    if (loginButton && loginButton.tagName === 'BUTTON') {
+        loginButton.disabled = true;
+        loginButton.textContent = '⏳ Connexion...';
     }
     
     try {
@@ -611,6 +708,13 @@ async function handleLogin() {
         if (!foundUser) {
             errorDiv.textContent = '❌ Aucun compte trouvé avec cet email';
             errorDiv.style.display = 'block';
+            emailInput.style.borderColor = '#ff4444';
+            // Restaurer le bouton
+            const loginButton = document.querySelector('#loginForm button[onclick="handleLogin()"]');
+            if (loginButton) {
+                loginButton.disabled = false;
+                loginButton.textContent = '🔐 SE CONNECTER';
+            }
             return;
         }
         
@@ -619,6 +723,13 @@ async function handleLogin() {
         if (!storedPassword || btoa(password) !== storedPassword) {
             errorDiv.textContent = '❌ Mot de passe incorrect';
             errorDiv.style.display = 'block';
+            passwordInput.style.borderColor = '#ff4444';
+            // Restaurer le bouton
+            const loginButton = document.querySelector('#loginForm button[onclick="handleLogin()"]');
+            if (loginButton) {
+                loginButton.disabled = false;
+                loginButton.textContent = '🔐 SE CONNECTER';
+            }
             return;
         }
         
@@ -644,8 +755,23 @@ async function handleLogin() {
         
     } catch (error) {
         console.error('❌ Erreur de connexion:', error);
-        errorDiv.textContent = `❌ Erreur de connexion: ${error.message}`;
+        let errorMessage = '❌ Erreur de connexion';
+        if (error.message && error.message.includes('network')) {
+            errorMessage = '❌ Erreur réseau. Vérifiez votre connexion internet.';
+        } else if (error.message && error.message.includes('permission')) {
+            errorMessage = '❌ Erreur d\'autorisation. Réessayez plus tard.';
+        } else if (error.message) {
+            errorMessage = `❌ ${error.message}`;
+        }
+        errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
+    } finally {
+        // Toujours restaurer le bouton
+        const loginButton = document.querySelector('#loginForm button[onclick="handleLogin()"]');
+        if (loginButton) {
+            loginButton.disabled = false;
+            loginButton.textContent = '🔐 SE CONNECTER';
+        }
     }
 }
 
@@ -653,27 +779,50 @@ async function handleLogin() {
 
 // Gérer l'inscription - Utilise uniquement Firebase Firestore
 async function handleRegister() {
-    const username = document.getElementById('registerUsername').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value;
+    const usernameInput = document.getElementById('registerUsername');
+    const emailInput = document.getElementById('registerEmail');
+    const passwordInput = document.getElementById('registerPassword');
+    const username = usernameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
     const errorDiv = document.getElementById('registerError');
+    
+    // Réinitialiser les erreurs
+    errorDiv.style.display = 'none';
+    usernameInput.style.borderColor = '#00d9ff';
+    emailInput.style.borderColor = '#00d9ff';
+    passwordInput.style.borderColor = '#00d9ff';
     
     // Validation
     if (!username || !email || !password) {
         errorDiv.textContent = '⚠️ Veuillez remplir tous les champs';
         errorDiv.style.display = 'block';
+        if (!username) usernameInput.style.borderColor = '#ff4444';
+        if (!email) emailInput.style.borderColor = '#ff4444';
+        if (!password) passwordInput.style.borderColor = '#ff4444';
         return;
     }
     
     if (username.length < 3) {
         errorDiv.textContent = '⚠️ Le pseudo doit faire au moins 3 caractères';
         errorDiv.style.display = 'block';
+        usernameInput.style.borderColor = '#ff4444';
+        return;
+    }
+    
+    // Validation du format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        errorDiv.textContent = '⚠️ Format d\'email invalide';
+        errorDiv.style.display = 'block';
+        emailInput.style.borderColor = '#ff4444';
         return;
     }
     
     if (password.length < 6) {
         errorDiv.textContent = '⚠️ Le mot de passe doit faire au moins 6 caractères';
         errorDiv.style.display = 'block';
+        passwordInput.style.borderColor = '#ff4444';
         return;
     }
     
@@ -683,10 +832,24 @@ async function handleRegister() {
         return;
     }
     
+    // Vérifier la connexion réseau
+    if (!navigator.onLine) {
+        errorDiv.textContent = '❌ Pas de connexion internet. Vérifiez votre réseau.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
     if (!window.firebaseDb) {
         errorDiv.textContent = '❌ Firebase n\'est pas disponible. Vérifiez votre connexion.';
         errorDiv.style.display = 'block';
         return;
+    }
+    
+    // Afficher un indicateur de chargement
+    const registerButton = document.querySelector('#registerForm button[onclick="handleRegister()"]');
+    if (registerButton) {
+        registerButton.disabled = true;
+        registerButton.textContent = '⏳ Création...';
     }
     
     try {
@@ -742,16 +905,29 @@ async function handleRegister() {
     } catch (error) {
         console.error('❌ Erreur d\'inscription:', error);
         
-        let errorMessage = 'Erreur lors de la création du compte';
+        let errorMessage = '❌ Erreur lors de la création du compte';
         if (error.message === 'EMAIL_EXISTS') {
             errorMessage = '❌ Cet email est déjà utilisé';
+            emailInput.style.borderColor = '#ff4444';
         } else if (error.message === 'USERNAME_EXISTS') {
             errorMessage = '❌ Ce pseudo est déjà utilisé';
-        } else {
+            usernameInput.style.borderColor = '#ff4444';
+        } else if (error.message && error.message.includes('network')) {
+            errorMessage = '❌ Erreur réseau. Vérifiez votre connexion internet.';
+        } else if (error.message && error.message.includes('permission')) {
+            errorMessage = '❌ Erreur d\'autorisation. Réessayez plus tard.';
+        } else if (error.message) {
             errorMessage = `❌ ${error.message}`;
         }
         errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
+    } finally {
+        // Toujours restaurer le bouton
+        const registerButton = document.querySelector('#registerForm button[onclick="handleRegister()"]');
+        if (registerButton) {
+            registerButton.disabled = false;
+            registerButton.textContent = '✨ CRÉER LE COMPTE';
+        }
     }
 }
 
@@ -1577,7 +1753,11 @@ function initDailyQuests() {
     
     displayDailyQuests();
     updateQuestTimer();
-    setInterval(updateQuestTimer, 1000);
+    
+    // Éviter de créer plusieurs intervals
+    if (!questTimerInterval) {
+        questTimerInterval = setInterval(updateQuestTimer, 1000);
+    }
 }
 
 // Fonction pour calculer le nombre d'exercices selon le rang (pompes, abdos, squats)
@@ -2251,12 +2431,7 @@ function generateHabitsHTML() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadTheme();
-    
-    // Initialiser l'authentification (qui chargera l'app si un utilisateur est connecté)
-    initAuth();
-});
+// Note: L'initialisation principale se fait dans le DOMContentLoaded en fin de fichier
 
 /* ========================================
    SYSTÈME DE LEADERBOARD
@@ -2815,8 +2990,20 @@ function createParticlesContainer() {
     return container;
 }
 
-// Créer une particule
+// Détecter si on est sur mobile
+function isMobileDevice() {
+    return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Créer une particule (optimisé pour mobile)
 function createParticle(x, y, color, size = 5) {
+    // Réduire les effets sur mobile pour les performances
+    if (isMobileDevice()) {
+        // Moins de particules et plus petites sur mobile
+        if (Math.random() > 0.5) return; // 50% de chance de créer une particule
+        size = size * 0.7;
+    }
+    
     const container = createParticlesContainer();
     if (!container) {
         console.warn('Impossible de créer le conteneur de particules');
@@ -2829,6 +3016,7 @@ function createParticle(x, y, color, size = 5) {
     const drift = (Math.random() - 0.5) * 100;
     const duration = 2 + Math.random() * 2;
     
+    // Utiliser will-change pour optimiser les performances
     particle.style.cssText = `
         left: ${x}px;
         top: ${y}px;
@@ -2838,6 +3026,7 @@ function createParticle(x, y, color, size = 5) {
         --drift: ${drift}px;
         animation-duration: ${duration}s;
         box-shadow: 0 0 ${size * 2}px ${color};
+        will-change: transform, opacity;
     `;
     
     container.appendChild(particle);
@@ -2863,9 +3052,37 @@ function startStatsParticles() {
     const statsPage = document.getElementById('page-stats');
     if (!statsPage || !statsPage.classList.contains('active')) return;
     
-    // Créer des particules flottantes en continu
+    // Désactiver ou réduire les particules sur mobile pour les performances
+    if (isMobileDevice()) {
+        // Sur mobile, réduire drastiquement les particules (70% de moins)
+        const intervalTime = 1000; // 1 seconde au lieu de 300ms
+        statsParticlesInterval = setInterval(() => {
+            // Vérifier si la page est toujours visible
+            if (document.hidden || !document.getElementById('page-stats')?.classList.contains('active')) {
+                stopStatsParticles();
+                return;
+            }
+            
+            // Sur mobile, créer des particules beaucoup moins souvent
+            if (Math.random() > 0.3) return; // 70% de chance de ne pas créer de particule
+            
+            const statsSystem = document.querySelector('.stats-system');
+            if (statsSystem && Math.random() > 0.5) {
+                const rect = statsSystem.getBoundingClientRect();
+                const x = rect.left + Math.random() * rect.width;
+                const y = rect.top + Math.random() * rect.height;
+                const colors = ['#00d4ff', '#7b68ee'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                createFloatingParticle(x, y, color, 2 + Math.random() * 2);
+            }
+        }, intervalTime);
+        return;
+    }
+    
+    // Version desktop avec toutes les particules
     statsParticlesInterval = setInterval(() => {
-        if (!document.getElementById('page-stats')?.classList.contains('active')) {
+        // Vérifier si la page est toujours visible
+        if (document.hidden || !document.getElementById('page-stats')?.classList.contains('active')) {
             stopStatsParticles();
             return;
         }
@@ -3177,14 +3394,25 @@ function updateCursorTrailForRank(rankName) {
 ======================================== */
 
 // Sauvegarder toutes les données utilisateur sur Firebase
-async function saveAllUserDataToFirebase() {
+// Créer un hash simple des données pour détecter les changements
+function createDataHash(data) {
+    return JSON.stringify(data);
+}
+
+async function saveAllUserDataToFirebase(force = false) {
     if (!window.firebaseDb || !currentUser) {
-        return;
+        return false;
+    }
+    
+    // Vérifier si on est en ligne
+    if (!navigator.onLine) {
+        console.warn('⚠️ Hors ligne, sauvegarde impossible');
+        return false;
     }
     
     const firebaseUID = localStorage.getItem('firebaseUID');
     if (!firebaseUID) {
-        return;
+        return false;
     }
     
     try {
@@ -3214,12 +3442,28 @@ async function saveAllUserDataToFirebase() {
             lastActive: new Date().toISOString()
         };
         
+        // Créer un hash pour comparer avec la dernière sauvegarde
+        const dataHash = createDataHash(userData);
+        
+        // Sauvegarder seulement si les données ont changé (sauf si forcé)
+        if (!force && dataHash === lastSavedDataHash) {
+            console.log('📝 Aucun changement détecté, pas de sauvegarde');
+            return true;
+        }
+        
         const userRef = window.firebaseDoc(window.firebaseDb, 'userData', firebaseUID);
         await window.firebaseSetDoc(userRef, userData, { merge: true });
-        console.log('✅ Toutes les données sauvegardées sur Firebase !');
+        
+        // Mettre à jour le hash de dernière sauvegarde
+        lastSavedDataHash = dataHash;
+        console.log('✅ Données sauvegardées sur Firebase !');
         return true;
     } catch (error) {
         console.error('❌ Erreur lors de la sauvegarde Firebase:', error);
+        // Gérer les erreurs réseau spécifiques
+        if (error.message && error.message.includes('network')) {
+            console.warn('⚠️ Erreur réseau, réessai prévu lors de la prochaine sauvegarde');
+        }
         return false;
     }
 }
@@ -3305,6 +3549,14 @@ async function saveUserToFirebase(username, religion, rank) {
 
 // Variable pour stocker le listener Firebase et éviter les doublons
 let firebaseLeaderboardUnsubscribe = null;
+
+// Variables pour optimiser la sauvegarde Firebase
+let lastSavedDataHash = null;
+let saveTimerInterval = null;
+let rankParticlesInterval = null;
+
+// Variables pour gérer la visibilité de la page
+let isPageVisible = true;
 
 function displayFirebaseLeaderboard() {
     const container = document.getElementById('leaderboardList');
@@ -3403,6 +3655,9 @@ setTimeout(() => {
 // Initialiser l'application au chargement
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('App starting...');
+    
+    // Charger le thème immédiatement
+    loadTheme();
     
     // Récupérer l'IP de l'utilisateur au démarrage
     await getUserIP();
@@ -3503,6 +3758,14 @@ async function updateAdminButton() {
 }
 
 function initApp() {
+    // Éviter l'initialisation multiple
+    if (appInitialized) {
+        console.log('⚠️ App déjà initialisée, ignoré');
+        return;
+    }
+    appInitialized = true;
+    console.log('✅ Initialisation de l\'application...');
+    
     updateDate();
     
     // Générer les habitudes HTML d'abord si nécessaire
@@ -3537,30 +3800,60 @@ function initApp() {
         logoutButton.style.display = 'flex';
     }
     
-    // Mettre à jour le timer toutes les secondes
-    setInterval(updateQuestTimer, 1000);
+    // Gérer la visibilité de la page pour optimiser les timers
+    document.addEventListener('visibilitychange', () => {
+        isPageVisible = !document.hidden;
+        if (isPageVisible) {
+            // Page visible : reprendre les timers
+            updateQuestTimer();
+        }
+    });
     
-    // Recréer les particules de rang toutes les 5 secondes
-    setInterval(() => {
-        const currentRankEl = document.getElementById('currentRank');
-        if (currentRankEl) {
-            createRankParticles(currentRankEl.textContent);
+    // Mettre à jour le timer toutes les secondes (seulement si page visible)
+    questTimerInterval = setInterval(() => {
+        if (isPageVisible) {
+            updateQuestTimer();
+        }
+    }, 1000);
+    
+    // Recréer les particules de rang toutes les 5 secondes (seulement si page visible)
+    rankParticlesInterval = setInterval(() => {
+        if (isPageVisible && document.getElementById('page-stats')?.classList.contains('active')) {
+            const currentRankEl = document.getElementById('currentRank');
+            if (currentRankEl) {
+                createRankParticles(currentRankEl.textContent);
+            }
         }
     }, 5000);
     
-    // Sauvegarder automatiquement toutes les données sur Firebase toutes les 30 secondes
+    // Sauvegarder automatiquement toutes les données sur Firebase toutes les 30 secondes (seulement si changements)
     if (window.firebaseDb && currentUser) {
-        setInterval(() => {
-            saveAllUserDataToFirebase().catch(err => console.error('Erreur sauvegarde auto:', err));
+        saveTimerInterval = setInterval(() => {
+            // Sauvegarder seulement si la page est visible et en ligne
+            if (isPageVisible && navigator.onLine) {
+                saveAllUserDataToFirebase().catch(err => console.error('Erreur sauvegarde auto:', err));
+            }
         }, 30000); // Toutes les 30 secondes
     }
     
     // Sauvegarder aussi quand l'utilisateur quitte la page
     window.addEventListener('beforeunload', () => {
-        if (currentUser && window.firebaseDb) {
-            // Utiliser sendBeacon pour une sauvegarde synchrone
-            saveAllUserDataToFirebase();
+        if (currentUser && window.firebaseDb && navigator.onLine) {
+            // Sauvegarder forcément au départ
+            saveAllUserDataToFirebase(true);
         }
+    });
+    
+    // Gérer la reconnexion réseau
+    window.addEventListener('online', () => {
+        console.log('✅ Connexion rétablie, synchronisation...');
+        if (currentUser && window.firebaseDb) {
+            saveAllUserDataToFirebase(true);
+        }
+    });
+    
+    window.addEventListener('offline', () => {
+        console.warn('⚠️ Connexion perdue, mode hors ligne activé');
     });
     
     // Afficher le leaderboard Firebase (seulement si pas déjà initialisé)

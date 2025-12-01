@@ -78,6 +78,13 @@
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
+    /* Zone tactile minimum 44x44px recommandée pour mobile */
+    min-height: 44px;
+}
+
+.nav-tab:active {
+    transform: scale(0.95);
+    opacity: 0.8;
 }
 
 .nav-tab:hover {
@@ -405,6 +412,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    /* Optimisation mobile : éliminer le délai de 300ms sur les éléments interactifs */
+    touch-action: manipulation;
 }
 
 *::selection {
@@ -421,6 +430,9 @@ body {
     position: relative;
     overflow-x: hidden;
     line-height: 1.6;
+    /* Optimisation mobile : éliminer le délai de 300ms */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 212, 255, 0.3);
 }
 
 /* Grille futuriste en fond */
@@ -596,7 +608,16 @@ body::after {
 
 .theme-toggle:active,
 .sound-toggle button:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.95);
+}
+
+/* Feedback visuel sur tap mobile */
+.theme-toggle:active,
+.sound-toggle button:active,
+.admin-button:active,
+.logout-button:active {
+    transform: scale(0.95);
+    opacity: 0.8;
 }
 
 @keyframes pulse {
@@ -936,6 +957,11 @@ h2 {
     border-color: var(--accent-primary);
     box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
     background: var(--bg-hover);
+}
+
+.habit-item:active {
+    transform: translateX(3px) scale(0.98);
+    opacity: 0.9;
 }
 
 .habit-item.checked {
@@ -2272,6 +2298,47 @@ label {
     font-weight: 700;
     color: var(--warning-color);
     text-shadow: 0 0 20px var(--warning-glow);
+}
+
+/* ========================================
+   FEEDBACK TACTILE MOBILE
+======================================== */
+
+/* Feedback visuel sur tap pour tous les boutons */
+button:active {
+    transform: scale(0.95) !important;
+    opacity: 0.8 !important;
+    transition: transform 0.1s ease, opacity 0.1s ease !important;
+}
+
+/* Zone tactile minimum pour mobile */
+button {
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 212, 255, 0.3);
+}
+
+input {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 212, 255, 0.2);
+}
+
+/* Optimisation des animations sur mobile */
+@media (max-width: 768px) {
+    /* Réduire les animations complexes sur mobile */
+    .particle {
+        will-change: transform, opacity;
+    }
+    
+    /* Optimiser les transitions */
+    * {
+        transition-duration: 0.2s !important;
+    }
+    
+    /* Réduire les effets de brillance */
+    .stat-bar-fill::before {
+        animation-duration: 4s !important;
+    }
 }
 
 /* ========================================
