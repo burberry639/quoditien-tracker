@@ -2743,16 +2743,18 @@ input {
     transform: none;
 }
 
-/* Animation d'apparition des quêtes */
-.quest-item {
-    animation: questSlideIn 0.5s ease-out backwards;
-}
+/* Animation d'apparition des quêtes - désactivée sur mobile pour éviter les bugs */
+@media (min-width: 769px) {
+    .quest-item {
+        animation: questSlideIn 0.5s ease-out forwards;
+    }
 
-.quest-item:nth-child(1) { animation-delay: 0.1s; }
-.quest-item:nth-child(2) { animation-delay: 0.2s; }
-.quest-item:nth-child(3) { animation-delay: 0.3s; }
-.quest-item:nth-child(4) { animation-delay: 0.4s; }
-.quest-item:nth-child(5) { animation-delay: 0.5s; }
+    .quest-item:nth-child(1) { animation-delay: 0.1s; }
+    .quest-item:nth-child(2) { animation-delay: 0.2s; }
+    .quest-item:nth-child(3) { animation-delay: 0.3s; }
+    .quest-item:nth-child(4) { animation-delay: 0.4s; }
+    .quest-item:nth-child(5) { animation-delay: 0.5s; }
+}
 
 @keyframes questSlideIn {
     from {
@@ -2767,10 +2769,27 @@ input {
 
 /* Responsive pour les quêtes */
 @media (max-width: 768px) {
+    #dailyQuestsList {
+        gap: 12px;
+        margin: 15px 0;
+        overflow: visible !important;
+    }
+    
     .quest-item {
         flex-direction: column;
         align-items: stretch;
         padding: 15px;
+        opacity: 1 !important;
+        transform: none !important;
+        visibility: visible !important;
+        display: flex !important;
+        clip-path: none;
+        border-radius: 10px;
+        border: 2px solid var(--warning-color);
+    }
+    
+    .quest-item.completed {
+        border-color: var(--success-color);
     }
     
     .quest-name {
@@ -2780,6 +2799,19 @@ input {
     .quest-btn {
         width: 100%;
         padding: 14px;
+        margin-top: 10px;
+    }
+    
+    .quest-card {
+        clip-path: none;
+        border-radius: 15px;
+        padding: 20px;
+        overflow: visible;
+    }
+    
+    .quest-system {
+        clip-path: none;
+        border-radius: 15px;
     }
 }
 
