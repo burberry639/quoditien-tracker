@@ -1,22 +1,34 @@
 @echo off
-cd /d "C:\Users\vispera\Desktop\IA traitement audio"
+chcp 65001 >nul
+cd /d "%~dp0"
 
-REM Supprimer le fichier de verrouillage Git s'il existe
-if exist ".git\index.lock" (
-    echo Suppression du fichier de verrouillage Git...
-    del /f /q ".git\index.lock"
-)
+echo ========================================
+echo    🚀 COMMIT AUTOMATIQUE
+echo ========================================
+echo.
 
-REM Configurer Git pour ignorer les warnings de fin de ligne
-git config core.autocrlf true
-git config core.safecrlf false
+:: Demander le message de commit
+set /p MESSAGE="📝 Message du commit (ou appuyez sur Entrée pour 'Update'): "
 
-REM Exécuter les commandes Git sans warnings
-git add . 2>nul
-git commit -m "updt" 2>nul
-git push 2>nul
+:: Si pas de message, utiliser "Update" par défaut
+if "%MESSAGE%"=="" set MESSAGE=Update
 
 echo.
-echo Commit et push termines!
+echo 📦 Ajout des fichiers...
+git add -A
+
+echo.
+echo 💾 Commit en cours...
+git commit -m "%MESSAGE%"
+
+echo.
+echo ☁️ Push vers GitHub...
+git push
+
+echo.
+echo ========================================
+echo    ✅ TERMINÉ !
+echo ========================================
+echo.
 pause
 
