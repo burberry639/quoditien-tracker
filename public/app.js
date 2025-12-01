@@ -1551,7 +1551,8 @@ const dailyQuests = [
     { id: 'quest-hygiene', name: '🧼 Hygiène parfaite toute la journée', reward: 'hp', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-discipline', name: '🎯 Zéro distraction aujourd\'hui', reward: 'dis', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-cardio', name: '🏃 30min de cardio', reward: 'end', bonus: '+0.5 jour de rang', points: 5 },
-    { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang', points: 5 }
+    { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-martial-arts', name: '🥋 30min d\'arts martiaux', reward: 'str', bonus: '+0.5 jour de rang', points: 5 }
 ];
 
 // QUÊTES ÉPIQUES - Objectifs à long terme
