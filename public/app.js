@@ -1559,21 +1559,19 @@ const dailyQuests = [
 const epicQuests = [
     {
         id: 'epic-blackbelt',
-        name: '🥋 CEINTURE NOIRE',
-        description: 'Atteindre le niveau de ceinture noire en arts martiaux',
-        category: 'martial-arts',
-        icon: '🥋',
+        name: '⚡ ULTRA INSTINCT',
+        description: "Apprendre et maîtriser l'Ultra Instinct étape par étape",
+        category: 'ultra-instinct',
+        icon: '⚡',
         targetDays: 365,
         rewards: {
             rankBonus: 30,
             stats: { str: 50, dis: 40, men: 30 }
         },
         milestones: [
-            { days: 30, name: 'Ceinture Blanche', bonus: 2 },
-            { days: 90, name: 'Ceinture Jaune', bonus: 5 },
-            { days: 180, name: 'Ceinture Orange', bonus: 10 },
-            { days: 270, name: 'Ceinture Verte', bonus: 15 },
-            { days: 365, name: 'CEINTURE NOIRE 🥋', bonus: 30 }
+            { days: 120, name: "Phase 1 : Signe de l'UI", bonus: 5 },
+            { days: 240, name: 'Phase 2 : Ultra Instinct non maîtrisé', bonus: 10 },
+            { days: 365, name: 'Phase 3 : Ultra Instinct maîtrisé', bonus: 30 }
         ]
     },
     {
