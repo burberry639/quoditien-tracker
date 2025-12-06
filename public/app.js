@@ -170,8 +170,8 @@ const religionConfigs = {
         name: 'Islam',
         icon: '☪️',
         habits: [
-            'sommeil', 'sport', 'proteines',
-            'douche-matin', 'douche-soir', 
+            'sommeil', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
@@ -197,8 +197,8 @@ const religionConfigs = {
         name: 'Christianisme',
         icon: '✝️',
         habits: [
-            'sommeil', 'sport', 'proteines',
-            'douche-matin', 'douche-soir', 
+            'sommeil', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'priere-matin', 'priere-midi', 'priere-soir', 'priere-repas', 'priere-nuit',
@@ -224,8 +224,8 @@ const religionConfigs = {
         name: 'Neutre',
         icon: '🌟',
         habits: [
-            'sommeil', 'sport', 'proteines',
-            'douche-matin', 'douche-soir', 
+            'sommeil', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'meditation-matin', 'meditation-midi', 'meditation-soir', 'gratitude', 'journal',
@@ -255,10 +255,10 @@ let habits = [];
 const baseStatMapping = {
     'sport': 'str',
     'proteines': 'str',
+    'entrainement-ultra-instinct': 'str',
     'chambre': 'dis',
     'sommeil': 'hp',
-    'douche-matin': 'hp',
-    'douche-soir': 'hp',
+    'douche-apres-entrainement': 'hp',
     'brossage-matin': 'end',
     'brossage-soir': 'end',
     'ongles': 'men',
@@ -1543,16 +1543,15 @@ function updateStreaks() {
 
 // Quêtes quotidiennes classiques
 const dailyQuests = [
-    { id: 'quest-sport', name: '💪 Séance de sport intense', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-prayers', name: '🕌 Toutes les 5 prières à l\'heure', reward: 'spi', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-pushups', name: '💪 50 pompes', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-abs', name: '💪 50 abdos', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-squats', name: '💪 50 squats', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-hygiene', name: '🧼 Hygiène parfaite toute la journée', reward: 'hp', bonus: '+0.5 jour de rang', points: 5 },
-    { id: 'quest-discipline', name: '🎯 Zéro distraction aujourd\'hui', reward: 'dis', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-cardio', name: '🏃 30min de cardio', reward: 'end', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
-    { id: 'quest-martial-arts', name: '🥋 30min d\'arts martiaux', reward: 'str', bonus: '+0.5 jour de rang', points: 5 }
+    { id: 'quest-martial-arts', name: '🥋 30min d\'arts martiaux', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
+    { id: 'quest-ui-training', name: '⚡ Entraînement Ultra Instinct', reward: 'str', bonus: '+0.5 jour de rang', points: 5 }
 ];
 
 // QUÊTES ÉPIQUES - Objectifs à long terme
@@ -1611,6 +1610,26 @@ const epicQuests = [
             { kg: 5, name: '+5kg - Moitié', bonus: 10 },
             { kg: 8, name: '+8kg - Presque là', bonus: 20 },
             { kg: 10, name: '+10KG DE MUSCLE 💪', bonus: 35 }
+        ]
+    },
+    {
+        id: 'epic-martial-arts',
+        name: '🥋 ARTS MARTIAUX',
+        description: 'Boxe, lutte/judo, Muay Thai/kickboxing, Judo/BJJ, Krav Maga, Wing Chun : construire un instinct de combat complet.',
+        category: 'martial-arts',
+        icon: '🥋',
+        targetDays: 240,
+        rewards: {
+            rankBonus: 30,
+            stats: { str: 45, end: 30, dis: 25, men: 20 }
+        },
+        milestones: [
+            { days: 30, name: 'Boxe – timing & esquives', bonus: 5 },
+            { days: 60, name: 'Lutte/Judo – chaos rapproché', bonus: 5 },
+            { days: 100, name: 'Muay Thai/Kickboxing – toutes distances', bonus: 7 },
+            { days: 150, name: 'Judo ou BJJ – sol & chutes', bonus: 7 },
+            { days: 200, name: 'Krav Maga réaliste – imprévu & stress', bonus: 8 },
+            { days: 240, name: 'Wing Chun court – sensibilité tactile', bonus: 10 }
         ]
     }
 ];
@@ -1857,6 +1876,13 @@ function displayDailyQuests() {
             </button>
         `;
         
+        if (questId === 'quest-ui-training') {
+            questDiv.addEventListener('contextmenu', function(event) {
+                event.preventDefault();
+                showUITrainingDetails();
+            });
+        }
+        
         container.appendChild(questDiv);
     });
     
@@ -1888,6 +1914,171 @@ function updateQuestStats() {
     
     document.getElementById('dailyQuestsCompleted').textContent = `${completed}/5`;
     document.getElementById('dailyQuestBonus').textContent = `+${(completed * 0.5).toFixed(1)}`;
+}
+
+function showUITrainingDetails() {
+    const existing = document.getElementById('uiTrainingOverlay');
+    if (existing) {
+        existing.remove();
+    }
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'uiTrainingOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `;
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        max-width: 900px;
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: linear-gradient(135deg, #050816, #111827);
+        border-radius: 16px;
+        border: 2px solid #38bdf8;
+        padding: 24px 28px;
+        color: #e5e7eb;
+        box-shadow: 0 0 40px rgba(56, 189, 248, 0.6);
+    `;
+    
+    modal.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2 style="margin:0; font-size:1.6em; color:#38bdf8;">⚡ Programme Ultra Instinct – Détail des phases</h2>
+            <button onclick="document.getElementById('uiTrainingOverlay')?.remove()" style="
+                background: transparent;
+                border: 1px solid #f97316;
+                color: #f97316;
+                border-radius: 999px;
+                padding: 6px 14px;
+                cursor: pointer;
+                font-weight: 600;
+            ">Fermer</button>
+        </div>
+        <div style="font-size:0.98em; line-height:1.6; white-space:pre-wrap;">
+🔷 PHASE 1 – Conditionnement du “no mind” (A)
+Objectif : Apprendre au cerveau à couper le discours interne sur commande.
+Durée : 6–12 semaines
+
+1. Méditation dynamique (30 min/jour)
+Tu dois supprimer toute narration interne en plein mouvement.
+Exercice :
+Marche lente.
+Concentre-toi uniquement sur :
+- la sensation du pied,
+- le contact du sol,
+- la respiration.
+Dès qu’une pensée apparaît → tu la “poses” et tu reviens au mouvement.
+
+Tu vas te rendre compte d’une chose :
+ton cerveau ne supporte pas le silence.
+Il va produire des pensées malgré toi.
+C’est normal.
+C’est exactement ce qu’on cherche à dompter.
+
+2. “Switch instantané” (5 min, 10 fois/jour)
+Tu te tiens debout, respiration calme.
+Puis :
+Inspiration → tu te contrôles.
+Expiration rapide → tu “éteins” la pensée comme un interrupteur.
+Tu dois pouvoir passer de pensée → no-mind → pensée en 1 seconde.
+C’est la “bascule Ultra Instinct”.
+Si tu ne maîtrises pas ça, le reste ne sert à rien.
+
+🔷 PHASE 2 – Réaction automatique extrême (B)
+Objectif : Automatiser le corps au point où il réagit avant la conscience.
+Durée : 3–9 mois
+
+Et là, il faut être honnête :
+c’est la partie la plus douloureuse mentalement.
+
+1. Drills de réaction avec stimuli aléatoires
+Exemples :
+- partenaire qui touche ton avant-bras → tu bloques sans réfléchir
+- balles de tennis lâchées à l’improviste
+- objets projetés à hauteur du torse
+- sons aléatoires → esquive latérale
+
+La règle :
+Si tu penses, tu as déjà perdu.
+Le but est de saturer le cerveau jusqu’à ce que le corps prenne le relais.
+
+2. Sparring sans anticipation (yeux semi-fermés)
+Tu vois les mouvements, mais pas assez clairement pour anticiper.
+Tu forces ton corps à réagir aux micro-signaux, pas au raisonnement.
+
+Tu vas rapidement comprendre :
+- combien ton cerveau ralentit ton corps,
+- et combien ton instinct est faible au début.
+
+3. Drill “fatigue extrême → lucidité”
+Parce qu’en fatigue :
+- la pensée s’effondre,
+- les automatismes reprennent le dessus.
+
+Exemples :
+- 100 burpees → réaction à un stimulus visuel
+- sprint → esquive instantanée
+- shadow boxing → stimuli sonores imprévisibles
+
+Ton système nerveux doit apprendre à fonctionner sans ressource cognitive.
+
+🔷 PHASE 3 – Retour instantané au contrôle conscient (C)
+Objectif : ne pas rester coincé dans l’instinct.
+Durée : en parallèle des autres phases
+
+C’est LA partie que tout le monde oublie.
+Sans ça, tu deviens un animal, pas un combattant.
+
+1. Drills “arrêt – analyse – reprise”
+Exemple simple :
+Sparring
+Signal sonore
+→ tu DOIS arrêter instantanément
+→ analyser la situation
+→ repartir
+
+Le vrai Ultra Instinct n’est pas le no-mind :
+c’est le contrôle de la bascule.
+
+2. Exercice de changement de rythme
+10 secondes instinct pur (pas de pensée)
+10 secondes analyse
+10 secondes instinct
+etc.
+
+Tu entraînes la plasticité cognitive, pas juste la vélocité.
+
+3. Décision consciente sous pression
+Exercice :
+Ton partenaire t’attaque
+Tu passes en no-mind
+À un signal vocal (“rouge / bleu / vert”)
+→ tu DOIS changer de stratégie
+→ revenir en mode conscient
+→ appliquer une réponse choisie
+
+Tu apprends au cerveau à “récupérer” la commande.
+        </div>
+    `;
+    
+    overlay.addEventListener('click', function(event) {
+        if (event.target === overlay) {
+            overlay.remove();
+        }
+    });
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
 }
 
 function updateQuestTimer() {
@@ -2369,9 +2560,9 @@ function generateHabitsHTML() {
     
     const categories = {
         sleep: { icon: '😴', name: 'Sommeil', habits: ['sommeil'] },
-        sport: { icon: '💪', name: 'Sport', habits: ['sport'] },
+        sport: { icon: '💪', name: 'Sport', habits: ['sport', 'entrainement-ultra-instinct'] },
         food: { icon: '🍗', name: 'Alimentation', habits: ['proteines'] },
-        hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-matin', 'douche-soir', 'brossage-matin', 'brossage-soir', 'ongles', 'rasage'] },
+        hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-apres-entrainement', 'brossage-matin', 'brossage-soir', 'ongles', 'rasage'] },
         spiritual: { icon: currentConfig.categoryIcons.spiritual, name: currentConfig.categoryNames.spiritual, habits: [] },
         clean: { icon: '🧹', name: 'Rangement', habits: ['chambre'] },
         ethics: { icon: '✨', name: currentConfig.categoryNames.ethics, habits: [] }
@@ -2393,8 +2584,8 @@ function generateHabitsHTML() {
         'sommeil': '7-8 heures de sommeil',
         'sport': 'Séance de sport aujourd\'hui',
         'proteines': '140g de protéines minimum',
-        'douche-matin': 'Douche du matin',
-        'douche-soir': 'Douche du soir',
+        'entrainement-ultra-instinct': 'Entraînement Ultra Instinct',
+        'douche-apres-entrainement': 'Douche après l\'entraînement',
         'brossage-matin': 'Brossage de dents - Matin',
         'brossage-soir': 'Brossage de dents - Soir',
         'ongles': 'Coupage d\'ongles',
@@ -2416,13 +2607,54 @@ function generateHabitsHTML() {
         category.habits.forEach(habitId => {
             const habitDiv = document.createElement('div');
             habitDiv.className = 'habit-item';
-            habitDiv.onclick = () => toggleCheckbox(habitId);
             
             habitDiv.innerHTML = `
                 <input type="checkbox" id="${habitId}">
                 <label for="${habitId}">${habitLabels[habitId] || habitId}</label>
             `;
             
+            // Gestion du clic (avec blocage si un long-press a été déclenché)
+            habitDiv.addEventListener('click', (event) => {
+                if (habitDiv.dataset.uiLongPress === 'active') {
+                    habitDiv.dataset.uiLongPress = '';
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                toggleCheckbox(habitId);
+            });
+
+            // Détail Ultra Instinct (clic droit ou appui long)
+            if (habitId === 'entrainement-ultra-instinct') {
+                let longPressTimer = null;
+
+                habitDiv.addEventListener('contextmenu', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    habitDiv.dataset.uiLongPress = 'active';
+                    showUITrainingDetails();
+                });
+
+                const clearLongPress = () => {
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                };
+
+                habitDiv.addEventListener('touchstart', () => {
+                    clearLongPress();
+                    longPressTimer = setTimeout(() => {
+                        habitDiv.dataset.uiLongPress = 'active';
+                        showUITrainingDetails();
+                    }, 650);
+                }, { passive: true });
+
+                ['touchend', 'touchmove', 'touchcancel'].forEach(evt => {
+                    habitDiv.addEventListener(evt, clearLongPress, { passive: true });
+                });
+            }
+
             categoryDiv.appendChild(habitDiv);
         });
         
