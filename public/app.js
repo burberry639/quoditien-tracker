@@ -175,7 +175,10 @@ const religionConfigs = {
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
-            'chambre', 'peches'
+            'chambre', 'peches',
+            // Argent / business
+            'argent-prospection', 'argent-annonce',
+            'argent-contenu', 'argent-formation', 'argent-depenses'
         ],
         habitLabels: {
             'fajr': 'Fajr (Aube)',
@@ -202,7 +205,10 @@ const religionConfigs = {
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'priere-matin', 'priere-midi', 'priere-soir', 'priere-repas', 'priere-nuit',
-            'chambre', 'commandements'
+            'chambre', 'commandements',
+            // Argent / business
+            'argent-prospection', 'argent-annonce',
+            'argent-contenu', 'argent-formation', 'argent-depenses'
         ],
         habitLabels: {
             'priere-matin': 'Prière du matin',
@@ -229,7 +235,10 @@ const religionConfigs = {
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'meditation-matin', 'meditation-midi', 'meditation-soir', 'gratitude', 'journal',
-            'chambre', 'ethique'
+            'chambre', 'ethique',
+            // Argent / business
+            'argent-prospection', 'argent-annonce',
+            'argent-contenu', 'argent-formation', 'argent-depenses'
         ],
         habitLabels: {
             'meditation-matin': 'Méditation/réflexion du matin',
@@ -262,7 +271,13 @@ const baseStatMapping = {
     'brossage-matin': 'end',
     'brossage-soir': 'end',
     'ongles': 'men',
-    'rasage': 'men'
+    'rasage': 'men',
+    // Habitudes orientées argent / business
+    'argent-prospection': 'dis',   // discipline commerciale
+    'argent-annonce': 'str',       // passage à l'action
+    'argent-contenu': 'men',       // focus mental / créativité
+    'argent-formation': 'men',     // montée en compétence
+    'argent-depenses': 'dis'       // gestion / discipline financière
 };
 
 const spiritualStatMapping = {
@@ -2563,6 +2578,7 @@ function generateHabitsHTML() {
         sport: { icon: '💪', name: 'Sport', habits: ['sport', 'entrainement-ultra-instinct'] },
         food: { icon: '🍗', name: 'Alimentation', habits: ['proteines'] },
         hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-apres-entrainement', 'brossage-matin', 'brossage-soir', 'ongles', 'rasage'] },
+        money: { icon: '💰', name: 'Argent / Business', habits: ['argent-prospection', 'argent-annonce', 'argent-contenu', 'argent-formation', 'argent-depenses'] },
         spiritual: { icon: currentConfig.categoryIcons.spiritual, name: currentConfig.categoryNames.spiritual, habits: [] },
         clean: { icon: '🧹', name: 'Rangement', habits: ['chambre'] },
         ethics: { icon: '✨', name: currentConfig.categoryNames.ethics, habits: [] }
@@ -2591,6 +2607,12 @@ function generateHabitsHTML() {
         'ongles': 'Coupage d\'ongles',
         'rasage': 'Rasage',
         'chambre': 'Ranger ma chambre',
+        // Argent / business
+        'argent-prospection': 'Prospection : 1 offre / 1 DM envoyé pour faire de l\'argent',
+        'argent-annonce': 'Mettre en ligne ou mettre à jour 1 annonce (vente / service)',
+        'argent-contenu': 'Créer 1 contenu qui peut ramener du business (post, short, reel...)',
+        'argent-formation': '20–30 min de formation liée à l\'argent (business, skill monétisable)',
+        'argent-depenses': 'Checker mes dépenses et couper au moins 1 dépense inutile',
         ...currentConfig.habitLabels
     };
     
