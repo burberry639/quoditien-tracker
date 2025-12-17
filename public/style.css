@@ -107,6 +107,10 @@
 .page-content {
     display: none;
     animation: fadeInUp 0.4s ease;
+    /* Hauteur limitée par la fenêtre, scroll interne pour chaque section (Quotidien, Stats, Quêtes, Classement) */
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .page-content.active {
@@ -1074,38 +1078,6 @@ label {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
-}
-
-/* ========================================
-   LAYOUT SPÉCIFIQUE PAGE QUOTIDIEN
-   (pour éviter de scroller tout le body)
-======================================== */
-
-#page-daily {
-    display: flex;
-    flex-direction: column;
-    /* Laisse de la place pour le header + onglets dans l'écran */
-    max-height: calc(100vh - 140px);
-}
-
-#habitsContainer {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 4px;
-    margin-top: 4px;
-    margin-bottom: 4px;
-}
-
-@media (max-width: 768px) {
-    #page-daily {
-        max-height: calc(100vh - 130px);
-    }
-}
-
-@media (max-width: 480px) {
-    #page-daily {
-        max-height: calc(100vh - 120px);
-    }
 }
 
 /* ========================================
