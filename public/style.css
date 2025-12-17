@@ -40,12 +40,12 @@
 
 .navigation-tabs {
     display: flex;
-    gap: 10px;
-    margin: 20px 0;
-    padding: 10px;
+    gap: 6px;
+    margin: 10px 0;
+    padding: 6px;
     background: var(--bg-card);
     border: 1px solid var(--border-bright);
-    border-radius: 15px;
+    border-radius: 12px;
     overflow-x: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--accent-primary) var(--bg-card);
@@ -67,19 +67,19 @@
 
 .nav-tab {
     flex: 1;
-    min-width: 120px;
-    padding: 12px 20px;
+    min-width: 90px;
+    padding: 8px 12px;
     background: var(--bg-secondary);
-    border: 2px solid var(--border-bright);
-    border-radius: 10px;
+    border: 1.5px solid var(--border-bright);
+    border-radius: 8px;
     color: var(--text-secondary);
-    font-size: 1em;
+    font-size: 0.85em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
-    /* Zone tactile minimum 44x44px recommandée pour mobile */
-    min-height: 44px;
+    /* Zone tactile minimum 36px pour mobile */
+    min-height: 36px;
 }
 
 .nav-tab:active {
@@ -425,11 +425,11 @@ body {
     font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-primary);
     min-height: 100vh;
-    padding: 20px;
+    padding: 10px;
     color: var(--text-primary);
     position: relative;
     overflow-x: hidden;
-    line-height: 1.6;
+    line-height: 1.5;
     /* Optimisation mobile : éliminer le délai de 300ms */
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(0, 212, 255, 0.3);
@@ -489,7 +489,7 @@ body::after {
         0 0 30px var(--accent-glow),
         0 20px 60px rgba(0, 0, 0, 0.9),
         inset 0 0 80px rgba(0, 212, 255, 0.03);
-    padding: 30px;
+    padding: 15px;
     position: relative;
     z-index: 1;
     clip-path: polygon(
@@ -534,8 +534,8 @@ body::after {
 .header-controls {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 10px;
 }
 
 .theme-toggle,
@@ -545,18 +545,18 @@ body::after {
 .logout-button {
     background: var(--bg-card);
     border: 1px solid var(--accent-primary);
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
-    font-size: 1.5em;
+    font-size: 1.2em;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 10px var(--accent-glow);
+    box-shadow: 0 0 8px var(--accent-glow);
     position: relative;
     overflow: hidden;
-    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+    clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
 }
 
 .account-button {
@@ -645,16 +645,15 @@ body::after {
 h1 {
     text-align: center;
     color: var(--accent-primary);
-    margin-bottom: 15px;
-    font-size: 3em;
+    margin-bottom: 8px;
+    font-size: 2em;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 6px;
+    letter-spacing: 3px;
     text-shadow: 
         0 0 10px var(--accent-glow),
         0 0 20px var(--accent-glow),
-        0 0 30px var(--accent-glow),
-        0 0 40px var(--accent-glow);
+        0 0 30px var(--accent-glow);
     position: relative;
     animation: titleGlow 3s ease-in-out infinite;
 }
@@ -704,10 +703,10 @@ h2 {
 .date-display {
     text-align: center;
     color: var(--text-secondary);
-    margin-bottom: 30px;
-    font-size: 1.1em;
+    margin-bottom: 12px;
+    font-size: 0.9em;
     font-weight: 500;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
 }
 
@@ -717,27 +716,27 @@ h2 {
 
 .streaks-container {
     display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
+    gap: 10px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
 }
 
 .streak-card {
     flex: 1;
-    min-width: 200px;
+    min-width: 150px;
     background: var(--bg-card);
-    padding: 20px;
+    padding: 12px;
     border: 1px solid var(--accent-primary);
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     box-shadow: 
-        0 0 20px var(--accent-glow),
-        inset 0 0 30px rgba(0, 212, 255, 0.03);
+        0 0 15px var(--accent-glow),
+        inset 0 0 20px rgba(0, 212, 255, 0.03);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
 
 .streak-card::before {
@@ -769,8 +768,8 @@ h2 {
 }
 
 .streak-icon {
-    font-size: 2.5em;
-    filter: drop-shadow(0 0 10px var(--accent-glow));
+    font-size: 1.8em;
+    filter: drop-shadow(0 0 8px var(--accent-glow));
     animation: iconFloat 3s ease-in-out infinite;
 }
 
@@ -793,10 +792,10 @@ h2 {
 }
 
 .streak-value {
-    font-size: 1.8em;
+    font-size: 1.3em;
     color: var(--accent-primary);
     font-weight: 700;
-    text-shadow: 0 0 10px var(--accent-glow);
+    text-shadow: 0 0 8px var(--accent-glow);
     letter-spacing: 1px;
 }
 
@@ -821,13 +820,13 @@ h2 {
 
 .progress-bar {
     width: 100%;
-    height: 35px;
+    height: 28px;
     background: var(--bg-card);
     border: 1px solid var(--accent-primary);
     overflow: hidden;
-    margin: 25px 0;
+    margin: 12px 0;
     position: relative;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
 }
 
 .progress-fill {
@@ -846,10 +845,10 @@ h2 {
     justify-content: center;
     color: white;
     font-weight: 700;
-    font-size: 1.1em;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    font-size: 0.9em;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
     position: relative;
-    box-shadow: 0 0 20px var(--accent-glow);
+    box-shadow: 0 0 15px var(--accent-glow);
 }
 
 @keyframes progressGradient {
@@ -883,17 +882,17 @@ h2 {
 ======================================== */
 
 .category {
-    margin-bottom: 20px;
-    padding: 20px;
+    margin-bottom: 12px;
+    padding: 12px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-left: 3px solid var(--accent-primary);
+    border-left: 2px solid var(--accent-primary);
     box-shadow: 
-        0 0 15px rgba(0, 212, 255, 0.05),
-        inset 0 0 30px rgba(0, 0, 0, 0.5);
+        0 0 10px rgba(0, 212, 255, 0.05),
+        inset 0 0 20px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
     position: relative;
-    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+    clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
 }
 
 .category::before {
@@ -921,14 +920,14 @@ h2 {
 
 .category h2 {
     color: var(--accent-primary);
-    margin-bottom: 15px;
-    font-size: 1.5em;
+    margin-bottom: 8px;
+    font-size: 1.1em;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .category-icon {
@@ -939,14 +938,14 @@ h2 {
 .habit-item {
     display: flex;
     align-items: center;
-    padding: 14px;
-    margin: 10px 0;
+    padding: 8px;
+    margin: 6px 0;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
-    clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+    clip-path: polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px);
 }
 
 .habit-item::before {
@@ -989,21 +988,23 @@ h2 {
 }
 
 input[type="checkbox"] {
-    width: 24px;
-    height: 24px;
-    margin-right: 15px;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
     cursor: pointer;
     accent-color: var(--accent-primary);
-    filter: drop-shadow(0 0 5px var(--accent-glow));
+    filter: drop-shadow(0 0 4px var(--accent-glow));
+    flex-shrink: 0;
 }
 
 label {
     flex: 1;
     cursor: pointer;
-    font-size: 1.1em;
+    font-size: 0.9em;
     font-weight: 500;
     color: var(--text-primary);
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
 }
 
 /* ========================================
@@ -1013,12 +1014,12 @@ label {
 .stats {
     display: flex;
     justify-content: space-around;
-    margin-top: 25px;
-    padding: 25px;
+    margin-top: 12px;
+    padding: 15px;
     background: var(--bg-card);
-    border: 2px solid var(--accent-primary);
+    border: 1.5px solid var(--accent-primary);
     color: white;
-    box-shadow: 0 0 30px var(--accent-glow);
+    box-shadow: 0 0 20px var(--accent-glow);
     position: relative;
     overflow: hidden;
 }
@@ -1059,19 +1060,19 @@ label {
 }
 
 .stat-number {
-    font-size: 2.8em;
+    font-size: 2em;
     font-weight: 700;
     color: var(--accent-primary);
-    text-shadow: 0 0 15px var(--accent-glow);
+    text-shadow: 0 0 12px var(--accent-glow);
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .stat-label {
-    font-size: 0.9em;
+    font-size: 0.75em;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     font-weight: 600;
 }
 
@@ -2360,43 +2361,118 @@ input {
 
 @media (max-width: 768px) {
     body {
-        padding: 10px;
+        padding: 8px;
     }
 
     .container {
-        padding: 20px;
+        padding: 12px;
     }
     
     h1 {
-        font-size: 2.2em;
-        letter-spacing: 3px;
+        font-size: 1.5em;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
     }
 
     h2 {
-        font-size: 1.5em;
-        letter-spacing: 2px;
+        font-size: 1.1em;
+        letter-spacing: 1px;
+    }
+
+    .header-controls {
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .theme-toggle,
+    .sound-toggle button,
+    .account-button,
+    .admin-button,
+    .logout-button {
+        width: 36px;
+        height: 36px;
+        font-size: 1em;
+    }
+
+    .date-display {
+        font-size: 0.8em;
+        margin-bottom: 8px;
+    }
+
+    .navigation-tabs {
+        margin: 8px 0;
+        padding: 5px;
+        gap: 4px;
+    }
+
+    .nav-tab {
+        padding: 6px 10px;
+        font-size: 0.75em;
+        min-height: 32px;
+        min-width: 70px;
     }
 
     .streaks-container {
         flex-direction: column;
+        gap: 8px;
+        margin-bottom: 10px;
     }
 
     .streak-card {
         min-width: 100%;
+        padding: 10px;
+    }
+
+    .streak-icon {
+        font-size: 1.5em;
+    }
+
+    .streak-value {
+        font-size: 1.1em;
+    }
+
+    .progress-bar {
+        height: 24px;
+        margin: 10px 0;
+    }
+
+    .progress-fill {
+        font-size: 0.8em;
     }
 
     .category {
-        padding: 15px;
+        padding: 10px;
+        margin-bottom: 10px;
     }
 
     .habit-item {
-        padding: 12px;
+        padding: 6px;
+        margin: 4px 0;
+    }
+
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+    }
+
+    label {
+        font-size: 0.85em;
     }
 
     .stats {
         flex-direction: column;
-        gap: 20px;
-        padding: 20px;
+        gap: 12px;
+        padding: 12px;
+        margin-top: 10px;
+    }
+
+    .stat-number {
+        font-size: 1.6em;
+    }
+
+    .stat-label {
+        font-size: 0.7em;
     }
 
     .stat-item::after {
@@ -2463,19 +2539,79 @@ input {
 
 @media (max-width: 480px) {
     h1 {
-        font-size: 1.8em;
-        letter-spacing: 2px;
+        font-size: 1.3em;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
     }
 
     .header-controls {
-        gap: 8px;
+        gap: 5px;
+        margin-bottom: 6px;
     }
 
     .theme-toggle,
-    .sound-toggle button {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2em;
+    .sound-toggle button,
+    .account-button,
+    .admin-button,
+    .logout-button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9em;
+    }
+
+    .date-display {
+        font-size: 0.75em;
+        margin-bottom: 6px;
+    }
+
+    .navigation-tabs {
+        margin: 6px 0;
+        padding: 4px;
+        gap: 3px;
+    }
+
+    .nav-tab {
+        padding: 5px 8px;
+        font-size: 0.7em;
+        min-height: 30px;
+        min-width: 60px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .streak-card {
+        padding: 8px;
+    }
+
+    .streak-icon {
+        font-size: 1.3em;
+    }
+
+    .streak-value {
+        font-size: 1em;
+    }
+
+    .progress-bar {
+        height: 22px;
+    }
+
+    .category {
+        padding: 8px;
+    }
+
+    .habit-item {
+        padding: 5px;
+    }
+
+    input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+
+    label {
+        font-size: 0.8em;
     }
 
     .rank-badge {
