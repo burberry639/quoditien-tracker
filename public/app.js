@@ -2970,6 +2970,198 @@ window.saveUsername = saveUsername;
 window.addFriend = addFriend;
 window.showAddUserDialog = showAddUserDialog;
 
+// Fonction pour afficher le panneau du compte
+async function showAccountPanel() {
+    if (!currentUser || !window.firebaseDb) {
+        alert('❌ Vous devez être connecté pour voir vos informations.');
+        return;
+    }
+    
+    const firebaseUID = localStorage.getItem('firebaseUID');
+    if (!firebaseUID) {
+        alert('❌ Impossible de récupérer vos informations.');
+        return;
+    }
+    
+    try {
+        // Récupérer les données utilisateur depuis Firebase
+        const userRef = window.firebaseDoc(window.firebaseDb, 'users', firebaseUID);
+        const userDoc = await window.firebaseGetDoc(userRef);
+        
+        if (!userDoc.exists()) {
+            alert('❌ Compte introuvable.');
+            return;
+        }
+        
+        const userData = userDoc.data();
+        const username = userData.username || currentUser;
+        const email = userData.email || 'Non renseigné';
+        const passwordEncoded = userData.password || '';
+        const password = passwordEncoded ? atob(passwordEncoded) : 'Non renseigné';
+        
+        // Créer l'overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'accountOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+        `;
+        
+        overlay.innerHTML = `
+            <div style="
+                max-width: 500px;
+                width: 90%;
+                padding: 40px;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                border: 3px solid #00d9ff;
+                border-radius: 20px;
+                box-shadow: 0 0 50px rgba(0, 217, 255, 0.5);
+            ">
+                <h1 style="
+                    font-size: 2.5em;
+                    color: #00d9ff;
+                    margin-bottom: 30px;
+                    text-align: center;
+                    text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
+                ">👤 INFORMATIONS DU COMPTE</h1>
+                
+                <div style="
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 2px solid #00d9ff;
+                    border-radius: 15px;
+                    padding: 25px;
+                    margin-bottom: 20px;
+                ">
+                    <div style="margin-bottom: 20px;">
+                        <div style="
+                            font-size: 0.9em;
+                            color: #8899aa;
+                            margin-bottom: 8px;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        ">Nom d'utilisateur</div>
+                        <div style="
+                            font-size: 1.3em;
+                            color: #00d9ff;
+                            font-weight: bold;
+                            padding: 12px;
+                            background: rgba(0, 217, 255, 0.1);
+                            border-radius: 8px;
+                            border: 1px solid rgba(0, 217, 255, 0.3);
+                        ">${username}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <div style="
+                            font-size: 0.9em;
+                            color: #8899aa;
+                            margin-bottom: 8px;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        ">Adresse e-mail</div>
+                        <div style="
+                            font-size: 1.1em;
+                            color: white;
+                            padding: 12px;
+                            background: rgba(0, 217, 255, 0.1);
+                            border-radius: 8px;
+                            border: 1px solid rgba(0, 217, 255, 0.3);
+                            word-break: break-all;
+                        ">${email}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <div style="
+                            font-size: 0.9em;
+                            color: #8899aa;
+                            margin-bottom: 8px;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        ">Mot de passe</div>
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        ">
+                            <div id="passwordDisplay" style="
+                                flex: 1;
+                                font-size: 1.1em;
+                                color: white;
+                                padding: 12px;
+                                background: rgba(0, 217, 255, 0.1);
+                                border-radius: 8px;
+                                border: 1px solid rgba(0, 217, 255, 0.3);
+                                font-family: monospace;
+                                letter-spacing: 2px;
+                            ">${'•'.repeat(password.length)}</div>
+                            <button id="togglePasswordBtn" onclick="togglePasswordVisibility()" style="
+                                padding: 12px 20px;
+                                background: linear-gradient(135deg, #00d9ff, #0088cc);
+                                border: none;
+                                border-radius: 8px;
+                                color: white;
+                                font-weight: bold;
+                                cursor: pointer;
+                                font-size: 0.9em;
+                                transition: transform 0.1s ease;
+                            ">👁️</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="document.getElementById('accountOverlay').remove()" style="
+                    width: 100%;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #667eea, #4a5fd4);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1.1em;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: transform 0.1s ease;
+                ">✖️ FERMER</button>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        // Stocker le mot de passe pour le toggle
+        window.accountPassword = password;
+        
+    } catch (error) {
+        console.error('Erreur lors de la récupération des informations:', error);
+        alert('❌ Erreur lors de la récupération des informations: ' + error.message);
+    }
+}
+
+// Fonction pour afficher/masquer le mot de passe
+function togglePasswordVisibility() {
+    const passwordDisplay = document.getElementById('passwordDisplay');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    
+    if (!passwordDisplay || !window.accountPassword) return;
+    
+    if (passwordDisplay.textContent.includes('•')) {
+        // Afficher le mot de passe
+        passwordDisplay.textContent = window.accountPassword;
+        toggleBtn.textContent = '🙈';
+    } else {
+        // Masquer le mot de passe
+        passwordDisplay.textContent = '•'.repeat(window.accountPassword.length);
+        toggleBtn.textContent = '👁️';
+    }
+}
+
 // Fonction pour afficher le panel admin
 async function showAdminPanel() {
     const adminMode = await isAdmin();
@@ -3160,6 +3352,8 @@ window.updateChallengeProgress = updateChallengeProgress;
 window.deleteUserFromFirebase = deleteUserFromFirebase;
 window.deleteUserCompletely = deleteUserCompletely;
 window.showAdminPanel = showAdminPanel;
+window.showAccountPanel = showAccountPanel;
+window.togglePasswordVisibility = togglePasswordVisibility;
 
 /* ========================================
    NAVIGATION SYSTEM
