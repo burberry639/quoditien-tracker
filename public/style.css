@@ -1077,6 +1077,38 @@ label {
 }
 
 /* ========================================
+   LAYOUT SPÉCIFIQUE PAGE QUOTIDIEN
+   (pour éviter de scroller tout le body)
+======================================== */
+
+#page-daily {
+    display: flex;
+    flex-direction: column;
+    /* Laisse de la place pour le header + onglets dans l'écran */
+    max-height: calc(100vh - 140px);
+}
+
+#habitsContainer {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+    #page-daily {
+        max-height: calc(100vh - 130px);
+    }
+}
+
+@media (max-width: 480px) {
+    #page-daily {
+        max-height: calc(100vh - 120px);
+    }
+}
+
+/* ========================================
    BOUTON RESET
 ======================================== */
 
