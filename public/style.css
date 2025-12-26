@@ -107,10 +107,6 @@
 .page-content {
     display: none;
     animation: fadeInUp 0.4s ease;
-    /* Hauteur limitée par la fenêtre, scroll interne pour chaque section (Quotidien, Stats, Quêtes, Classement) */
-    max-height: calc(100vh - 140px);
-    overflow-y: auto;
-    padding-right: 4px;
 }
 
 .page-content.active {

@@ -2584,10 +2584,10 @@ function generateHabitsHTML() {
     
     const habitLabels = {
         'sommeil': '7-8 heures de sommeil',
-        'sport': 'Séance de sport aujourd\'hui',
-        'proteines': '140g de protéines minimum',
-        'entrainement-ultra-instinct': 'Entraînement Ultra Instinct',
-        'douche-apres-entrainement': 'Douche après l\'entraînement',
+        'sport': 'Séance de sport (matin)',
+        'proteines': '140g de protéines minimum (matin)',
+        'entrainement-ultra-instinct': 'Entraînement Ultra Instinct (matin)',
+        'douche-apres-entrainement': 'Douche froide après séance de sport',
         'brossage-matin': 'Brossage de dents - Matin',
         'brossage-soir': 'Brossage de dents - Soir',
         'ongles': 'Coupage d\'ongles',
