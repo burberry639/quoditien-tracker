@@ -170,7 +170,7 @@ const religionConfigs = {
         name: 'Islam',
         icon: '☪️',
         habits: [
-            'sommeil', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-ultra-instinct',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -197,7 +197,7 @@ const religionConfigs = {
         name: 'Christianisme',
         icon: '✝️',
         habits: [
-            'sommeil', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-ultra-instinct',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -224,7 +224,7 @@ const religionConfigs = {
         name: 'Neutre',
         icon: '🌟',
         habits: [
-            'sommeil', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-ultra-instinct',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -253,6 +253,7 @@ let currentConfig = null;
 let habits = [];
 
 const baseStatMapping = {
+    'courir': 'str',
     'sport': 'str',
     'proteines': 'str',
     'entrainement-ultra-instinct': 'str',
@@ -2561,7 +2562,7 @@ function generateHabitsHTML() {
     
     const categories = {
         sleep: { icon: '😴', name: 'Sommeil', habits: ['sommeil'] },
-        sport: { icon: '💪', name: 'Sport', habits: ['sport', 'entrainement-ultra-instinct'] },
+        sport: { icon: '💪', name: 'Sport', habits: ['courir', 'sport', 'entrainement-ultra-instinct'] },
         food: { icon: '🍗', name: 'Alimentation', habits: ['proteines'] },
         hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-apres-entrainement', 'brossage-matin', 'brossage-soir', 'ongles', 'rasage'] },
         money: { icon: '💰', name: 'Argent', habits: ['argent'] },
@@ -2584,7 +2585,8 @@ function generateHabitsHTML() {
     
     const habitLabels = {
         'sommeil': '7-8 heures de sommeil',
-        'sport': 'Séance de sport (matin)',
+        'sport': 'Séance de sport',
+        'courir': 'Va courir le matin',
         'proteines': '140g de protéines minimum (matin)',
         'entrainement-ultra-instinct': 'Entraînement Ultra Instinct (matin)',
         'douche-apres-entrainement': 'Douche froide après séance de sport',
