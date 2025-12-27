@@ -1021,6 +1021,199 @@ function updateDate() {
     document.getElementById('dateDisplay').textContent = today.toLocaleDateString('fr-FR', options);
 }
 
+function showLockedMessage(deadline) {
+    // Afficher un message temporaire
+    const existingMsg = document.querySelector('.locked-message');
+    if (existingMsg) existingMsg.remove();
+    
+    const msg = document.createElement('div');
+    msg.className = 'locked-message';
+    msg.innerHTML = `🔒 Trop tard ! Cette tâche était à faire avant ${deadline}h. Reviens demain pour réessayer !`;
+    msg.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff4444, #cc0000);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.9em;
+        z-index: 10000;
+        box-shadow: 0 5px 25px rgba(255, 68, 68, 0.5);
+        animation: slideUp 0.3s ease;
+        max-width: 90%;
+        text-align: center;
+    `;
+    
+    document.body.appendChild(msg);
+    
+    setTimeout(() => {
+        msg.style.animation = 'slideDown 0.3s ease';
+        setTimeout(() => msg.remove(), 300);
+    }, 3000);
+}
+
+/* ========================================
+   SYSTÈME DE CITATIONS MOTIVANTES
+======================================== */
+
+const motivationalQuotes = [
+    // Pensées spirituelles / Dieu
+    "Pense à comment Dieu te voit en ce moment. Rends-le fier. 🙏",
+    "Chaque effort que tu fais, Dieu le voit. Continue. ✨",
+    "Tu veux que Dieu soit fier de toi ? Alors lève-toi et agis. 💪",
+    "Dieu t'a donné ce jour. Ne le gaspille pas. ⚡",
+    
+    // Famille / Mère
+    "Pense au moment où ta mère sera fière de toi quand t'auras la richesse. 👩‍👦",
+    "Ta mère a sacrifié sa vie pour toi. Honore-la par tes actions. ❤️",
+    "Imagine le sourire de ta mère quand tu réussiras. Travaille pour ça. 🌟",
+    "Un jour, tu pourras lui offrir tout ce qu'elle mérite. Continue. 💎",
+    
+    // Toi petit / Version future
+    "Pense à toi petit. Qu'est-ce qu'il dirait de toi aujourd'hui ? 👦",
+    "Le petit garçon que tu étais rêvait de devenir quelqu'un. Deviens-le. 🚀",
+    "Ton toi du futur te remercie pour chaque effort d'aujourd'hui. ⏳",
+    "Dans 5 ans, tu seras content d'avoir commencé aujourd'hui. 📈",
+    
+    // Discipline / Guerre intérieure
+    "La discipline bat le talent quand le talent n'est pas discipliné. 🔥",
+    "Tu es en guerre contre toi-même. Qui va gagner aujourd'hui ? ⚔️",
+    "Les excuses ne construisent pas des empires. L'action, oui. 👑",
+    "Pendant que tu hésites, quelqu'un d'autre travaille. 💀",
+    
+    // Richesse / Succès
+    "La richesse ne vient pas à ceux qui dorment. Réveille-toi. 💰",
+    "Chaque tâche cochée te rapproche de la vie que tu mérites. ✅",
+    "Les winners font ce que les losers refusent de faire. 🏆",
+    "Tu veux le lifestyle ? Alors assume le grind. 🔄",
+    
+    // Moment présent
+    "Aujourd'hui est le jour où tu changes ta vie. Pas demain. AUJOURD'HUI. ⚡",
+    "Ce moment de flemme va passer. Le regret, lui, reste. 😤",
+    "Arrête de réfléchir. Agis. Maintenant. 🎯",
+    "Chaque jour sans effort est un jour perdu. Ne perds plus de temps. ⏰"
+];
+
+function updateMotivationQuote() {
+    const quoteElement = document.getElementById('motivationQuote');
+    if (!quoteElement) return;
+    
+    // Utiliser la date du jour comme seed pour avoir la même citation toute la journée
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const index = seed % motivationalQuotes.length;
+    
+    quoteElement.textContent = motivationalQuotes[index];
+}
+
+// Changer la citation au clic
+function initMotivationQuote() {
+    const quoteElement = document.getElementById('motivationQuote');
+    if (!quoteElement) return;
+    
+    updateMotivationQuote();
+    
+    // Permettre de changer la citation en cliquant dessus
+    quoteElement.style.cursor = 'pointer';
+    quoteElement.title = 'Clique pour une autre citation';
+    quoteElement.addEventListener('click', () => {
+        const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+        quoteElement.textContent = motivationalQuotes[randomIndex];
+        quoteElement.style.animation = 'none';
+        setTimeout(() => {
+            quoteElement.style.animation = 'quoteFlash 0.5s ease';
+        }, 10);
+    });
+}
+
+/* ========================================
+   SYSTÈME DE NOTIFICATIONS
+======================================== */
+
+async function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+        console.log('Ce navigateur ne supporte pas les notifications');
+        return false;
+    }
+    
+    if (Notification.permission === 'granted') {
+        return true;
+    }
+    
+    if (Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission();
+        return permission === 'granted';
+    }
+    
+    return false;
+}
+
+function sendNotification(title, body, icon = '🔥') {
+    if (Notification.permission === 'granted') {
+        new Notification(title, {
+            body: body,
+            icon: '/favicon.ico',
+            badge: '/favicon.ico',
+            tag: 'rpg-tracker',
+            requireInteraction: false
+        });
+    }
+}
+
+function scheduleNotifications() {
+    // Vérifier toutes les minutes
+    setInterval(() => {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        
+        // Notification du matin à 6h00
+        if (hours === 6 && minutes === 0) {
+            sendNotification(
+                "🌅 C'est l'heure !",
+                "Réveille-toi guerrier ! C'est le moment de courir et de commencer fort ta journée."
+            );
+        }
+        
+        // Notification midi à 12h00
+        if (hours === 12 && minutes === 0) {
+            sendNotification(
+                "☀️ Check du midi",
+                "As-tu fait toutes tes tâches du matin ? Il est encore temps !"
+            );
+        }
+        
+        // Notification soir à 20h00
+        if (hours === 20 && minutes === 0) {
+            sendNotification(
+                "🌙 Bilan du soir",
+                "La journée touche à sa fin. As-tu tout validé ? Finis en beauté !"
+            );
+        }
+        
+        // Notification rappel à 22h00
+        if (hours === 22 && minutes === 0) {
+            sendNotification(
+                "⚠️ Dernière chance",
+                "Il te reste 2h pour finir tes tâches. Ne lâche rien !"
+            );
+        }
+    }, 60000); // Check toutes les 60 secondes
+}
+
+async function initNotifications() {
+    const hasPermission = await requestNotificationPermission();
+    if (hasPermission) {
+        console.log('✅ Notifications activées');
+        scheduleNotifications();
+    } else {
+        console.log('❌ Notifications refusées ou non supportées');
+    }
+}
+
 function playSound(type) {
     if (!soundEnabled) return;
     const sounds = {
@@ -2636,18 +2829,21 @@ function generateHabitsHTML() {
             icon: '🌅', 
             name: 'Matin', 
             timeRange: 'matin',
+            deadline: 12, // Bloqué après 12h
             habits: ['sommeil', 'courir', 'sport', 'entrainement-ultra-instinct', 'douche-apres-entrainement', 'brossage-matin', 'proteines', ...morningSpiritual]
         },
         midday: { 
             icon: '☀️', 
             name: 'Journée', 
             timeRange: 'journee',
+            deadline: 18, // Bloqué après 18h
             habits: ['chambre', 'argent', 'ongles', 'rasage', ...middaySpiritual]
         },
         evening: { 
             icon: '🌙', 
             name: 'Soir', 
             timeRange: 'soir',
+            deadline: 24, // Bloqué après minuit (jamais bloqué le même jour)
             habits: ['brossage-soir', ...eveningSpiritual, ...ethicsHabit]
         }
     };
@@ -2683,27 +2879,49 @@ function generateHabitsHTML() {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'category';
         
+        // Vérifier si la catégorie est bloquée (heure dépassée)
+        const isLocked = currentHour >= category.deadline;
+        
         // Mettre en évidence la catégorie active selon l'heure
-        if (category.timeRange === currentTimeRange) {
+        if (category.timeRange === currentTimeRange && !isLocked) {
             categoryDiv.classList.add('category-active-time');
         }
         
+        if (isLocked) {
+            categoryDiv.classList.add('category-locked');
+        }
+        
         const title = document.createElement('h2');
-        const timeIndicator = category.timeRange === currentTimeRange ? '<span class="time-indicator">⏰ C\'est le moment !</span>' : '';
-        title.innerHTML = `<span class="category-icon">${category.icon}</span> ${category.name} ${timeIndicator}`;
+        let statusIndicator = '';
+        if (isLocked) {
+            statusIndicator = `<span class="time-indicator locked">🔒 Bloqué (${category.deadline}h passé)</span>`;
+        } else if (category.timeRange === currentTimeRange) {
+            statusIndicator = '<span class="time-indicator">⏰ C\'est le moment !</span>';
+        }
+        title.innerHTML = `<span class="category-icon">${category.icon}</span> ${category.name} ${statusIndicator}`;
         categoryDiv.appendChild(title);
         
         category.habits.forEach(habitId => {
             const habitDiv = document.createElement('div');
             habitDiv.className = 'habit-item';
             
+            if (isLocked) {
+                habitDiv.classList.add('habit-locked');
+            }
+            
             habitDiv.innerHTML = `
-                <input type="checkbox" id="${habitId}">
+                <input type="checkbox" id="${habitId}" ${isLocked ? 'disabled' : ''}>
                 <label for="${habitId}">${habitLabels[habitId] || habitId}</label>
             `;
             
-            // Gestion du clic (avec blocage si un long-press a été déclenché)
+            // Gestion du clic (avec blocage si un long-press a été déclenché ou si bloqué)
             habitDiv.addEventListener('click', (event) => {
+                if (isLocked) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    showLockedMessage(category.deadline);
+                    return;
+                }
                 if (habitDiv.dataset.uiLongPress === 'active') {
                     habitDiv.dataset.uiLongPress = '';
                     event.preventDefault();
@@ -4281,6 +4499,8 @@ function initApp() {
     console.log('✅ Initialisation de l\'application...');
     
     updateDate();
+    initMotivationQuote();
+    initNotifications();
     
     // Générer les habitudes HTML d'abord si nécessaire
     const habitsContainer = document.getElementById('habitsContainer');
