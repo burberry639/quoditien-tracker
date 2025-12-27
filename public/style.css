@@ -2496,27 +2496,39 @@ input {
 
 @media (max-width: 768px) {
     body {
-        padding: 8px;
+        padding: 6px;
     }
 
     .container {
-        padding: 12px;
+        padding: 10px;
+        clip-path: none;
+        border-radius: 15px;
+    }
+    
+    .container::before,
+    .container::after {
+        display: none;
     }
     
     h1 {
-        font-size: 1.5em;
-        letter-spacing: 2px;
-        margin-bottom: 5px;
+        font-size: 1.4em;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
+    
+    h1::after {
+        width: 150px;
+        bottom: -4px;
     }
 
     h2 {
-        font-size: 1.1em;
-        letter-spacing: 1px;
+        font-size: 1em;
+        letter-spacing: 0.5px;
     }
 
     .header-controls {
-        gap: 6px;
-        margin-bottom: 8px;
+        gap: 5px;
+        margin-bottom: 6px;
     }
 
     .theme-toggle,
@@ -2524,90 +2536,142 @@ input {
     .account-button,
     .admin-button,
     .logout-button {
-        width: 36px;
-        height: 36px;
-        font-size: 1em;
+        width: 38px;
+        height: 38px;
+        font-size: 1.1em;
+        clip-path: none;
+        border-radius: 10px;
     }
 
     .date-display {
-        font-size: 0.8em;
-        margin-bottom: 8px;
+        font-size: 0.75em;
+        margin-bottom: 4px;
+    }
+    
+    .motivation-quote {
+        font-size: 0.75em;
+        padding: 8px 28px;
+        margin-bottom: 6px;
+    }
+    
+    .motivation-quote::before,
+    .motivation-quote::after {
+        font-size: 1em;
+        left: 6px;
+        right: 6px;
     }
 
     .navigation-tabs {
-        margin: 8px 0;
-        padding: 5px;
-        gap: 4px;
+        margin: 6px 0;
+        padding: 4px;
+        gap: 3px;
+        border-radius: 12px;
     }
 
     .nav-tab {
-        padding: 6px 10px;
-        font-size: 0.75em;
-        min-height: 32px;
-        min-width: 70px;
+        padding: 8px 6px;
+        font-size: 0.7em;
+        min-height: 36px;
+        min-width: auto;
+        flex: 1;
+        border-radius: 8px;
     }
 
     .streaks-container {
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 10px;
+        flex-direction: row;
+        gap: 6px;
+        margin-bottom: 8px;
     }
 
     .streak-card {
-        min-width: 100%;
-        padding: 10px;
+        min-width: 0;
+        flex: 1;
+        padding: 8px;
+        clip-path: none;
+        border-radius: 10px;
     }
 
     .streak-icon {
-        font-size: 1.5em;
+        font-size: 1.3em;
+    }
+    
+    .streak-label {
+        font-size: 0.65em;
     }
 
     .streak-value {
-        font-size: 1.1em;
+        font-size: 1em;
     }
 
     .progress-bar {
-        height: 24px;
-        margin: 10px 0;
+        height: 22px;
+        margin: 8px 0;
+        border-radius: 11px;
     }
 
     .progress-fill {
-        font-size: 0.8em;
+        font-size: 0.75em;
+        border-radius: 11px;
     }
 
     .category {
         padding: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        clip-path: none;
+        border-radius: 10px;
+    }
+    
+    .category h2 {
+        font-size: 0.9em;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .time-indicator {
+        font-size: 0.6em;
+        padding: 2px 6px;
+        margin-left: 0;
+        margin-top: 4px;
+        width: 100%;
+        text-align: center;
     }
 
     .habit-item {
-        padding: 6px;
-        margin: 4px 0;
+        padding: 10px 8px;
+        margin: 5px 0;
+        clip-path: none;
+        border-radius: 8px;
+        min-height: 44px;
     }
 
     input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        margin-right: 8px;
+        width: 22px;
+        height: 22px;
+        margin-right: 10px;
     }
 
     label {
         font-size: 0.85em;
+        line-height: 1.3;
     }
 
     .stats {
-        flex-direction: column;
-        gap: 12px;
+        flex-direction: row;
+        gap: 10px;
         padding: 12px;
-        margin-top: 10px;
+        margin-top: 8px;
     }
 
     .stat-number {
-        font-size: 1.6em;
+        font-size: 1.5em;
     }
 
     .stat-label {
-        font-size: 0.7em;
+        font-size: 0.65em;
+    }
+    
+    .stat-item::after {
+        display: none;
     }
 
     .stat-item::after {
@@ -2673,15 +2737,23 @@ input {
 }
 
 @media (max-width: 480px) {
+    body {
+        padding: 4px;
+    }
+    
     h1 {
-        font-size: 1.3em;
-        letter-spacing: 1px;
-        margin-bottom: 4px;
+        font-size: 1.2em;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+    }
+    
+    h1::after {
+        width: 120px;
     }
 
     .header-controls {
-        gap: 5px;
-        margin-bottom: 6px;
+        gap: 4px;
+        margin-bottom: 5px;
     }
 
     .theme-toggle,
@@ -2689,90 +2761,287 @@ input {
     .account-button,
     .admin-button,
     .logout-button {
-        width: 32px;
-        height: 32px;
-        font-size: 0.9em;
-    }
-
-    .date-display {
-        font-size: 0.75em;
-        margin-bottom: 6px;
-    }
-
-    .navigation-tabs {
-        margin: 6px 0;
-        padding: 4px;
-        gap: 3px;
-    }
-
-    .nav-tab {
-        padding: 5px 8px;
-        font-size: 0.7em;
-        min-height: 30px;
-        min-width: 60px;
-    }
-
-    .container {
-        padding: 10px;
-    }
-
-    .streak-card {
-        padding: 8px;
-    }
-
-    .streak-icon {
-        font-size: 1.3em;
-    }
-
-    .streak-value {
+        width: 36px;
+        height: 36px;
         font-size: 1em;
     }
 
+    .date-display {
+        font-size: 0.7em;
+        margin-bottom: 3px;
+    }
+    
+    .motivation-quote {
+        font-size: 0.7em;
+        padding: 6px 25px;
+        margin-bottom: 5px;
+        line-height: 1.3;
+    }
+
+    .navigation-tabs {
+        margin: 5px 0;
+        padding: 3px;
+        gap: 2px;
+    }
+
+    .nav-tab {
+        padding: 6px 4px;
+        font-size: 0.65em;
+        min-height: 34px;
+    }
+
+    .container {
+        padding: 8px;
+    }
+    
+    .streaks-container {
+        gap: 5px;
+    }
+
+    .streak-card {
+        padding: 6px;
+    }
+
+    .streak-icon {
+        font-size: 1.1em;
+    }
+    
+    .streak-label {
+        font-size: 0.6em;
+    }
+
+    .streak-value {
+        font-size: 0.9em;
+    }
+
     .progress-bar {
-        height: 22px;
+        height: 20px;
+        margin: 6px 0;
+    }
+    
+    .progress-fill {
+        font-size: 0.7em;
     }
 
     .category {
         padding: 8px;
+        margin-bottom: 6px;
+    }
+    
+    .category h2 {
+        font-size: 0.85em;
+        margin-bottom: 6px;
+    }
+    
+    .time-indicator {
+        font-size: 0.55em;
     }
 
     .habit-item {
-        padding: 5px;
+        padding: 8px 6px;
+        margin: 4px 0;
+        min-height: 40px;
     }
 
     input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
     }
 
     label {
         font-size: 0.8em;
     }
+    
+    .stats {
+        padding: 10px;
+    }
+    
+    .stat-number {
+        font-size: 1.3em;
+    }
+    
+    .stat-label {
+        font-size: 0.6em;
+    }
+    
+    /* Message bloqué sur mobile */
+    .locked-message {
+        font-size: 0.8em !important;
+        padding: 12px 15px !important;
+        bottom: 10px !important;
+    }
+
+    /* Page Stats mobile */
+    .rank-system,
+    .stats-system {
+        padding: 15px;
+        margin-top: 15px;
+        clip-path: none;
+        border-radius: 15px;
+    }
+    
+    .rank-system h2,
+    .stats-system h2 {
+        font-size: 1.3em;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+    }
+    
+    .rank-card,
+    .stats-card {
+        padding: 15px;
+        clip-path: none;
+        border-radius: 12px;
+    }
 
     .rank-badge {
-        font-size: 2.2em;
-        padding: 15px 30px;
+        font-size: 2em;
+        padding: 12px 25px;
+        clip-path: none;
+        border-radius: 10px;
     }
 
     .rank-progress-bar {
-        height: 30px;
+        height: 28px;
+    }
+    
+    .rank-info {
+        font-size: 1.1em;
+    }
+    
+    .rank-countdown,
+    .rank-total-progress {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+    
+    .next-rank-badge {
+        font-size: 1.5em;
+        padding: 8px 20px;
+        clip-path: none;
+        border-radius: 8px;
+    }
+    
+    .stat-item-detailed {
+        padding: 12px;
+        clip-path: none;
+        border-radius: 10px;
+    }
+    
+    .stat-icon {
+        font-size: 2em;
+        min-width: 40px;
+    }
+    
+    .stat-name {
+        font-size: 0.85em;
+    }
+    
+    .stat-bar {
+        height: 18px;
     }
 
     #radarChart {
-        height: 250px !important;
+        height: 220px !important;
+    }
+    
+    .radar-chart-container {
+        padding: 15px;
+    }
+
+    .power-level {
+        padding: 20px;
+        clip-path: none;
+        border-radius: 15px;
     }
 
     .power-value {
-        font-size: 2.5em;
-    }
-
-    .stat-number {
         font-size: 2.2em;
     }
+    
+    .power-label {
+        font-size: 1em;
+        letter-spacing: 2px;
+    }
 
-    .stat-value {
-        font-size: 0.95em;
-        padding: 5px 10px;
+    /* Page Quêtes mobile */
+    .quest-system,
+    .epic-quest-system,
+    .challenges-system {
+        padding: 15px;
+        margin-top: 15px;
+        clip-path: none;
+        border-radius: 15px;
+    }
+    
+    .quest-card {
+        padding: 15px;
+        clip-path: none;
+        border-radius: 12px;
+    }
+    
+    .quest-item {
+        padding: 12px;
+        clip-path: none;
+        border-radius: 10px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .quest-name {
+        font-size: 1em;
+    }
+    
+    .quest-btn {
+        width: 100%;
+        padding: 12px;
+        margin-top: 8px;
+        clip-path: none;
+        border-radius: 8px;
+    }
+    
+    .quest-stats {
+        padding: 15px;
+        flex-direction: row;
+    }
+    
+    .quest-stat-value {
+        font-size: 1.8em;
+    }
+    
+    /* Page Classement mobile */
+    .leaderboard-system {
+        padding: 15px;
+        margin-top: 15px;
+        clip-path: none;
+        border-radius: 15px;
+    }
+    
+    .leaderboard-card {
+        padding: 15px;
+        clip-path: none;
+        border-radius: 12px;
+    }
+    
+    .leaderboard-item {
+        padding: 12px;
+        clip-path: none;
+        border-radius: 10px;
+    }
+    
+    .leaderboard-position {
+        font-size: 1.2em;
+        min-width: 35px;
+    }
+    
+    .leaderboard-username {
+        font-size: 1em;
+    }
+    
+    .leaderboard-rank {
+        font-size: 1em;
+        padding: 6px 12px;
     }
 
     .enemy-name {
