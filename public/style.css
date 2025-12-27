@@ -928,6 +928,37 @@ h2 {
     gap: 6px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    flex-wrap: wrap;
+}
+
+/* Catégorie active selon l'heure */
+.category-active-time {
+    border-left-color: var(--success-color) !important;
+    border-left-width: 4px !important;
+    background: linear-gradient(90deg, rgba(0, 255, 136, 0.08), var(--bg-card));
+    box-shadow: 0 0 15px var(--success-glow);
+}
+
+.category-active-time h2 {
+    color: var(--success-color);
+}
+
+.time-indicator {
+    font-size: 0.7em;
+    color: var(--success-color);
+    background: rgba(0, 255, 136, 0.15);
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--success-color);
+    margin-left: auto;
+    text-transform: none;
+    letter-spacing: 0;
+    animation: pulse-indicator 2s ease-in-out infinite;
+}
+
+@keyframes pulse-indicator {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.95); }
 }
 
 .category-icon {

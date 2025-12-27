@@ -1051,15 +1051,63 @@ function playSound(type) {
 function toggleTheme() {
     const html = document.documentElement;
     const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', newTheme);
+    // Cycle: auto -> light -> dark -> auto
+    let newTheme;
+    if (currentTheme === 'auto' || !currentTheme) {
+        newTheme = 'light';
+    } else if (currentTheme === 'light') {
+        newTheme = 'dark';
+    } else {
+        newTheme = 'auto';
+    }
+    
     originalSetItem('theme', newTheme);
+    applyTheme(newTheme);
+    updateThemeButton(newTheme);
     playSound('click');
 }
 
+function getAutoTheme() {
+    const hour = new Date().getHours();
+    // Mode sombre de 20h à 7h
+    if (hour >= 20 || hour < 7) {
+        return 'dark';
+    }
+    return 'light';
+}
+
+function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === 'auto') {
+        const autoTheme = getAutoTheme();
+        html.setAttribute('data-theme', autoTheme);
+        html.setAttribute('data-theme-mode', 'auto');
+    } else {
+        html.setAttribute('data-theme', theme);
+        html.setAttribute('data-theme-mode', 'manual');
+    }
+}
+
+function updateThemeButton(theme) {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    
+    if (theme === 'auto') {
+        btn.textContent = '🔄';
+        btn.title = 'Thème auto (selon l\'heure)';
+    } else if (theme === 'light') {
+        btn.textContent = '☀️';
+        btn.title = 'Thème clair';
+    } else {
+        btn.textContent = '🌙';
+        btn.title = 'Thème sombre';
+    }
+}
+
 function loadTheme() {
-    const savedTheme = originalGetItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    const savedTheme = originalGetItem('theme') || 'auto';
+    applyTheme(savedTheme);
+    updateThemeButton(savedTheme);
 }
 
 function toggleSound() {
@@ -2560,28 +2608,49 @@ function generateHabitsHTML() {
     
     container.innerHTML = '';
     
-    const categories = {
-        sleep: { icon: '😴', name: 'Sommeil', habits: ['sommeil'] },
-        sport: { icon: '💪', name: 'Sport', habits: ['courir', 'sport', 'entrainement-ultra-instinct'] },
-        food: { icon: '🍗', name: 'Alimentation', habits: ['proteines'] },
-        hygiene: { icon: '🧼', name: 'Hygiène', habits: ['douche-apres-entrainement', 'brossage-matin', 'brossage-soir', 'ongles', 'rasage'] },
-        money: { icon: '💰', name: 'Argent', habits: ['argent'] },
-        spiritual: { icon: currentConfig.categoryIcons.spiritual, name: currentConfig.categoryNames.spiritual, habits: [] },
-        clean: { icon: '🧹', name: 'Rangement', habits: ['chambre'] },
-        ethics: { icon: '✨', name: currentConfig.categoryNames.ethics, habits: [] }
-    };
+    // Catégories organisées chronologiquement
+    let morningSpiritual = [];
+    let middaySpiritual = [];
+    let eveningSpiritual = [];
+    let ethicsHabit = [];
     
-    // Habitudes spirituelles selon la religion
     if (currentConfig.name === 'Islam') {
-        categories.spiritual.habits = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-        categories.ethics.habits = ['peches'];
+        morningSpiritual = ['fajr'];
+        middaySpiritual = ['dhuhr', 'asr'];
+        eveningSpiritual = ['maghrib', 'isha'];
+        ethicsHabit = ['peches'];
     } else if (currentConfig.name === 'Christianisme') {
-        categories.spiritual.habits = ['priere-matin', 'priere-midi', 'priere-soir', 'priere-repas', 'priere-nuit'];
-        categories.ethics.habits = ['commandements'];
+        morningSpiritual = ['priere-matin'];
+        middaySpiritual = ['priere-midi', 'priere-repas'];
+        eveningSpiritual = ['priere-soir', 'priere-nuit'];
+        ethicsHabit = ['commandements'];
     } else {
-        categories.spiritual.habits = ['meditation-matin', 'meditation-midi', 'meditation-soir', 'gratitude', 'journal'];
-        categories.ethics.habits = ['ethique'];
+        morningSpiritual = ['meditation-matin'];
+        middaySpiritual = ['meditation-midi', 'gratitude'];
+        eveningSpiritual = ['meditation-soir', 'journal'];
+        ethicsHabit = ['ethique'];
     }
+    
+    const categories = {
+        morning: { 
+            icon: '🌅', 
+            name: 'Matin', 
+            timeRange: 'matin',
+            habits: ['sommeil', 'courir', 'sport', 'entrainement-ultra-instinct', 'douche-apres-entrainement', 'brossage-matin', 'proteines', ...morningSpiritual]
+        },
+        midday: { 
+            icon: '☀️', 
+            name: 'Journée', 
+            timeRange: 'journee',
+            habits: ['chambre', 'argent', 'ongles', 'rasage', ...middaySpiritual]
+        },
+        evening: { 
+            icon: '🌙', 
+            name: 'Soir', 
+            timeRange: 'soir',
+            habits: ['brossage-soir', ...eveningSpiritual, ...ethicsHabit]
+        }
+    };
     
     const habitLabels = {
         'sommeil': '7-8 heures de sommeil',
@@ -2599,14 +2668,29 @@ function generateHabitsHTML() {
         ...currentConfig.habitLabels
     };
     
+    // Déterminer le moment de la journée actuel
+    const currentHour = new Date().getHours();
+    let currentTimeRange = 'matin';
+    if (currentHour >= 12 && currentHour < 18) {
+        currentTimeRange = 'journee';
+    } else if (currentHour >= 18 || currentHour < 5) {
+        currentTimeRange = 'soir';
+    }
+    
     Object.values(categories).forEach(category => {
         if (category.habits.length === 0) return;
         
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'category';
         
+        // Mettre en évidence la catégorie active selon l'heure
+        if (category.timeRange === currentTimeRange) {
+            categoryDiv.classList.add('category-active-time');
+        }
+        
         const title = document.createElement('h2');
-        title.innerHTML = `<span class="category-icon">${category.icon}</span> ${category.name}`;
+        const timeIndicator = category.timeRange === currentTimeRange ? '<span class="time-indicator">⏰ C\'est le moment !</span>' : '';
+        title.innerHTML = `<span class="category-icon">${category.icon}</span> ${category.name} ${timeIndicator}`;
         categoryDiv.appendChild(title);
         
         category.habits.forEach(habitId => {
