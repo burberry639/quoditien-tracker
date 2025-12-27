@@ -1194,11 +1194,19 @@ function scheduleNotifications() {
             );
         }
         
-        // Notification rappel à 22h00
+        // ⚠️ RAPPEL SOMMEIL : 21h30 - Couper les écrans et préparer le coucher
+        if (hours === 21 && minutes === 30) {
+            sendNotification(
+                "😴 Prépare-toi à dormir !",
+                "Dans 30 min c'est dodo ! Coupe les écrans maintenant, prépare-toi pour être au lit à 22h."
+            );
+        }
+        
+        // Notification 22h00 - Heure du coucher
         if (hours === 22 && minutes === 0) {
             sendNotification(
-                "⚠️ Dernière chance",
-                "Il te reste 2h pour finir tes tâches. Ne lâche rien !"
+                "🛏️ AU LIT MAINTENANT !",
+                "C'est 22h ! Pose le téléphone et dors. Objectif : levé à 6h demain. 💪"
             );
         }
     }, 60000); // Check toutes les 60 secondes
@@ -2849,7 +2857,7 @@ function generateHabitsHTML() {
     };
     
     const habitLabels = {
-        'sommeil': '7-8 heures de sommeil',
+        'sommeil': 'Couché 22h → Levé 6h',
         'sport': 'Séance de sport',
         'courir': 'Va courir le matin',
         'proteines': '140g de protéines minimum (matin)',
