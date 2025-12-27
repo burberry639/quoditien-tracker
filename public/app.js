@@ -2882,6 +2882,8 @@ function generateHabitsHTML() {
         // Vérifier si la catégorie est bloquée (heure dépassée)
         const isLocked = currentHour >= category.deadline;
         
+        console.log(`Catégorie: ${category.name}, Heure actuelle: ${currentHour}, Deadline: ${category.deadline}, Bloqué: ${isLocked}`);
+        
         // Mettre en évidence la catégorie active selon l'heure
         if (category.timeRange === currentTimeRange && !isLocked) {
             categoryDiv.classList.add('category-active-time');
@@ -4549,6 +4551,29 @@ function initApp() {
             updateQuestTimer();
         }
     }, 1000);
+    
+    // Vérifier les deadlines toutes les minutes et rafraîchir si nécessaire
+    let lastCheckedHour = new Date().getHours();
+    setInterval(() => {
+        const currentHour = new Date().getHours();
+        // Si l'heure a changé, régénérer les habitudes pour mettre à jour les blocages
+        if (currentHour !== lastCheckedHour) {
+            console.log(`🕐 Changement d'heure détecté: ${lastCheckedHour}h → ${currentHour}h, mise à jour des blocages...`);
+            lastCheckedHour = currentHour;
+            
+            // Sauvegarder les habitudes actuelles avant de régénérer
+            saveHabits();
+            
+            // Régénérer l'interface des habitudes
+            generateHabitsHTML();
+            
+            // Recharger les états des checkboxes
+            loadHabits();
+            
+            // Mettre à jour la progression
+            updateProgress();
+        }
+    }, 60000); // Vérifier toutes les 60 secondes
     
     // Recréer les particules de rang toutes les 5 secondes (seulement si page visible)
     rankParticlesInterval = setInterval(() => {
