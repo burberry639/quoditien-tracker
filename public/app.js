@@ -175,7 +175,7 @@ const religionConfigs = {
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'fajr', 'dhuhr', 'asr', 'maghrib', 'isha',
-            'chambre', 'peches', 'argent'
+            'peches', 'argent'
         ],
         habitLabels: {
             'fajr': 'Fajr (Aube)',
@@ -202,7 +202,7 @@ const religionConfigs = {
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'priere-matin', 'priere-midi', 'priere-soir', 'priere-repas', 'priere-nuit',
-            'chambre', 'commandements', 'argent'
+            'commandements', 'argent'
         ],
         habitLabels: {
             'priere-matin': 'Prière du matin',
@@ -229,7 +229,7 @@ const religionConfigs = {
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
             'meditation-matin', 'meditation-midi', 'meditation-soir', 'gratitude', 'journal',
-            'chambre', 'ethique', 'argent'
+            'ethique', 'argent'
         ],
         habitLabels: {
             'meditation-matin': 'Méditation/réflexion du matin',
@@ -257,7 +257,6 @@ const baseStatMapping = {
     'sport': 'str',
     'proteines': 'str',
     'entrainement-ultra-instinct': 'str',
-    'chambre': 'dis',
     'sommeil': 'hp',
     'douche-apres-entrainement': 'hp',
     'brossage-matin': 'end',
@@ -2845,7 +2844,7 @@ function generateHabitsHTML() {
             name: 'Journée', 
             timeRange: 'journee',
             deadline: 18, // Bloqué après 18h
-            habits: ['chambre', 'argent', 'ongles', 'rasage', ...middaySpiritual]
+            habits: ['argent', 'ongles', 'rasage', ...middaySpiritual]
         },
         evening: { 
             icon: '🌙', 
@@ -2867,7 +2866,6 @@ function generateHabitsHTML() {
         'brossage-soir': 'Brossage de dents - Soir',
         'ongles': 'Coupage d\'ongles',
         'rasage': 'Rasage',
-        'chambre': 'Ranger ma chambre',
         'argent': 'Faire de l\'argent',
         ...currentConfig.habitLabels
     };
