@@ -3839,3 +3839,121 @@ input {
         font-size: 2.5em;
     }
 }
+
+/* ========================================
+   SYSTÈME DE PROGRESSION DES PRIÈRES (Islam)
+======================================== */
+
+.prayer-progress-container {
+    margin-top: 15px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(0, 150, 100, 0.15) 0%, rgba(0, 100, 70, 0.25) 100%);
+    border: 2px solid #00c896;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 200, 150, 0.2);
+}
+
+.prayer-unlock-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.prayer-icon {
+    font-size: 2.5em;
+    animation: prayerGlow 2s ease-in-out infinite;
+}
+
+@keyframes prayerGlow {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(0, 200, 150, 0.5)); }
+    50% { filter: drop-shadow(0 0 15px rgba(0, 200, 150, 0.8)); }
+}
+
+.prayer-progress-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.prayer-next {
+    font-size: 1.1em;
+    color: #00ffc8;
+    font-weight: 600;
+}
+
+.prayer-streak {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.prayer-streak strong {
+    color: #ffcc00;
+}
+
+.prayer-progress-bar {
+    width: 100%;
+    max-width: 250px;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 200, 150, 0.3);
+}
+
+.prayer-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00c896, #00ffc8);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+.prayer-counter {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #00ffc8;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+.prayer-complete {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.25) 100%);
+    border-color: #ffd700;
+}
+
+.prayer-complete-text {
+    font-size: 1.1em;
+    color: #ffd700;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 480px) {
+    .prayer-progress-container {
+        padding: 12px;
+        margin-top: 10px;
+    }
+    
+    .prayer-icon {
+        font-size: 2em;
+    }
+    
+    .prayer-next {
+        font-size: 1em;
+    }
+    
+    .prayer-streak {
+        font-size: 0.85em;
+    }
+    
+    .prayer-progress-bar {
+        max-width: 200px;
+        height: 8px;
+    }
+    
+    .prayer-counter {
+        font-size: 1em;
+    }
+}
