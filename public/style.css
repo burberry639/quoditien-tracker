@@ -1103,6 +1103,160 @@ h2 {
     box-shadow: 0 0 10px var(--success-glow);
 }
 
+/* ========================================
+   DÉTAIL DÉROULANT ENTRAÎNEMENT FOOT
+======================================== */
+
+.foot-training-details-container {
+    margin: 5px 0;
+    padding: 0;
+}
+
+.foot-training-toggle {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--accent-primary);
+    border-radius: 6px;
+    color: var(--accent-primary);
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.foot-training-toggle:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+    transform: translateX(3px);
+}
+
+.foot-training-toggle:active {
+    transform: translateX(3px) scale(0.98);
+}
+
+.foot-training-details {
+    margin-top: 8px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    animation: slideDown 0.3s ease-out;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.foot-training-content {
+    color: var(--text-primary);
+}
+
+.foot-training-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--accent-primary);
+    text-shadow: 0 0 10px var(--accent-glow);
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-primary);
+}
+
+.foot-section {
+    margin-bottom: 20px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 5px;
+}
+
+.foot-section-title {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--accent-secondary);
+    margin: 0 0 10px 0;
+    text-shadow: 0 0 8px rgba(123, 104, 238, 0.5);
+}
+
+.foot-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.foot-list > li {
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.foot-list > li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--accent-primary);
+    font-weight: bold;
+}
+
+.foot-list ul {
+    list-style: none;
+    padding-left: 25px;
+    margin-top: 5px;
+}
+
+.foot-list ul li {
+    padding: 4px 0;
+    padding-left: 15px;
+    position: relative;
+    color: var(--text-muted);
+    font-size: 0.85em;
+}
+
+.foot-list ul li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--accent-secondary);
+}
+
+.foot-list strong {
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+.foot-training-details::-webkit-scrollbar {
+    width: 6px;
+}
+
+.foot-training-details::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.foot-training-details::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 10px;
+}
+
 input[type="checkbox"] {
     width: 18px;
     height: 18px;
@@ -2832,6 +2986,44 @@ input {
 
     label {
         font-size: 0.8em;
+    }
+    
+    /* Détail déroulant entraînement foot mobile */
+    .foot-training-toggle {
+        padding: 8px 10px;
+        font-size: 0.75em;
+    }
+    
+    .foot-training-details {
+        padding: 10px;
+        max-height: 500px;
+    }
+    
+    .foot-training-title {
+        font-size: 1em;
+        margin-bottom: 12px;
+    }
+    
+    .foot-section {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .foot-section-title {
+        font-size: 0.9em;
+        margin-bottom: 8px;
+    }
+    
+    .foot-list > li {
+        font-size: 0.8em;
+        padding: 5px 0;
+        padding-left: 18px;
+    }
+    
+    .foot-list ul li {
+        font-size: 0.75em;
+        padding: 3px 0;
+        padding-left: 12px;
     }
     
     .stats {

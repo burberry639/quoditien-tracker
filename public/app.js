@@ -170,7 +170,7 @@ const religionConfigs = {
         name: 'Islam',
         icon: '☪️',
         habits: [
-            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-foot',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -197,7 +197,7 @@ const religionConfigs = {
         name: 'Christianisme',
         icon: '✝️',
         habits: [
-            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-foot',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -224,7 +224,7 @@ const religionConfigs = {
         name: 'Neutre',
         icon: '🌟',
         habits: [
-            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-ultra-instinct',
+            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-foot',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -256,7 +256,7 @@ const baseStatMapping = {
     'courir': 'str',
     'sport': 'str',
     'proteines': 'str',
-    'entrainement-ultra-instinct': 'str',
+    'entrainement-foot': 'str',
     'sommeil': 'hp',
     'douche-apres-entrainement': 'hp',
     'brossage-matin': 'end',
@@ -1069,7 +1069,7 @@ function getAllDailyHabits() {
     // Toutes les habitudes du quotidien sauf les prières
     const dailyHabits = [
         // Matin
-        'sommeil', 'courir', 'sport', 'entrainement-ultra-instinct', 'douche-apres-entrainement', 'brossage-matin', 'proteines',
+        'sommeil', 'courir', 'sport', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', 'proteines',
         // Journée
         'argent', 'ongles', 'rasage',
         // Soir
@@ -2051,16 +2051,16 @@ const dailyQuests = [
     { id: 'quest-cardio', name: '🏃 30min de cardio', reward: 'end', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-nutrition', name: '🍗 Nutrition parfaite', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
     { id: 'quest-martial-arts', name: '🥋 30min d\'arts martiaux', reward: 'str', bonus: '+0.5 jour de rang', points: 5 },
-    { id: 'quest-ui-training', name: '⚡ Entraînement Ultra Instinct', reward: 'str', bonus: '+0.5 jour de rang', points: 5 }
+    { id: 'quest-foot-training', name: '⚽ Entraînement Foot', reward: 'str', bonus: '+0.5 jour de rang', points: 5 }
 ];
 
 // QUÊTES ÉPIQUES - Objectifs à long terme
 const epicQuests = [
     {
         id: 'epic-blackbelt',
-        name: '⚡ ULTRA INSTINCT',
-        description: "Apprendre et maîtriser l'Ultra Instinct étape par étape",
-        category: 'ultra-instinct',
+        name: '⚽ ENTRAÎNEMENT FOOT',
+        description: "Apprendre et maîtriser le football étape par étape",
+        category: 'foot-training',
         icon: '⚡',
         targetDays: 365,
         rewards: {
@@ -2068,9 +2068,9 @@ const epicQuests = [
             stats: { str: 50, dis: 40, men: 30 }
         },
         milestones: [
-            { days: 120, name: "Phase 1 : Signe de l'UI", bonus: 5 },
-            { days: 240, name: 'Phase 2 : Ultra Instinct non maîtrisé', bonus: 10 },
-            { days: 365, name: 'Phase 3 : Ultra Instinct maîtrisé', bonus: 30 }
+            { days: 120, name: "Phase 1 : Débutant", bonus: 5 },
+            { days: 240, name: 'Phase 2 : Intermédiaire', bonus: 10 },
+            { days: 365, name: 'Phase 3 : Avancé', bonus: 30 }
         ]
     },
     {
@@ -2376,7 +2376,7 @@ function displayDailyQuests() {
             </button>
         `;
         
-        if (questId === 'quest-ui-training') {
+        if (questId === 'quest-foot-training') {
             questDiv.addEventListener('contextmenu', function(event) {
                 event.preventDefault();
                 showUITrainingDetails();
@@ -2416,14 +2416,14 @@ function updateQuestStats() {
     document.getElementById('dailyQuestBonus').textContent = `+${(completed * 0.5).toFixed(1)}`;
 }
 
-function showUITrainingDetails() {
-    const existing = document.getElementById('uiTrainingOverlay');
+function showFootTrainingDetails() {
+    const existing = document.getElementById('footTrainingOverlay');
     if (existing) {
         existing.remove();
     }
     
     const overlay = document.createElement('div');
-    overlay.id = 'uiTrainingOverlay';
+    overlay.id = 'footTrainingOverlay';
     overlay.style.cssText = `
         position: fixed;
         top: 0;
@@ -2453,8 +2453,8 @@ function showUITrainingDetails() {
     
     modal.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <h2 style="margin:0; font-size:1.6em; color:#38bdf8;">⚡ Programme Ultra Instinct – Détail des phases</h2>
-            <button onclick="document.getElementById('uiTrainingOverlay')?.remove()" style="
+            <h2 style="margin:0; font-size:1.6em; color:#38bdf8;">⚽ Entraînement Foot – Programmes</h2>
+            <button onclick="document.getElementById('footTrainingOverlay')?.remove()" style="
                 background: transparent;
                 border: 1px solid #f97316;
                 color: #f97316;
@@ -2491,7 +2491,7 @@ Puis :
 Inspiration → tu te contrôles.
 Expiration rapide → tu “éteins” la pensée comme un interrupteur.
 Tu dois pouvoir passer de pensée → no-mind → pensée en 1 seconde.
-C’est la “bascule Ultra Instinct”.
+C'est la bascule instinct/réflexion.
 Si tu ne maîtrises pas ça, le reste ne sert à rien.
 
 🔷 PHASE 2 – Réaction automatique extrême (B)
@@ -2547,7 +2547,7 @@ Signal sonore
 → analyser la situation
 → repartir
 
-Le vrai Ultra Instinct n’est pas le no-mind :
+L'entraînement foot demande :
 c’est le contrôle de la bascule.
 
 2. Exercice de changement de rythme
@@ -3100,7 +3100,7 @@ function generateHabitsHTML() {
             name: 'Matin', 
             timeRange: 'matin',
             deadline: 12, // Bloqué après 12h
-            habits: ['sommeil', 'courir', 'sport', 'entrainement-ultra-instinct', 'douche-apres-entrainement', 'brossage-matin', 'proteines', ...morningSpiritual]
+            habits: ['sommeil', 'courir', 'sport', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', 'proteines', ...morningSpiritual]
         },
         midday: { 
             icon: '☀️', 
@@ -3123,7 +3123,7 @@ function generateHabitsHTML() {
         'sport': 'Séance de sport',
         'courir': 'Va courir le matin',
         'proteines': '140g de protéines minimum (matin)',
-        'entrainement-ultra-instinct': 'Entraînement Ultra Instinct (matin)',
+        'entrainement-foot': 'Entraînement Foot à la Ronaldo',
         'douche-apres-entrainement': 'Douche froide après séance de sport',
         'brossage-matin': 'Brossage de dents - Matin',
         'brossage-soir': 'Brossage de dents - Soir',
@@ -3202,38 +3202,91 @@ function generateHabitsHTML() {
                 toggleCheckbox(habitId);
             });
 
-            // Détail Ultra Instinct (clic droit ou appui long)
-            if (habitId === 'entrainement-ultra-instinct') {
-                let longPressTimer = null;
-
-                habitDiv.addEventListener('contextmenu', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    habitDiv.dataset.uiLongPress = 'active';
-                    showUITrainingDetails();
-                });
-
-                const clearLongPress = () => {
-                    if (longPressTimer) {
-                        clearTimeout(longPressTimer);
-                        longPressTimer = null;
-                    }
-                };
-
-                habitDiv.addEventListener('touchstart', () => {
-                    clearLongPress();
-                    longPressTimer = setTimeout(() => {
-                        habitDiv.dataset.uiLongPress = 'active';
-                        showUITrainingDetails();
-                    }, 650);
-                }, { passive: true });
-
-                ['touchend', 'touchmove', 'touchcancel'].forEach(evt => {
-                    habitDiv.addEventListener(evt, clearLongPress, { passive: true });
-                });
-            }
-
             categoryDiv.appendChild(habitDiv);
+            
+            // Ajouter le détail déroulant pour l'entraînement foot
+            if (habitId === 'entrainement-foot') {
+                const footDetailsContainer = document.createElement('div');
+                footDetailsContainer.className = 'foot-training-details-container';
+                
+                const toggleButton = document.createElement('button');
+                toggleButton.className = 'foot-training-toggle';
+                toggleButton.innerHTML = '📋 Voir le programme';
+                toggleButton.type = 'button';
+                
+                const detailsContent = document.createElement('div');
+                detailsContent.className = 'foot-training-details';
+                detailsContent.style.display = 'none';
+                detailsContent.innerHTML = `
+                    <div class="foot-training-content">
+                        <h3 class="foot-training-title">⚽ Entraînement Foot à la Ronaldo</h3>
+                        
+                        <div class="foot-section">
+                            <h4 class="foot-section-title">🔥 Échauffement (15 minutes)</h4>
+                            <ul class="foot-list">
+                                <li>5 minutes de footing léger (autour du terrain ou sur place)</li>
+                                <li>5 minutes d'étirements dynamiques (fentes, talons-fesses, montées de genoux)</li>
+                                <li>5 minutes de travail de mobilité articulaire (cercles avec les chevilles, rotations des hanches, épaules)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="foot-section">
+                            <h4 class="foot-section-title">💪 Partie 1 : Travail physique et explosivité (30 minutes)</h4>
+                            <ul class="foot-list">
+                                <li><strong>Sprints courts :</strong> 6 x 30 mètres à 90-100% intensité, récupération 1 min entre chaque</li>
+                                <li><strong>Pliométrie :</strong>
+                                    <ul>
+                                        <li>3 x 10 sauts verticaux (explosivité)</li>
+                                        <li>3 x 10 sauts latéraux (agilité)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Gainage :</strong>
+                                    <ul>
+                                        <li>Planche frontale : 3 x 1 minute</li>
+                                        <li>Planche latérale : 3 x 30 secondes de chaque côté</li>
+                                        <li>Abdos : 3 séries de 20 crunchs + 15 relevés de jambes</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="foot-section">
+                            <h4 class="foot-section-title">⚽ Partie 2 : Technique balle au pied (30 minutes)</h4>
+                            <ul class="foot-list">
+                                <li><strong>Jongles :</strong> 3 x 50 jongles (pieds, cuisses, tête)</li>
+                                <li><strong>Conduite de balle :</strong> 4 x 40 mètres en slalom entre des plots (ou bouteilles)</li>
+                                <li><strong>Passes courtes :</strong> 4 x 20 passes contre un mur, avec précision</li>
+                                <li><strong>Tirs au but :</strong> 4 x 10 tirs, en alternant puissance et précision (gauche, droite, pied faible)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="foot-section">
+                            <h4 class="foot-section-title">🧠 Partie 3 : Travail tactique et situations de match (15 minutes)</h4>
+                            <ul class="foot-list">
+                                <li>Dribbles rapides en situation de un contre un (si possible avec un partenaire) : 4 séries de 1 minute</li>
+                                <li>Reproduire des accélérations et changements de direction rapides</li>
+                                <li><strong>Visualisation mentale :</strong> imagine-toi dans un match, la balle aux pieds, la stratégie à appliquer</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                toggleButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = detailsContent.style.display !== 'none';
+                    if (isOpen) {
+                        detailsContent.style.display = 'none';
+                        toggleButton.innerHTML = '📋 Voir le programme';
+                    } else {
+                        detailsContent.style.display = 'block';
+                        toggleButton.innerHTML = '📋 Masquer le programme';
+                    }
+                });
+                
+                footDetailsContainer.appendChild(toggleButton);
+                footDetailsContainer.appendChild(detailsContent);
+                categoryDiv.appendChild(footDetailsContainer);
+            }
         });
         
         container.appendChild(categoryDiv);
