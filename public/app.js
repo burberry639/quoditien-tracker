@@ -1026,6 +1026,7 @@ function updateDate() {
 
 const PRAYER_ORDER = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 const DAYS_TO_UNLOCK = 14; // 14 jours consécutifs pour débloquer la prière suivante
+const DAYS_TO_UNLOCK_FAJR = 62; // 62 jours de quotidien complet pour débloquer Fajr
 
 function getPrayerProgress() {
     return JSON.parse(originalGetItem('prayerProgress') || '{}');
@@ -1037,23 +1038,51 @@ function savePrayerProgress(progress) {
 
 function getUnlockedPrayers() {
     const progress = getPrayerProgress();
-    const unlocked = ['fajr']; // Fajr toujours débloqué
+    const unlocked = [];
     
-    // Vérifier les déblocages
-    if (progress.fajrStreak >= DAYS_TO_UNLOCK) {
-        unlocked.push('dhuhr');
-    }
-    if (progress.dhuhrStreak >= DAYS_TO_UNLOCK && unlocked.includes('dhuhr')) {
-        unlocked.push('asr');
-    }
-    if (progress.asrStreak >= DAYS_TO_UNLOCK && unlocked.includes('asr')) {
-        unlocked.push('maghrib');
-    }
-    if (progress.maghribStreak >= DAYS_TO_UNLOCK && unlocked.includes('maghrib')) {
-        unlocked.push('isha');
+    // Fajr est débloqué seulement après 62 jours de quotidien complet
+    if (progress.dailyCompleteStreak >= DAYS_TO_UNLOCK_FAJR) {
+        unlocked.push('fajr');
+        
+        // Une fois Fajr débloqué, vérifier les déblocages des autres prières
+        if (progress.fajrStreak >= DAYS_TO_UNLOCK) {
+            unlocked.push('dhuhr');
+        }
+        if (progress.dhuhrStreak >= DAYS_TO_UNLOCK && unlocked.includes('dhuhr')) {
+            unlocked.push('asr');
+        }
+        if (progress.asrStreak >= DAYS_TO_UNLOCK && unlocked.includes('asr')) {
+            unlocked.push('maghrib');
+        }
+        if (progress.maghribStreak >= DAYS_TO_UNLOCK && unlocked.includes('maghrib')) {
+            unlocked.push('isha');
+        }
     }
     
     return unlocked;
+}
+
+// Fonction pour obtenir toutes les habitudes quotidiennes (sans Fajr)
+function getAllDailyHabits() {
+    if (!currentConfig || currentConfig.name !== 'Islam') return [];
+    
+    // Toutes les habitudes du quotidien sauf les prières
+    const dailyHabits = [
+        // Matin
+        'sommeil', 'courir', 'sport', 'entrainement-ultra-instinct', 'douche-apres-entrainement', 'brossage-matin', 'proteines',
+        // Journée
+        'argent', 'ongles', 'rasage',
+        // Soir
+        'brossage-soir', 'peches'
+    ];
+    
+    return dailyHabits;
+}
+
+// Fonction pour vérifier si toutes les habitudes quotidiennes sont complétées (sans Fajr)
+function isDailyComplete(habits) {
+    const allDailyHabits = getAllDailyHabits();
+    return allDailyHabits.every(habit => habits[habit] === true);
 }
 
 function updatePrayerProgress() {
@@ -1067,6 +1096,7 @@ function updatePrayerProgress() {
     // Initialiser si nécessaire
     if (!progress.lastUpdateDate) {
         progress.lastUpdateDate = today;
+        progress.dailyCompleteStreak = 0;
         progress.fajrStreak = 0;
         progress.dhuhrStreak = 0;
         progress.asrStreak = 0;
@@ -1079,14 +1109,25 @@ function updatePrayerProgress() {
         const yesterday = getYesterdayDate();
         const yesterdayHabits = history[yesterday]?.habits || {};
         
+        // Vérifier si le quotidien complet (sans Fajr) a été fait hier
+        const yesterdayComplete = isDailyComplete(yesterdayHabits);
+        
+        if (yesterdayComplete) {
+            progress.dailyCompleteStreak = (progress.dailyCompleteStreak || 0) + 1;
+        } else {
+            progress.dailyCompleteStreak = 0;
+        }
+        
         // Mettre à jour les streaks basé sur hier
         const unlockedPrayers = getUnlockedPrayers();
         
-        // Fajr
-        if (yesterdayHabits['fajr']) {
-            progress.fajrStreak = (progress.fajrStreak || 0) + 1;
-        } else {
-            progress.fajrStreak = 0;
+        // Fajr (seulement si débloqué via quotidien complet)
+        if (unlockedPrayers.includes('fajr')) {
+            if (yesterdayHabits['fajr']) {
+                progress.fajrStreak = (progress.fajrStreak || 0) + 1;
+            } else {
+                progress.fajrStreak = 0;
+            }
         }
         
         // Dhuhr (seulement si débloqué)
@@ -1128,12 +1169,22 @@ function updatePrayerProgress() {
         progress.lastUpdateDate = today;
         savePrayerProgress(progress);
         
-        // Vérifier si une nouvelle prière a été débloquée
+        // Vérifier si Fajr a été débloqué
+        const wasFajrUnlocked = progress.dailyCompleteStreak >= DAYS_TO_UNLOCK_FAJR;
+        const previousStreak = (progress.dailyCompleteStreak || 0) - 1;
+        const wasFajrUnlockedBefore = previousStreak >= DAYS_TO_UNLOCK_FAJR;
+        
+        if (wasFajrUnlocked && !wasFajrUnlockedBefore) {
+            alert(`🎉 FÉLICITATIONS !\n\nTu as débloqué la prière FAJR !\n\n62 jours consécutifs de quotidien complet accomplis. MashaAllah !\n\nTu peux maintenant commencer ta progression vers les 5 prières quotidiennes !`);
+        }
+        
+        // Vérifier si une nouvelle prière a été débloquée (après Fajr)
         const newUnlocked = getUnlockedPrayers();
-        const previousUnlocked = ['fajr'];
+        const previousUnlocked = [];
+        if (previousStreak >= DAYS_TO_UNLOCK_FAJR) previousUnlocked.push('fajr');
         if (progress.fajrStreak >= DAYS_TO_UNLOCK) previousUnlocked.push('dhuhr');
         
-        // Notification de déblocage
+        // Notification de déblocage pour les autres prières
         PRAYER_ORDER.forEach((prayer, index) => {
             if (newUnlocked.includes(prayer) && index > 0) {
                 const prevPrayer = PRAYER_ORDER[index - 1];
@@ -3017,7 +3068,12 @@ function generateHabitsHTML() {
         // Système de déblocage progressif des prières
         const unlockedPrayers = getUnlockedPrayers();
         
-        morningSpiritual = unlockedPrayers.includes('fajr') ? ['fajr'] : ['fajr']; // Fajr toujours disponible
+        // Fajr n'est PAS dans la liste normale - il est débloqué après 62 jours de quotidien complet
+        // Une fois débloqué, il apparaît dans les habitudes matin
+        morningSpiritual = [];
+        if (unlockedPrayers.includes('fajr')) {
+            morningSpiritual.push('fajr'); // Fajr apparaît seulement après déblocage via 62 jours
+        }
         middaySpiritual = [];
         if (unlockedPrayers.includes('dhuhr')) middaySpiritual.push('dhuhr');
         if (unlockedPrayers.includes('asr')) middaySpiritual.push('asr');
@@ -3190,41 +3246,63 @@ function generateHabitsHTML() {
         
         const progress = getPrayerProgress();
         const unlocked = getUnlockedPrayers();
-        const nextToUnlock = PRAYER_ORDER.find(p => !unlocked.includes(p));
+        const dailyCompleteStreak = progress.dailyCompleteStreak || 0;
         
-        if (nextToUnlock) {
-            const prevPrayer = PRAYER_ORDER[PRAYER_ORDER.indexOf(nextToUnlock) - 1];
-            const currentStreak = progress[prevPrayer + 'Streak'] || 0;
-            const remaining = DAYS_TO_UNLOCK - currentStreak;
-            
-            const prayerNames = {
-                'fajr': 'Fajr',
-                'dhuhr': 'Dhuhr',
-                'asr': 'Asr',
-                'maghrib': 'Maghrib',
-                'isha': 'Isha'
-            };
+        // Si Fajr n'est pas encore débloqué, afficher la progression du quotidien complet
+        if (!unlocked.includes('fajr')) {
+            const remaining = DAYS_TO_UNLOCK_FAJR - dailyCompleteStreak;
             
             prayerProgressDiv.innerHTML = `
                 <div class="prayer-unlock-info">
                     <span class="prayer-icon">🕌</span>
                     <div class="prayer-progress-text">
-                        <span class="prayer-next">Prochaine prière : <strong>${prayerNames[nextToUnlock]}</strong></span>
-                        <span class="prayer-streak">Continue ${prayerNames[prevPrayer]} pendant <strong>${remaining} jour${remaining > 1 ? 's' : ''}</strong> pour débloquer</span>
+                        <span class="prayer-next">Prochaine prière : <strong>FAJR</strong></span>
+                        <span class="prayer-streak">Complète ton quotidien pendant <strong>${remaining} jour${remaining > 1 ? 's' : ''}</strong> pour débloquer la prière Fajr</span>
                     </div>
                     <div class="prayer-progress-bar">
-                        <div class="prayer-progress-fill" style="width: ${(currentStreak / DAYS_TO_UNLOCK) * 100}%"></div>
+                        <div class="prayer-progress-fill" style="width: ${(dailyCompleteStreak / DAYS_TO_UNLOCK_FAJR) * 100}%"></div>
                     </div>
-                    <span class="prayer-counter">${currentStreak}/${DAYS_TO_UNLOCK}</span>
+                    <span class="prayer-counter">${dailyCompleteStreak}/${DAYS_TO_UNLOCK_FAJR}</span>
                 </div>
             `;
         } else {
-            prayerProgressDiv.innerHTML = `
-                <div class="prayer-unlock-info prayer-complete">
-                    <span class="prayer-icon">🎉</span>
-                    <span class="prayer-complete-text">Toutes les prières débloquées ! MashaAllah !</span>
-                </div>
-            `;
+            // Fajr est débloqué, afficher la progression des autres prières
+            const nextToUnlock = PRAYER_ORDER.find(p => !unlocked.includes(p));
+            
+            if (nextToUnlock) {
+                const prevPrayer = PRAYER_ORDER[PRAYER_ORDER.indexOf(nextToUnlock) - 1];
+                const currentStreak = progress[prevPrayer + 'Streak'] || 0;
+                const remaining = DAYS_TO_UNLOCK - currentStreak;
+                
+                const prayerNames = {
+                    'fajr': 'Fajr',
+                    'dhuhr': 'Dhuhr',
+                    'asr': 'Asr',
+                    'maghrib': 'Maghrib',
+                    'isha': 'Isha'
+                };
+                
+                prayerProgressDiv.innerHTML = `
+                    <div class="prayer-unlock-info">
+                        <span class="prayer-icon">🕌</span>
+                        <div class="prayer-progress-text">
+                            <span class="prayer-next">Prochaine prière : <strong>${prayerNames[nextToUnlock]}</strong></span>
+                            <span class="prayer-streak">Continue ${prayerNames[prevPrayer]} pendant <strong>${remaining} jour${remaining > 1 ? 's' : ''}</strong> pour débloquer</span>
+                        </div>
+                        <div class="prayer-progress-bar">
+                            <div class="prayer-progress-fill" style="width: ${(currentStreak / DAYS_TO_UNLOCK) * 100}%"></div>
+                        </div>
+                        <span class="prayer-counter">${currentStreak}/${DAYS_TO_UNLOCK}</span>
+                    </div>
+                `;
+            } else {
+                prayerProgressDiv.innerHTML = `
+                    <div class="prayer-unlock-info prayer-complete">
+                        <span class="prayer-icon">🎉</span>
+                        <span class="prayer-complete-text">Toutes les prières débloquées ! MashaAllah !</span>
+                    </div>
+                `;
+            }
         }
         
         container.appendChild(prayerProgressDiv);
