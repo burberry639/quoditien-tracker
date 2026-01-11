@@ -170,7 +170,7 @@ const religionConfigs = {
         name: 'Islam',
         icon: '☪️',
         habits: [
-            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-foot',
+            'sommeil', 'proteines', 'entrainement-foot',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -197,7 +197,7 @@ const religionConfigs = {
         name: 'Christianisme',
         icon: '✝️',
         habits: [
-            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-foot',
+            'sommeil', 'proteines', 'entrainement-foot',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -224,7 +224,7 @@ const religionConfigs = {
         name: 'Neutre',
         icon: '🌟',
         habits: [
-            'sommeil', 'courir', 'sport', 'proteines', 'entrainement-foot',
+            'sommeil', 'proteines', 'entrainement-foot',
             'douche-apres-entrainement',
             'brossage-matin', 'brossage-soir',
             'ongles', 'rasage',
@@ -253,8 +253,6 @@ let currentConfig = null;
 let habits = [];
 
 const baseStatMapping = {
-    'courir': 'str',
-    'sport': 'str',
     'proteines': 'str',
     'entrainement-foot': 'str',
     'sommeil': 'hp',
@@ -1069,7 +1067,7 @@ function getAllDailyHabits() {
     // Toutes les habitudes du quotidien sauf les prières
     const dailyHabits = [
         // Matin
-        'sommeil', 'courir', 'sport', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', 'proteines',
+        'sommeil', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', 'proteines',
         // Journée
         'argent', 'ongles', 'rasage',
         // Soir
@@ -1423,7 +1421,7 @@ function scheduleNotifications() {
         if (hours === 6 && minutes === 0) {
             sendNotification(
                 "🌅 C'est l'heure !",
-                "Réveille-toi guerrier ! C'est le moment de courir et de commencer fort ta journée."
+                "Réveille-toi guerrier ! C'est le moment de commencer fort ta journée."
             );
         }
         
@@ -3100,7 +3098,7 @@ function generateHabitsHTML() {
             name: 'Matin', 
             timeRange: 'matin',
             deadline: 12, // Bloqué après 12h
-            habits: ['sommeil', 'courir', 'sport', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', 'proteines', ...morningSpiritual]
+            habits: ['sommeil', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', 'proteines', ...morningSpiritual]
         },
         midday: { 
             icon: '☀️', 
@@ -3120,8 +3118,6 @@ function generateHabitsHTML() {
     
     const habitLabels = {
         'sommeil': 'Couché 22h → Levé 6h',
-        'sport': 'Séance de sport',
-        'courir': 'Va courir le matin',
         'proteines': '140g de protéines minimum (matin)',
         'entrainement-foot': 'Entraînement Foot à la Ronaldo',
         'douche-apres-entrainement': 'Douche froide après séance de sport',
