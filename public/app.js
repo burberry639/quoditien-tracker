@@ -2936,7 +2936,7 @@ function generateHabitsHTML() {
     };
     
     const habitLabels = {
-        'sommeil': 'Couché 22h → Levé 6h',
+        'sommeil': 'Dormir régulièrement entre 23h et 00h (8h de sommeil)',
         'proteines': '140g de protéines minimum (matin)',
         'entrainement-foot': 'Entraînement Foot à la Ronaldo',
         'douche-apres-entrainement': 'Douche froide après séance de sport',
