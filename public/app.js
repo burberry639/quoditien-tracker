@@ -2917,7 +2917,7 @@ function generateHabitsHTML() {
             name: 'Matin', 
             timeRange: 'matin',
             deadline: 12, // Bloqué après 12h
-            habits: ['sommeil', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', 'proteines', ...morningSpiritual]
+            habits: ['sommeil', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', ...morningSpiritual]
         },
         midday: { 
             icon: '☀️', 
@@ -2931,13 +2931,13 @@ function generateHabitsHTML() {
             name: 'Soir', 
             timeRange: 'soir',
             deadline: 24, // Bloqué après minuit (jamais bloqué le même jour)
-            habits: ['brossage-soir', ...eveningSpiritual, ...ethicsHabit]
+            habits: ['proteines', 'brossage-soir', ...eveningSpiritual, ...ethicsHabit]
         }
     };
     
     const habitLabels = {
         'sommeil': 'Dormir régulièrement entre 23h et 00h (8h de sommeil)',
-        'proteines': '140g de protéines minimum (matin)',
+        'proteines': 'Manger suffisamment de protéines aujourd\'hui',
         'entrainement-foot': 'Entraînement Foot à la Ronaldo',
         'douche-apres-entrainement': 'Douche froide après séance de sport',
         'brossage-matin': 'Brossage de dents - Matin',
