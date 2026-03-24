@@ -49,7 +49,6 @@
         <div class="navigation-tabs">
             <button class="nav-tab active" onclick="showPage('daily')">📋 Quotidien</button>
             <button class="nav-tab" onclick="showPage('stats')">📊 Stats</button>
-            <button class="nav-tab" onclick="showPage('quests')">🎯 Quêtes</button>
             <button class="nav-tab" onclick="showPage('leaderboard')">🏆 Classement</button>
         </div>
 
@@ -198,47 +197,6 @@
                         <div class="power-value" id="powerLevel">0</div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- PAGE: QUÊTES -->
-        <div class="page-content" id="page-quests">
-            <!-- QUÊTES QUOTIDIENNES -->
-            <div class="quest-system">
-                <h2>🎯 QUÊTES QUOTIDIENNES</h2>
-                <div class="quest-card">
-                    <div class="quest-description">5 quêtes par jour pour des bonus !</div>
-                    <div class="quest-refresh-timer">⏰ Nouvelles : <span id="questTimer">00:00:00</span></div>
-                    <div id="dailyQuestsList"></div>
-                    <div class="quest-stats">
-                        <div class="quest-completed">
-                            <span class="quest-stat-label">Complétées</span>
-                            <span class="quest-stat-value" id="dailyQuestsCompleted">0/5</span>
-                        </div>
-                        <div class="quest-bonus">
-                            <span class="quest-stat-label">Bonus</span>
-                            <span class="quest-stat-value" id="dailyQuestBonus">+0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QUÊTES ÉPIQUES -->
-            <div class="epic-quest-system">
-                <h2>⚡ QUÊTES ÉPIQUES</h2>
-                <div class="epic-quest-description">
-                    Objectifs à long terme avec récompenses massives !
-                </div>
-                <div id="epicQuestsList"></div>
-            </div>
-
-            <!-- DÉFIS ENTRE AMIS -->
-            <div class="challenges-system">
-                <h2>🏆 DÉFIS ENTRE AMIS</h2>
-                <div class="challenges-description">
-                    Affronte tes amis dans des compétitions épiques !
-                </div>
-                <div id="challengesList"></div>
             </div>
         </div>
 
