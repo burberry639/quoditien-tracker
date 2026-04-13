@@ -18,6 +18,63 @@ const originalSetItem = (key, value) => {
 
 // Configurations par religion
 const religionConfigs = {
+    santeoptimale: {
+        name: 'Santé Optimale',
+        icon: '??',
+        habits: [
+            // SANTÉ PHYSIQUE - Base
+            'sommeil-optimal', 'alimentation-animal', 'musculation',
+            'marche-matinale', 'douche-froide',
+            
+            // HYGIÈNE AVANCÉE
+            'brossage-matin', 'brossage-soir', 'routine-cheveux', 'routine-corps', 'routine-dents',
+            'ongles', 'rasage',
+            
+            // MICRONUTRIMENTS
+            'complements-vitamines', 'complements-mineraux',
+            
+            // ENVIRONNEMENT SOMMEIL
+            'environnement-sommeil', 'masque-yeux', 'bruit-blanc',
+            
+            // MENTAL - SOCIAL
+            'socialisation', 'gestion-stress', 'decisions-optimal',
+            'meditation-matin', 'gratitude'
+        ],
+        habitLabels: {
+            'sommeil-optimal': 'Sommeil 8h (23h-00h) - Obscurité totale, pas de lumière bleue 1h avant',
+            'alimentation-animal': 'Alimentation animal based - Produits bruts, fruits, laitiers, viande rouge',
+            'musculation': 'Entraînement musculation salle de sport',
+            'marche-matinale': 'Marche 10min au lever du soleil (horloge circadienne)',
+            'douche-froide': 'Douche froide - Hygiène naturelle sans produits toxiques',
+            'routine-cheveux': 'Routine cheveux : Huile coco + huile olive + jaune oeuf + miel cru',
+            'routine-corps': 'Routine corps : Beef tallow / beurre karité / eau seule',
+            'routine-dents': 'Routine dentaire : Huile coco + siwak',
+            'complements-vitamines': 'Tous les micronutriments - Vitamines complètes',
+            'complements-mineraux': 'Tous les micronutriments - Minéraux complètes',
+            'environnement-sommeil': 'Environnement sommeil optimal : Matelas, draps, coussins naturels',
+            'masque-yeux': 'Masque yeux pour obscurité totale pendant sommeil',
+            'bruit-blanc': 'Bruit blanc pendant sommeil',
+            'socialisation': 'Socialiser sans honte - Parler aux gens sans gêne',
+            'gestion-stress': 'Stress 0 - Gestion complète du stress',
+            'decisions-optimal': 'Prise de décision optimale - Bénéfique long terme = FAIRE MAINTENANT',
+            'meditation-matin': 'Méditation/réflexion du matin',
+            'gratitude': 'Moment de gratitude quotidien'
+        },
+        categoryIcons: {
+            physical: '??',
+            hygiene: '??',
+            nutrition: '??',
+            environment: '??',
+            mental: '??'
+        },
+        categoryNames: {
+            physical: 'Santé Physique',
+            hygiene: 'Hygiène Avancée',
+            nutrition: 'Nutrition & Micronutriments',
+            environment: 'Environnement Optimal',
+            mental: 'Mental & Social'
+        }
+    },
     islam: {
         name: 'Islam',
         icon: '☪️',
@@ -105,6 +162,7 @@ let currentConfig = null;
 let habits = [];
 
 const baseStatMapping = {
+    // Habitudes existantes
     'proteines': 'str',
     'entrainement-foot': 'str',
     'sommeil': 'hp',
@@ -113,7 +171,25 @@ const baseStatMapping = {
     'brossage-soir': 'end',
     'ongles': 'men',
     'rasage': 'men',
-    'argent': 'dis'
+    'argent': 'dis',
+    
+    // NOUVELLES HABITUDES SANTÉ OPTIMALE
+    'sommeil-optimal': 'hp',
+    'alimentation-animal': 'str',
+    'musculation': 'str',
+    'marche-matinale': 'hp',
+    'douche-froide': 'hp',
+    'routine-cheveux': 'end',
+    'routine-corps': 'end',
+    'routine-dents': 'end',
+    'complements-vitamines': 'str',
+    'complements-mineraux': 'str',
+    'environnement-sommeil': 'hp',
+    'masque-yeux': 'hp',
+    'bruit-blanc': 'hp',
+    'socialisation': 'men',
+    'gestion-stress': 'men',
+    'decisions-optimal': 'dis'
 };
 
 const spiritualStatMapping = {
@@ -124,7 +200,7 @@ const spiritualStatMapping = {
     'priere-matin': 'spi', 'priere-midi': 'spi', 'priere-soir': 'spi', 
     'priere-repas': 'spi', 'priere-nuit': 'spi',
     'commandements': 'spi',
-    // Neutral
+    // Neutral + Santé Optimale
     'meditation-matin': 'men', 'meditation-midi': 'men', 'meditation-soir': 'men',
     'gratitude': 'spi', 'journal': 'men',
     'ethique': 'spi'
@@ -1075,13 +1151,259 @@ function initializeApp() {
     });
 }
 
+// Fonction pour obtenir les détails HTML d'une habitude
+function getHabitDetailsHTML(habitId) {
+    const details = {
+        'sommeil-optimal': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🌙 PROTOCOLE SOMMEIL OPTIMAL</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Timing:</strong> Se coucher entre 23h et 00h</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Durée:</strong> Exactement 8 heures de sommeil</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Lumière bleue:</strong> Aucun écran 1h avant le coucher</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Obscurité:</strong> Pièce totalement noire (masque yeux recommandé)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Température:</strong> 18-19°C idéal</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Bruit blanc:</strong> Ventilateur ou machine à bruit blanc</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Digestion:</strong> Dernier repas 3h avant le coucher</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 Le sommeil est la base de la récupération musculaire et hormonale.
+                </p>
+            </div>
+        `,
+        'alimentation-animal': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🥩 ALIMENTATION ANIMAL BASED</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Produits bruts:</strong> Pas de transformés industriels</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Viande rouge:</strong> Bœuf, agneau, cheval (grass-fed si possible)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Abats:</strong> Foie, rognons, cœur (nutriments denses)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Fruits:</strong> Bananes, pommes, baies, fruits de saison</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Laitiers:</strong> Fromage, beurre, crème (entiers et crus si possible)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Œufs:</strong> Entiers, jaune compris (nutriments dans le jaune)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>À éviter:</strong> Graines, huiles végétales, céréales, sucre raffiné</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 Focus sur les nutriments bio-disponibles et la biodisponibilité.
+                </p>
+            </div>
+        `,
+        'musculation': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🏋️‍♂️ PROTOCOLE MUSCULATION</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Échauffement:</strong> 5-10 min cardio léger + mobilité</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Exercices composés:</strong> Squat, Soulevé de terre, Développé couché</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Séries:</strong> 3-5 séries de 5-8 répétitions</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Récupération:</strong> 2-3 min entre séries</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Progression:</strong> Augmenter poids chaque semaine</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Split suggéré:</strong> Haut du corps / Bas du corps</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Intensité:</strong> À 1-2 reps de l'échec</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 La progression linéaire est la clé de la force.
+                </p>
+            </div>
+        `,
+        'marche-matinale': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🌅 MARCHE MATINALE - HORLOGE CIRCADIENNE</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Timing:</strong> Dans les 30 min après le lever du soleil</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Durée:</strong> Minimum 10 minutes</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Lieu:</strong> Extérieur, regarder vers le soleil</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Lumière:</strong> Pas de lunettes de soleil (capteurs oculaires)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Rythme:</strong> Modéré, respiration profonde</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Pieds nus:</strong> Si possible sur terre/grass (grounding)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Bénéfices:</strong> Cortisol matinal, régulation du sommeil</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 La lumière du matin ancre ton rythme circadien pour la journée.
+                </p>
+            </div>
+        `,
+        'douche-froide': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🚿 PROTOCOLE DOUCHE FROIDE</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Progression:</strong> Commencer par 30 secondes froid</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Objectif:</strong> 3-5 minutes sous eau froide</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Température:</strong> La plus froide possible</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Respiration:</strong> Respirations profondes, ne pas hyperventiler</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Mouvement:</strong> Bouger sous l'eau (mieux que statique)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Bénéfices:</strong> Noradrénaline, dopamine, récupération</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Savon:</strong> Naturel, sans produits chimiques</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 La douche froide est un exercice de résilience mentale autant que physique.
+                </p>
+            </div>
+        `,
+        'routine-cheveux': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">💇‍♂️ ROUTINE CHEVEUX NATURELLE</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Recette:</strong> Huile coco + huile olive + jaune d'œuf + miel cru</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Proportions:</strong> 2 cuillères coco, 1 olive, 1 jaune, 1 miel</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Application:</strong> Racines jusqu'aux pointes</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Temps:</strong> Laisser poser 30 min à 2h</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Rinçage:</strong> À l'eau tiède, pas chaude</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Fréquence:</strong> 1-2 fois par semaine</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>À éviter:</strong> Shampoings industriels avec sulfates</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 Les lipides naturels nourrissent le cuir chevelu sans le dessécher.
+                </p>
+            </div>
+        `,
+        'routine-corps': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🧴 ROUTINE CORPS NATURELLE</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Option 1 - Tallow:</strong> Beef tallow (gras de bœuf rendu)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Option 2 - Karité:</strong> Beurre de karité pur et brut</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Option 3 - Minimaliste:</strong> Eau seule (pH naturel de la peau)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Application:</strong> Après douche sur peau encore humide</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>À éviter:</strong> Savons industriels, déodorants aluminium</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Parfum:</strong> Huiles essentielles naturelles si besoin</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Peau:</strong> Laisser respirer, pas de vêtements synthétiques</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 La peau est un organe absorbant - pas de produits toxiques.
+                </p>
+            </div>
+        `,
+        'routine-dents': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🦷 ROUTINE DENTAIRE NATURELLE</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Huile de coco:</strong> 1 cuillère à café, brossage 2-3 min</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Siwak/Miswak:</strong> Branche naturelle d'arak (brossage traditionnel)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Fil dentaire:</strong> Soie dentaire naturelle (pas de plastique)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Rinçage:</strong> Eau tiède + sel de mer (antibactérien)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>À éviter:</strong> Dentifrices fluorés, alcools buccaux</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Fréquence:</strong> Matin et soir minimum</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Bonus:</strong> Oil pulling (huile de coco) 10 min le matin</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 La microbiome buccal est la porte d'entrée de la santé digestive.
+                </p>
+            </div>
+        `,
+        'complements-vitamines': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">💊 COMPLEXE VITAMINES COMPLET</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine D3:</strong> 2000-5000 UI (avec K2 pour absorption)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine B12:</strong> Méthylcobalamine (forme active)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine C:</strong> Acide ascorbique ou camu camu</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine A:</strong> Rétinol (pas bêta-carotène)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine E:</strong> Tocophérols mixtes</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>B-Complex:</strong> Toutes les vitamines B bio-actives</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Timing:</strong> Matin avec repas gras pour liposolubles</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 Les vitamines modernes compensent les carences alimentaires actuelles.
+                </p>
+            </div>
+        `,
+        'complements-mineraux': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">⚗️ COMPLEXE MINÉRAUX COMPLET</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Magnésium:</strong> Bisglycinate ou citrate (pas oxyde)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Zinc:</strong> Picolinate ou bisglycinate</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Sélénium:</strong> Yeast-based ou sélénométhionine</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Iode:</strong> Kelp ou solution de Lugol (micro-dose)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Fer:</strong> Bisglycinate (pas ferrous sulfate)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Bore:</strong> Pour métabolisme vitamine D et calcium</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Timing:</strong> Soir pour magnésium (détente)</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 Les sols modernes sont appauvris - supplémentation nécessaire.
+                </p>
+            </div>
+        `,
+        'socialisation': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🗣️ SOCIALISATION SANS HONTE</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Approche:</strong> Parler à au moins 1 inconnu par jour</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Contexte:</strong> Rue, magasin, transports, café</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Mindset:</strong> Tout le monde est concentré sur soi</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Technique:</strong> Commentaire sur l'environnement</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Langage corporel:</strong> Épaules ouvertes, eye contact</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Rejet:</strong> Ne pas le prendre personnellement</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Progression:</strong> Commencer par des interactions courtes</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 La confiance sociale s'acquiert par la pratique, pas la théorie.
+                </p>
+            </div>
+        `,
+        'gestion-stress': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🧘 GESTION DU STRESS - ZÉRO</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Respiration:</strong> 4-7-8 (inspire 4s, retiens 7s, expire 8s)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Box breathing:</strong> 4s chaque phase x 5 cycles</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Physiologique:</strong> Double expiration active (sighing)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Physique:</strong> Exercice quand stress monte (cortisol)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Nature:</strong> 10 min dans la nature = cortisol ↓</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Digital:</strong> Pas de téléphone au réveil et coucher</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Mindset:</strong> Accepter ce qu'on ne contrôle pas</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 Le stress chronique détruit la testostérone et la récupération.
+                </p>
+            </div>
+        `,
+        'decisions-optimal': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🎯 PRISE DE DÉCISION OPTIMALE</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Règle d'or:</strong> Bénéfique long terme = FAIRE MAINTENANT</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Inverse:</strong> Mauvais long terme = ÉVITER</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Questions:</strong> "Mon futur moi me remerciera ?"</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Plaisir court:</strong> TikTok, fast-food, procrastination → NON</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Discipline:</strong> Court difficile = Long gratifiant</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Priorités:</strong> Santé, relations, croissance personnelle</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Instantané:</strong> Pas de "je commence demain"</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 Chaque décision te rapproche ou t'éloigne de la version ultime de toi-même.
+                </p>
+            </div>
+        `,
+        'environnement-sommeil': `
+            <div class="habit-details-section">
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🏠 ENVIRONNEMENT SOMMEIL OPTIMAL</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 8px;">✅ <strong>Matelas:</strong> Latex naturel ou mousse bio (pas mémoire chimique)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Draps:</strong> Coton bio, lin, ou bambou (respirant)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Coussins:</strong> Sarrasin, latex naturel, ou kapok</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Literie:</strong> Changer tout les 1-2 ans max</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Air:</strong> Ventilation ou purificateur d'air</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Électromagnétique:</strong> Pas de téléphone près du lit</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Température:</strong> 18-19°C, humidité 40-60%</li>
+                </ul>
+                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                    💡 On passe 1/3 de sa vie au lit - investissement prioritaire.
+                </p>
+            </div>
+        `
+    };
+    
+    return details[habitId] || null;
+}
+
 function generateHabitsHTML() {
     const container = document.getElementById('habitsContainer');
     if (!container || !currentConfig) return;
     
     container.innerHTML = '';
     
-    // Catégories organisées chronologiquement
+    // Catégories organisées chronologiquement pour configurations existantes
     let morningSpiritual = [];
     let middaySpiritual = [];
     let eveningSpiritual = [];
@@ -1098,30 +1420,144 @@ function generateHabitsHTML() {
         middaySpiritual = ['priere-midi', 'priere-repas'];
         eveningSpiritual = ['priere-soir', 'priere-nuit'];
         ethicsHabit = ['commandements'];
-    } else {
+    } else if (currentConfig.name === 'Neutre') {
         morningSpiritual = ['meditation-matin'];
         middaySpiritual = ['meditation-midi', 'gratitude'];
         eveningSpiritual = ['meditation-soir', 'journal'];
         ethicsHabit = ['ethique'];
+    } else if (currentConfig.name === 'Santé Optimale') {
+        // Configuration spéciale pour Santé Optimale avec ses propres catégories
+        const categories = {
+            physical: { 
+                icon: '??', 
+                name: 'Santé Physique', 
+                timeRange: 'matin',
+                deadline: 12,
+                habits: ['sommeil-optimal', 'alimentation-animal', 'musculation', 'marche-matinale']
+            },
+            hygiene: { 
+                icon: '??', 
+                name: 'Hygiène Avancée', 
+                timeRange: 'matin',
+                deadline: 12,
+                habits: ['douche-froide', 'brossage-matin', 'routine-cheveux', 'routine-corps', 'routine-dents', 'ongles', 'rasage']
+            },
+            nutrition: { 
+                icon: '??', 
+                name: 'Nutrition & Micronutriments', 
+                timeRange: 'journee',
+                deadline: 18,
+                habits: ['complements-vitamines', 'complements-mineraux']
+            },
+            environment: { 
+                icon: '??', 
+                name: 'Environnement Optimal', 
+                timeRange: 'soir',
+                deadline: 24,
+                habits: ['environnement-sommeil', 'masque-yeux', 'bruit-blanc']
+            },
+            mental: { 
+                icon: '??', 
+                name: 'Mental & Social', 
+                timeRange: 'soir',
+                deadline: 24,
+                habits: ['socialisation', 'gestion-stress', 'decisions-optimal', 'meditation-matin', 'gratitude']
+            }
+        };
+        
+        const habitLabels = currentConfig.habitLabels || {};
+        
+        // Déterminer le moment de la journée actuel
+        const currentHour = new Date().getHours();
+        let currentTimeRange = 'matin';
+        if (currentHour >= 12 && currentHour < 18) {
+            currentTimeRange = 'journee';
+        } else if (currentHour >= 18 || currentHour < 5) {
+            currentTimeRange = 'soir';
+        }
+        
+        Object.values(categories).forEach(category => {
+            if (category.habits.length === 0) return;
+            
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'category';
+            
+            // Vérifier si la catégorie est bloquée (heure dépassée)
+            const isLocked = currentHour >= category.deadline;
+            
+            // Mettre en évidence la catégorie active selon l'heure
+            if (category.timeRange === currentTimeRange && !isLocked) {
+                categoryDiv.classList.add('category-active-time');
+            }
+            
+            if (isLocked) {
+                categoryDiv.classList.add('category-locked');
+            }
+            
+            const title = document.createElement('h2');
+            let statusIndicator = '';
+            if (isLocked) {
+                statusIndicator = `<span class="time-indicator locked">?? Bloqué (${category.deadline}h passé)</span>`;
+            } else if (category.timeRange === currentTimeRange) {
+                statusIndicator = '<span class="time-indicator">?? C\'est le moment !</span>';
+            }
+            title.innerHTML = `<span class="category-icon">${category.icon}</span> ${category.name} ${statusIndicator}`;
+            categoryDiv.appendChild(title);
+            
+            category.habits.forEach(habitId => {
+                const habitDiv = document.createElement('div');
+                habitDiv.className = 'habit-item';
+                
+                const isLocked = currentHour >= category.deadline;
+                
+                habitDiv.innerHTML = `
+                    <input type="checkbox" id="${habitId}" ${isLocked ? 'disabled' : ''}>
+                    <label for="${habitId}">${habitLabels[habitId] || habitId}</label>
+                `;
+                
+                // Gestion du clic
+                habitDiv.addEventListener('click', function(event) {
+                    if (isLocked) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        showLockedMessage(category.deadline);
+                        return;
+                    }
+                    if (habitDiv.dataset.uiLongPress === 'active') {
+                        return;
+                    }
+                    if (event.target.tagName !== 'INPUT') {
+                        toggleCheckbox(habitId);
+                    }
+                });
+
+                categoryDiv.appendChild(habitDiv);
+            });
+            
+            container.appendChild(categoryDiv);
+        });
+        
+        return; // Sortir prématurément pour Santé Optimale
     }
     
+    // Configuration par défaut pour les autres religions
     const categories = {
         morning: { 
-            icon: '🌅', 
+            icon: '??', 
             name: 'Matin', 
             timeRange: 'matin',
             deadline: 12, // Bloqué après 12h
             habits: ['sommeil', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', ...morningSpiritual]
         },
         midday: { 
-            icon: '☀️', 
+            icon: '??', 
             name: 'Journée', 
             timeRange: 'journee',
             deadline: 18, // Bloqué après 18h
             habits: ['argent', 'ongles', 'rasage', ...middaySpiritual]
         },
         evening: { 
-            icon: '🌙', 
+            icon: '??', 
             name: 'Soir', 
             timeRange: 'soir',
             deadline: 24, // Bloqué après minuit (jamais bloqué le même jour)
@@ -1212,6 +1648,57 @@ function generateHabitsHTML() {
             });
 
             categoryDiv.appendChild(habitDiv);
+            
+            // Ajouter les détails déroulants pour les habitudes avec guide
+            const detailsHTML = getHabitDetailsHTML(habitId);
+            if (detailsHTML) {
+                const detailsContainer = document.createElement('div');
+                detailsContainer.className = 'habit-details-container';
+                detailsContainer.style.cssText = 'margin-top: 10px;';
+                
+                const toggleButton = document.createElement('button');
+                toggleButton.className = 'habit-details-toggle';
+                toggleButton.innerHTML = '📖 Voir le guide';
+                toggleButton.type = 'button';
+                toggleButton.style.cssText = `
+                    background: linear-gradient(135deg, #00d9ff, #0088cc);
+                    border: none;
+                    border-radius: 8px;
+                    color: white;
+                    padding: 8px 15px;
+                    font-size: 0.85em;
+                    cursor: pointer;
+                    margin-top: 5px;
+                `;
+                
+                const detailsContent = document.createElement('div');
+                detailsContent.className = 'habit-details-content';
+                detailsContent.style.display = 'none';
+                detailsContent.style.cssText = `
+                    background: rgba(0, 0, 0, 0.3);
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin-top: 10px;
+                    border-left: 3px solid #00d9ff;
+                `;
+                detailsContent.innerHTML = detailsHTML;
+                
+                toggleButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = detailsContent.style.display !== 'none';
+                    if (isOpen) {
+                        detailsContent.style.display = 'none';
+                        toggleButton.innerHTML = '📖 Voir le guide';
+                    } else {
+                        detailsContent.style.display = 'block';
+                        toggleButton.innerHTML = '📖 Masquer le guide';
+                    }
+                });
+                
+                detailsContainer.appendChild(toggleButton);
+                detailsContainer.appendChild(detailsContent);
+                habitDiv.appendChild(detailsContainer);
+            }
             
             // Ajouter le détail déroulant pour l'entraînement foot
             if (habitId === 'entrainement-foot') {
@@ -2199,7 +2686,7 @@ function initApp() {
     console.log('✅ Initialisation de l\'application...');
     
     // Configuration par défaut (sans authentification)
-    const savedReligion = localStorage.getItem('selectedReligion') || 'islam';
+    const savedReligion = localStorage.getItem('selectedReligion') || 'santeoptimale';
     currentConfig = religionConfigs[savedReligion];
     habits = currentConfig.habits;
     
