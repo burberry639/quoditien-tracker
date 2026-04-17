@@ -49,7 +49,7 @@ const religionConfigs = {
             'brossage-matin': 'Brossage de dents - Matin',
             'brossage-soir': 'Brossage de dents - Soir',
             'routine-cheveux': 'Routine cheveux : Huile coco + huile olive + jaune oeuf + miel cru',
-            'routine-corps': 'Routine corps : Beef tallow / beurre karité / eau seule',
+            'routine-corps': 'Routine corps : Beef tallow / beurre karité / miel / eau seule',
             'routine-dents': 'Routine dentaire : Huile coco + siwak',
             'programme-nutrition': '🥩 Programme nutritionnel complet - 5 repas journaliers',
             'environnement-sommeil': 'Environnement sommeil optimal : Matelas, draps, coussins naturels',
@@ -1275,7 +1275,8 @@ function getHabitDetailsHTML(habitId) {
                 <ul style="list-style: none; padding: 0;">
                     <li style="margin-bottom: 8px;">✅ <strong>Option 1 - Tallow:</strong> Beef tallow (gras de bœuf rendu)</li>
                     <li style="margin-bottom: 8px;">✅ <strong>Option 2 - Karité:</strong> Beurre de karité pur et brut</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Option 3 - Minimaliste:</strong> Eau seule (pH naturel de la peau)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Option 3 - Miel:</strong> Miel cru (hydratant naturel)</li>
+                    <li style="margin-bottom: 8px;">✅ <strong>Option 4 - Minimaliste:</strong> Eau seule (pH naturel de la peau)</li>
                     <li style="margin-bottom: 8px;">✅ <strong>Application:</strong> Après douche sur peau encore humide</li>
                     <li style="margin-bottom: 8px;">✅ <strong>À éviter:</strong> Savons industriels, déodorants aluminium</li>
                     <li style="margin-bottom: 8px;">✅ <strong>Parfum:</strong> Huiles essentielles naturelles si besoin</li>
