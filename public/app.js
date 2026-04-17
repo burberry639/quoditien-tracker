@@ -30,8 +30,8 @@ const religionConfigs = {
             'brossage-matin', 'brossage-soir', 'routine-cheveux', 'routine-corps', 'routine-dents',
             'ongles', 'rasage',
             
-            // MICRONUTRIMENTS
-            'complements-vitamines', 'complements-mineraux',
+            // NUTRITION
+            'programme-nutrition',
             
             // ENVIRONNEMENT SOMMEIL
             'environnement-sommeil', 'masque-yeux', 'bruit-blanc',
@@ -44,13 +44,14 @@ const religionConfigs = {
             'sommeil-optimal': 'Sommeil 8h (23h-00h) - Obscurité totale, pas de lumière bleue 1h avant',
             'alimentation-animal': 'Alimentation animal based - Produits bruts, fruits, laitiers, viande rouge',
             'musculation': 'Entraînement musculation salle de sport',
-            'marche-matinale': 'Marche 10min au lever du soleil (horloge circadienne)',
+            'marche-matinale': 'Marche 30min au lever du soleil (horloge circadienne)',
             'douche-froide': 'Douche froide - Hygiène naturelle sans produits toxiques',
+            'brossage-matin': 'Brossage de dents - Matin',
+            'brossage-soir': 'Brossage de dents - Soir',
             'routine-cheveux': 'Routine cheveux : Huile coco + huile olive + jaune oeuf + miel cru',
             'routine-corps': 'Routine corps : Beef tallow / beurre karité / eau seule',
             'routine-dents': 'Routine dentaire : Huile coco + siwak',
-            'complements-vitamines': 'Tous les micronutriments - Vitamines complètes',
-            'complements-mineraux': 'Tous les micronutriments - Minéraux complètes',
+            'programme-nutrition': '🥩 Programme nutritionnel complet - 5 repas journaliers',
             'environnement-sommeil': 'Environnement sommeil optimal : Matelas, draps, coussins naturels',
             'masque-yeux': 'Masque yeux pour obscurité totale pendant sommeil',
             'bruit-blanc': 'Bruit blanc pendant sommeil',
@@ -182,8 +183,7 @@ const baseStatMapping = {
     'routine-cheveux': 'end',
     'routine-corps': 'end',
     'routine-dents': 'end',
-    'complements-vitamines': 'str',
-    'complements-mineraux': 'str',
+    'programme-nutrition': 'str',
     'environnement-sommeil': 'hp',
     'masque-yeux': 'hp',
     'bruit-blanc': 'hp',
@@ -1301,37 +1301,56 @@ function getHabitDetailsHTML(habitId) {
                 </p>
             </div>
         `,
-        'complements-vitamines': `
+        'programme-nutrition': `
             <div class="habit-details-section">
-                <h4 style="color: #00d9ff; margin-bottom: 10px;">💊 COMPLEXE VITAMINES COMPLET</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine D3:</strong> 2000-5000 UI (avec K2 pour absorption)</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine B12:</strong> Méthylcobalamine (forme active)</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine C:</strong> Acide ascorbique ou camu camu</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine A:</strong> Rétinol (pas bêta-carotène)</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Vitamine E:</strong> Tocophérols mixtes</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>B-Complex:</strong> Toutes les vitamines B bio-actives</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Timing:</strong> Matin avec repas gras pour liposolubles</li>
-                </ul>
-                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
-                    💡 Les vitamines modernes compensent les carences alimentaires actuelles.
-                </p>
-            </div>
-        `,
-        'complements-mineraux': `
-            <div class="habit-details-section">
-                <h4 style="color: #00d9ff; margin-bottom: 10px;">⚗️ COMPLEXE MINÉRAUX COMPLET</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li style="margin-bottom: 8px;">✅ <strong>Magnésium:</strong> Bisglycinate ou citrate (pas oxyde)</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Zinc:</strong> Picolinate ou bisglycinate</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Sélénium:</strong> Yeast-based ou sélénométhionine</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Iode:</strong> Kelp ou solution de Lugol (micro-dose)</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Fer:</strong> Bisglycinate (pas ferrous sulfate)</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Bore:</strong> Pour métabolisme vitamine D et calcium</li>
-                    <li style="margin-bottom: 8px;">✅ <strong>Timing:</strong> Soir pour magnésium (détente)</li>
-                </ul>
-                <p style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
-                    💡 Les sols modernes sont appauvris - supplémentation nécessaire.
+                <h4 style="color: #00d9ff; margin-bottom: 10px;">🥩 PROGRAMME NUTRITIONNEL COMPLET</h4>
+                <div style="margin-bottom: 15px;">
+                    <h5 style="color: #ffd700; margin-bottom: 8px;">🌅 MATIN</h5>
+                    <ul style="list-style: none; padding-left: 10px;">
+                        <li style="margin-bottom: 5px;">• Kéfir/lait 400-500 ml</li>
+                        <li style="margin-bottom: 5px;">• 2-3 bananes</li>
+                        <li style="margin-bottom: 5px;">• Kiwi/baies</li>
+                        <li style="margin-bottom: 5px;">• 2 jaunes d'œuf</li>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h5 style="color: #ffd700; margin-bottom: 8px;">🍳 BRUNCH</h5>
+                    <ul style="list-style: none; padding-left: 10px;">
+                        <li style="margin-bottom: 5px;">• 3-4 œufs</li>
+                        <li style="margin-bottom: 5px;">• 250-300 g steak (ou mélange haché)</li>
+                        <li style="margin-bottom: 5px;">• Fromage 80-100 g</li>
+                        <li style="margin-bottom: 5px;">• ½ avocat</li>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h5 style="color: #ffd700; margin-bottom: 8px;">🍽️ DÉJEUNER</h5>
+                    <ul style="list-style: none; padding-left: 10px;">
+                        <li style="margin-bottom: 5px;">• Steak 200-250 g</li>
+                        <li style="margin-bottom: 5px;">• Fromage</li>
+                        <li style="margin-bottom: 5px;">• Fruits</li>
+                        <li style="margin-bottom: 5px;">• ½ avocat</li>
+                        <li style="margin-bottom: 5px;">• Sardines 1x/semaine</li>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h5 style="color: #ffd700; margin-bottom: 8px;">💪 COLLATION POST-MUSCU</h5>
+                    <ul style="list-style: none; padding-left: 10px;">
+                        <li style="margin-bottom: 5px;">• Kéfir 300 ml</li>
+                        <li style="margin-bottom: 5px;">• 1-2 bananes</li>
+                        <li style="margin-bottom: 5px;">• Eau de coco</li>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h5 style="color: #ffd700; margin-bottom: 8px;">🌙 DÎNER</h5>
+                    <ul style="list-style: none; padding-left: 10px;">
+                        <li style="margin-bottom: 5px;">• Steak 250-350 g</li>
+                        <li style="margin-bottom: 5px;">• Fromage</li>
+                        <li style="margin-bottom: 5px;">• Banane/kiwi/baies</li>
+                        <li style="margin-bottom: 5px;">• Éventuellement 20 g chocolat noir 2-3x/semaine</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 15px; color: #aaa; font-size: 0.9em;">
+                    💡 Animal-based : produits bruts, fruits, laitiers, viande rouge. Privilégier le local et le saisonnier.
                 </p>
             </div>
         `,
@@ -1458,7 +1477,7 @@ function generateHabitsHTML() {
                 name: 'Nutrition & Micronutriments', 
                 timeRange: 'journee',
                 deadline: 18,
-                habits: ['complements-vitamines', 'complements-mineraux']
+                habits: ['programme-nutrition']
             },
             environment: { 
                 icon: '🌙', 
@@ -1819,6 +1838,48 @@ async function showLeaderboard() {
 
 // Exposer les fonctions globalement
 window.showLeaderboard = showLeaderboard;
+window.changeConfig = changeConfig;
+window.initConfigSelector = initConfigSelector;
+
+/* ========================================
+   CHANGEMENT DE CONFIGURATION
+======================================== */
+
+function changeConfig(configName) {
+    if (!religionConfigs[configName]) {
+        console.error('Configuration inconnue:', configName);
+        return;
+    }
+    
+    // Sauvegarder les habitudes actuelles avant de changer
+    saveHabits();
+    
+    // Mettre à jour la configuration
+    localStorage.setItem('selectedReligion', configName);
+    currentConfig = religionConfigs[configName];
+    habits = currentConfig.habits;
+    
+    // Régénérer l'interface
+    generateHabitsHTML();
+    
+    // Recharger les états des checkboxes
+    setTimeout(() => {
+        loadHabits();
+        updateProgress();
+        updateStatsDisplay();
+    }, 100);
+    
+    console.log('✅ Configuration changée pour:', currentConfig.name);
+    playSound('click');
+}
+
+function initConfigSelector() {
+    const configSelect = document.getElementById('configSelect');
+    if (configSelect) {
+        const savedConfig = localStorage.getItem('selectedReligion') || 'santeoptimale';
+        configSelect.value = savedConfig;
+    }
+}
 
 /* ========================================
    SYSTÈME DE CLASSEMENT
@@ -2698,6 +2759,7 @@ function initApp() {
     updateDate();
     initMotivationQuote();
     initNotifications();
+    initConfigSelector();
     
     // Mettre à jour la progression des prières (Islam)
     updatePrayerProgress();

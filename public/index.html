@@ -40,6 +40,26 @@
         <h1>📋 SUIVI QUOTIDIEN</h1>
         <div class="date-display" id="dateDisplay"></div>
         
+        <!-- SÉLECTEUR DE CONFIGURATION -->
+        <div class="config-selector">
+            <select id="configSelect" onchange="changeConfig(this.value)" style="
+                background: linear-gradient(135deg, #1a1a2e, #16213e);
+                border: 2px solid #00d9ff;
+                border-radius: 10px;
+                color: #fff;
+                padding: 10px 15px;
+                font-size: 0.95em;
+                cursor: pointer;
+                outline: none;
+                min-width: 200px;
+            ">
+                <option value="santeoptimale">💪 Santé Optimale</option>
+                <option value="islam">☪️ Islam</option>
+                <option value="christianity">✝️ Christianisme</option>
+                <option value="neutral">🌟 Neutre</option>
+            </select>
+        </div>
+        
         <!-- CITATION MOTIVANTE -->
         <div class="motivation-quote" id="motivationQuote"></div>
 
