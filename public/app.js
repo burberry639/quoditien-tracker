@@ -298,7 +298,18 @@ function getTodayDate() {
     return new Date().toISOString().split('T')[0];
 }
 
-// Fonction pour obtenir le jour de la semaine (0 = dimanche, 6 = samedi)
+function updateDate() {
+    const dateDisplay = document.getElementById('dateDisplay');
+    if (dateDisplay) {
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateDisplay.textContent = today.toLocaleDateString('fr-FR', options);
+    }
+}
+
+// Fonction getYesterdayDate supprimée - utilisation directe de la date
+
+// Obtenir le jour de la semaine (0 = dimanche, 6 = samedi)
 function getDayOfWeek() {
     return new Date().getDay();
 }
