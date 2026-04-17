@@ -20,7 +20,7 @@ const originalSetItem = (key, value) => {
 const religionConfigs = {
     santeoptimale: {
         name: 'Santé Optimale',
-        icon: '??',
+        icon: '💪',
         habits: [
             // SANTÉ PHYSIQUE - Base
             'sommeil-optimal', 'alimentation-animal', 'musculation',
@@ -61,11 +61,11 @@ const religionConfigs = {
             'gratitude': 'Moment de gratitude quotidien'
         },
         categoryIcons: {
-            physical: '??',
-            hygiene: '??',
-            nutrition: '??',
-            environment: '??',
-            mental: '??'
+            physical: '🏋️',
+            hygiene: '🛁',
+            nutrition: '🥩',
+            environment: '🌙',
+            mental: '🧠'
         },
         categoryNames: {
             physical: 'Santé Physique',
@@ -1429,35 +1429,35 @@ function generateHabitsHTML() {
         // Configuration spéciale pour Santé Optimale avec ses propres catégories
         const categories = {
             physical: { 
-                icon: '??', 
+                icon: '🏋️', 
                 name: 'Santé Physique', 
                 timeRange: 'matin',
                 deadline: 12,
                 habits: ['sommeil-optimal', 'alimentation-animal', 'musculation', 'marche-matinale']
             },
             hygiene: { 
-                icon: '??', 
+                icon: '🛁', 
                 name: 'Hygiène Avancée', 
                 timeRange: 'matin',
                 deadline: 12,
                 habits: ['douche-froide', 'brossage-matin', 'routine-cheveux', 'routine-corps', 'routine-dents', 'ongles', 'rasage']
             },
             nutrition: { 
-                icon: '??', 
+                icon: '🥩', 
                 name: 'Nutrition & Micronutriments', 
                 timeRange: 'journee',
                 deadline: 18,
                 habits: ['complements-vitamines', 'complements-mineraux']
             },
             environment: { 
-                icon: '??', 
+                icon: '🌙', 
                 name: 'Environnement Optimal', 
                 timeRange: 'soir',
                 deadline: 24,
                 habits: ['environnement-sommeil', 'masque-yeux', 'bruit-blanc']
             },
             mental: { 
-                icon: '??', 
+                icon: '🧠', 
                 name: 'Mental & Social', 
                 timeRange: 'soir',
                 deadline: 24,
@@ -1497,9 +1497,9 @@ function generateHabitsHTML() {
             const title = document.createElement('h2');
             let statusIndicator = '';
             if (isLocked) {
-                statusIndicator = `<span class="time-indicator locked">?? Bloqué (${category.deadline}h passé)</span>`;
+                statusIndicator = `<span class="time-indicator locked">🔒 Bloqué (${category.deadline}h passé)</span>`;
             } else if (category.timeRange === currentTimeRange) {
-                statusIndicator = '<span class="time-indicator">?? C\'est le moment !</span>';
+                statusIndicator = '<span class="time-indicator">⏰ C\'est le moment !</span>';
             }
             title.innerHTML = `<span class="category-icon">${category.icon}</span> ${category.name} ${statusIndicator}`;
             categoryDiv.appendChild(title);
@@ -1543,21 +1543,21 @@ function generateHabitsHTML() {
     // Configuration par défaut pour les autres religions
     const categories = {
         morning: { 
-            icon: '??', 
+            icon: '🌅', 
             name: 'Matin', 
             timeRange: 'matin',
             deadline: 12, // Bloqué après 12h
             habits: ['sommeil', 'entrainement-foot', 'douche-apres-entrainement', 'brossage-matin', ...morningSpiritual]
         },
         midday: { 
-            icon: '??', 
+            icon: '☀️', 
             name: 'Journée', 
             timeRange: 'journee',
             deadline: 18, // Bloqué après 18h
             habits: ['argent', 'ongles', 'rasage', ...middaySpiritual]
         },
         evening: { 
-            icon: '??', 
+            icon: '🌙', 
             name: 'Soir', 
             timeRange: 'soir',
             deadline: 24, // Bloqué après minuit (jamais bloqué le même jour)
