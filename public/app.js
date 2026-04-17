@@ -1808,12 +1808,6 @@ async function showLeaderboard() {
 
 // Exposer les fonctions globalement
 window.showLeaderboard = showLeaderboard;
-window.handleLogin = handleLogin;
-window.handleRegister = handleRegister;
-window.handleLogout = handleLogout;
-window.showLoginForm = showLoginForm;
-window.showRegisterForm = showRegisterForm;
-window.selectRegisterReligion = selectRegisterReligion;
 
 /* ========================================
    SYSTÈME DE CLASSEMENT
