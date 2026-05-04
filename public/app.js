@@ -1564,57 +1564,6 @@ function generateHabitsHTML() {
                     }
                 });
 
-                // Ajouter les détails déroulants pour les habitudes avec guide
-                const detailsHTML = getHabitDetailsHTML(habitId);
-                if (detailsHTML) {
-                    const detailsContainer = document.createElement('div');
-                    detailsContainer.className = 'habit-details-container';
-                    detailsContainer.style.cssText = 'margin-top: 10px;';
-                    
-                    const toggleButton = document.createElement('button');
-                    toggleButton.className = 'habit-details-toggle';
-                    toggleButton.innerHTML = '📖 Voir le guide';
-                    toggleButton.type = 'button';
-                    toggleButton.style.cssText = `
-                        background: linear-gradient(135deg, #00d9ff, #0088cc);
-                        border: none;
-                        border-radius: 8px;
-                        color: white;
-                        padding: 8px 15px;
-                        font-size: 0.85em;
-                        cursor: pointer;
-                        margin-top: 5px;
-                    `;
-                    
-                    const detailsContent = document.createElement('div');
-                    detailsContent.className = 'habit-details-content';
-                    detailsContent.style.display = 'none';
-                    detailsContent.style.cssText = `
-                        background: rgba(0, 0, 0, 0.3);
-                        border-radius: 10px;
-                        padding: 15px;
-                        margin-top: 10px;
-                        border-left: 3px solid #00d9ff;
-                    `;
-                    detailsContent.innerHTML = detailsHTML;
-                    
-                    toggleButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const isOpen = detailsContent.style.display !== 'none';
-                        if (isOpen) {
-                            detailsContent.style.display = 'none';
-                            toggleButton.innerHTML = '📖 Voir le guide';
-                        } else {
-                            detailsContent.style.display = 'block';
-                            toggleButton.innerHTML = '📖 Masquer le guide';
-                        }
-                    });
-                    
-                    detailsContainer.appendChild(toggleButton);
-                    detailsContainer.appendChild(detailsContent);
-                    habitDiv.appendChild(detailsContainer);
-                }
-
                 categoryDiv.appendChild(habitDiv);
             });
             
@@ -1732,57 +1681,6 @@ function generateHabitsHTML() {
             });
 
             categoryDiv.appendChild(habitDiv);
-            
-            // Ajouter les détails déroulants pour les habitudes avec guide
-            const detailsHTML = getHabitDetailsHTML(habitId);
-            if (detailsHTML) {
-                const detailsContainer = document.createElement('div');
-                detailsContainer.className = 'habit-details-container';
-                detailsContainer.style.cssText = 'margin-top: 10px;';
-                
-                const toggleButton = document.createElement('button');
-                toggleButton.className = 'habit-details-toggle';
-                toggleButton.innerHTML = '📖 Voir le guide';
-                toggleButton.type = 'button';
-                toggleButton.style.cssText = `
-                    background: linear-gradient(135deg, #00d9ff, #0088cc);
-                    border: none;
-                    border-radius: 8px;
-                    color: white;
-                    padding: 8px 15px;
-                    font-size: 0.85em;
-                    cursor: pointer;
-                    margin-top: 5px;
-                `;
-                
-                const detailsContent = document.createElement('div');
-                detailsContent.className = 'habit-details-content';
-                detailsContent.style.display = 'none';
-                detailsContent.style.cssText = `
-                    background: rgba(0, 0, 0, 0.3);
-                    border-radius: 10px;
-                    padding: 15px;
-                    margin-top: 10px;
-                    border-left: 3px solid #00d9ff;
-                `;
-                detailsContent.innerHTML = detailsHTML;
-                
-                toggleButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const isOpen = detailsContent.style.display !== 'none';
-                    if (isOpen) {
-                        detailsContent.style.display = 'none';
-                        toggleButton.innerHTML = '📖 Voir le guide';
-                    } else {
-                        detailsContent.style.display = 'block';
-                        toggleButton.innerHTML = '📖 Masquer le guide';
-                    }
-                });
-                
-                detailsContainer.appendChild(toggleButton);
-                detailsContainer.appendChild(detailsContent);
-                habitDiv.appendChild(detailsContainer);
-            }
             
             // Ajouter le détail déroulant pour l'entraînement foot
             if (habitId === 'entrainement-foot') {
