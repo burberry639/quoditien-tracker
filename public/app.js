@@ -1153,7 +1153,6 @@ function initializeApp() {
     updateStatsDisplay();
     updateRankSystem();
     updateStreaks();
-    initLeaderboard();
     
     window.addEventListener('resize', function() {
         updateStatsDisplay();
