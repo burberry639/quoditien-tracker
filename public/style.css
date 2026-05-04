@@ -2704,12 +2704,15 @@ input {
     }
 
     .nav-tab {
-        padding: 8px 6px;
-        font-size: 0.7em;
-        min-height: 36px;
+        padding: 12px 10px;
+        font-size: 0.95em;
+        font-weight: 700;
+        min-height: 48px;
         min-width: auto;
         flex: 1;
-        border-radius: 8px;
+        border-radius: 10px;
+        letter-spacing: 0.5px;
+        touch-action: manipulation;
     }
 
     .streaks-container {
@@ -2772,22 +2775,33 @@ input {
     }
 
     .habit-item {
-        padding: 10px 8px;
-        margin: 5px 0;
+        padding: 14px 12px;
+        margin: 8px 0;
         clip-path: none;
-        border-radius: 8px;
-        min-height: 44px;
+        border-radius: 10px;
+        min-height: 56px;
+        touch-action: manipulation;
+    }
+
+    .habit-item:hover {
+        transform: none;
+    }
+
+    .habit-item:active {
+        transform: scale(0.98);
     }
 
     input[type="checkbox"] {
-        width: 22px;
-        height: 22px;
-        margin-right: 10px;
+        width: 26px;
+        height: 26px;
+        margin-right: 14px;
+        flex-shrink: 0;
+        touch-action: manipulation;
     }
 
     label {
-        font-size: 0.85em;
-        line-height: 1.3;
+        font-size: 0.95em;
+        line-height: 1.35;
     }
 
     .stats {
@@ -2920,9 +2934,10 @@ input {
     }
 
     .nav-tab {
-        padding: 6px 4px;
-        font-size: 0.65em;
-        min-height: 34px;
+        padding: 10px 8px;
+        font-size: 0.9em;
+        font-weight: 700;
+        min-height: 46px;
     }
 
     .container {
@@ -2973,19 +2988,21 @@ input {
     }
 
     .habit-item {
-        padding: 8px 6px;
-        margin: 4px 0;
-        min-height: 40px;
+        padding: 12px 10px;
+        margin: 6px 0;
+        min-height: 52px;
     }
 
     input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        margin-right: 8px;
+        width: 24px;
+        height: 24px;
+        margin-right: 12px;
+        flex-shrink: 0;
     }
 
     label {
-        font-size: 0.8em;
+        font-size: 0.9em;
+        line-height: 1.35;
     }
     
     /* Détail déroulant entraînement foot mobile */

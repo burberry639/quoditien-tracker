@@ -972,107 +972,123 @@ function updateStatsDisplay() {
 function drawRadarChart(stats, maxValues) {
     const canvas = document.getElementById('radarChart');
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     const isMobile = window.innerWidth <= 768;
-    
-    // Taille responsive
-    const size = isMobile ? Math.min(window.innerWidth - 80, 300) : 400;
-    canvas.width = size;
-    canvas.height = size;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = Math.min(centerX, centerY) - (isMobile ? 40 : 60);
-    
+
+    // Haute résolution (Retina)
+    const dpr = window.devicePixelRatio || 1;
+    const size = isMobile ? Math.min(window.innerWidth - 60, 340) : 420;
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.clearRect(0, 0, size, size);
+
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size / 2 - (isMobile ? 50 : 70);
+
     const statOrder = ['str', 'dis', 'spi', 'hp', 'end', 'men'];
-    const labels = isMobile 
+    const labels = isMobile
         ? ['STR', 'DIS', 'SPI', 'HP', 'END', 'MEN']
-        : ['FORCE', 'DISCIPLINE', 'SPIRITUALITÉ', 'SANTÉ', 'ENDURANCE', 'MENTAL'];
-    const colors = ['#ff6b6b', '#4ecdc4', '#ffd700', '#96fbc4', '#fa709a', '#667eea'];
-    
-    // Cercles de fond
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 1;
-    for (let i = 1; i <= 5; i++) {
+        : ['FORCE', 'DISCIPLINE', 'SPIRIT', 'SANTÉ', 'ENDURANCE', 'MENTAL'];
+    const n = statOrder.length;
+
+    const angleFor = (i) => (Math.PI * 2 * i) / n - Math.PI / 2;
+    const polyPoint = (i, r) => ({
+        x: centerX + Math.cos(angleFor(i)) * r,
+        y: centerY + Math.sin(angleFor(i)) * r
+    });
+
+    const drawPoly = (r, stroke, fill, lineWidth = 1) => {
         ctx.beginPath();
-        ctx.arc(centerX, centerY, (radius / 5) * i, 0, Math.PI * 2);
-        ctx.stroke();
+        for (let i = 0; i < n; i++) {
+            const p = polyPoint(i, r);
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+        }
+        ctx.closePath();
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth; ctx.stroke(); }
+    };
+
+    // Grille hexagonale (5 niveaux)
+    for (let i = 5; i >= 1; i--) {
+        const r = (radius / 5) * i;
+        const alpha = 0.04 + (i === 5 ? 0.08 : 0);
+        drawPoly(r, `rgba(0, 217, 255, ${alpha + 0.06})`, `rgba(0, 217, 255, ${alpha})`, 1);
     }
-    
+
     // Axes
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.strokeStyle = 'rgba(0, 217, 255, 0.15)';
     ctx.lineWidth = 1;
-    statOrder.forEach((stat, index) => {
-        const angle = (Math.PI * 2 * index) / statOrder.length - Math.PI / 2;
-        const x = centerX + Math.cos(angle) * radius;
-        const y = centerY + Math.sin(angle) * radius;
-        
+    for (let i = 0; i < n; i++) {
+        const p = polyPoint(i, radius);
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
+        ctx.lineTo(p.x, p.y);
         ctx.stroke();
-        
-        // Labels
-        const labelDistance = isMobile ? 30 : 40;
-        const labelX = centerX + Math.cos(angle) * (radius + labelDistance);
-        const labelY = centerY + Math.sin(angle) * (radius + labelDistance);
-        
-        ctx.fillStyle = colors[index];
-        ctx.font = isMobile ? 'bold 10px Arial' : 'bold 12px Arial';
+    }
+
+    // Polygone des stats avec dégradé radial
+    const pts = statOrder.map((stat, i) => {
+        const pct = Math.min((stats[stat] || 0) / maxValues[stat], 1);
+        return polyPoint(i, radius * pct);
+    });
+
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    gradient.addColorStop(0, 'rgba(0, 217, 255, 0.55)');
+    gradient.addColorStop(1, 'rgba(0, 136, 204, 0.15)');
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 217, 255, 0.6)';
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
+    pts.forEach((p, i) => { i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); });
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    ctx.strokeStyle = '#00d9ff';
+    ctx.lineWidth = isMobile ? 2 : 2.5;
+    ctx.stroke();
+    ctx.restore();
+
+    // Points sur les sommets
+    pts.forEach((p) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, isMobile ? 4 : 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#00d9ff';
+        ctx.shadowColor = '#00d9ff';
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    });
+
+    // Labels + valeurs
+    const labelDist = isMobile ? 26 : 34;
+    for (let i = 0; i < n; i++) {
+        const angle = angleFor(i);
+        const lx = centerX + Math.cos(angle) * (radius + labelDist);
+        const ly = centerY + Math.sin(angle) * (radius + labelDist);
+        const value = Math.round(stats[statOrder[i]] || 0);
+
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(labels[index], labelX, labelY);
-    });
-    
-    // Polygone des stats
-    ctx.beginPath();
-    statOrder.forEach((stat, index) => {
-        const value = stats[stat];
-        const maxValue = maxValues[stat];
-        const percentage = Math.min(value / maxValue, 1);
-        
-        const angle = (Math.PI * 2 * index) / statOrder.length - Math.PI / 2;
-        const x = centerX + Math.cos(angle) * radius * percentage;
-        const y = centerY + Math.sin(angle) * radius * percentage;
-        
-        if (index === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
-    });
-    ctx.closePath();
-    
-    // Remplissage
-    ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
-    ctx.fill();
-    
-    // Contour
-    ctx.strokeStyle = '#667eea';
-    ctx.lineWidth = isMobile ? 2 : 3;
-    ctx.stroke();
-    
-    // Points
-    statOrder.forEach((stat, index) => {
-        const value = stats[stat];
-        const maxValue = maxValues[stat];
-        const percentage = Math.min(value / maxValue, 1);
-        
-        const angle = (Math.PI * 2 * index) / statOrder.length - Math.PI / 2;
-        const x = centerX + Math.cos(angle) * radius * percentage;
-        const y = centerY + Math.sin(angle) * radius * percentage;
-        
-        ctx.beginPath();
-        ctx.arc(x, y, isMobile ? 4 : 6, 0, Math.PI * 2);
-        ctx.fillStyle = colors[index];
-        ctx.fill();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    });
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = isMobile ? 'bold 11px Arial, sans-serif' : 'bold 13px Arial, sans-serif';
+        ctx.fillText(labels[i], lx, ly - 7);
+
+        ctx.fillStyle = '#00d9ff';
+        ctx.font = isMobile ? 'bold 10px Arial, sans-serif' : 'bold 12px Arial, sans-serif';
+        ctx.fillText(value, lx, ly + 8);
+    }
 }
 
 /* ========================================
