@@ -27,18 +27,18 @@ const religionConfigs = {
             'marche-matinale', 'douche-froide',
             
             // HYGIÈNE AVANCÉE
-            'brossage-matin', 'brossage-soir', 'routine-cheveux', 'routine-corps', 'routine-dents',
+            'brossage-matin', 'brossage-soir', 'routine-cheveux', 'routine-corps',
             'ongles', 'rasage',
             
             // NUTRITION
             'programme-nutrition',
             
             // ENVIRONNEMENT SOMMEIL
-            'environnement-sommeil', 'masque-yeux', 'bruit-blanc',
+            'environnement-sommeil',
             
             // MENTAL - SOCIAL
             'socialisation', 'gestion-stress', 'decisions-optimal',
-            'meditation-matin', 'gratitude'
+            'meditation-matin'
         ],
         habitLabels: {
             'sommeil-optimal': 'Sommeil 8h (23h-00h) - Obscurité totale, pas de lumière bleue 1h avant',
@@ -50,16 +50,12 @@ const religionConfigs = {
             'brossage-soir': 'Brossage de dents - Soir',
             'routine-cheveux': 'Routine cheveux : Huile coco + huile olive + jaune oeuf + miel cru',
             'routine-corps': 'Routine corps : Beef tallow / beurre karité / miel / eau seule',
-            'routine-dents': 'Routine dentaire : Huile coco + siwak',
             'programme-nutrition': '🥩 Programme nutritionnel complet - 5 repas journaliers',
             'environnement-sommeil': 'Environnement sommeil optimal : Matelas, draps, coussins naturels',
-            'masque-yeux': 'Masque yeux pour obscurité totale pendant sommeil',
-            'bruit-blanc': 'Bruit blanc pendant sommeil',
             'socialisation': 'Socialiser sans honte - Parler aux gens sans gêne',
             'gestion-stress': 'Stress 0 - Gestion complète du stress',
             'decisions-optimal': 'Prise de décision optimale - Bénéfique long terme = FAIRE MAINTENANT',
-            'meditation-matin': 'Méditation/réflexion du matin',
-            'gratitude': 'Moment de gratitude quotidien'
+            'meditation-matin': 'Méditation & gratitude quotidienne'
         },
         categoryIcons: {
             physical: '🏋️',
@@ -1473,7 +1469,7 @@ function generateHabitsHTML() {
                 name: 'Hygiène Avancée', 
                 timeRange: 'matin',
                 deadline: 12,
-                habits: ['douche-froide', 'brossage-matin', 'routine-cheveux', 'routine-corps', 'routine-dents', 'ongles', 'rasage']
+                habits: ['douche-froide', 'brossage-matin', 'routine-cheveux', 'routine-corps', 'ongles', 'rasage']
             },
             nutrition: { 
                 icon: '🥩', 
@@ -1487,14 +1483,14 @@ function generateHabitsHTML() {
                 name: 'Environnement Optimal', 
                 timeRange: 'soir',
                 deadline: 24,
-                habits: ['environnement-sommeil', 'masque-yeux', 'bruit-blanc']
+                habits: ['environnement-sommeil']
             },
             mental: { 
                 icon: '🧠', 
                 name: 'Mental & Social', 
                 timeRange: 'soir',
                 deadline: 24,
-                habits: ['socialisation', 'gestion-stress', 'decisions-optimal', 'meditation-matin', 'gratitude']
+                habits: ['socialisation', 'gestion-stress', 'decisions-optimal', 'meditation-matin']
             }
         };
         
