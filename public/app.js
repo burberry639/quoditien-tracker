@@ -1083,12 +1083,16 @@ function updateStreaks() {
     const today = getTodayDate();
     
     let completed = 0;
+    let rendered = 0;
     habits.forEach(habit => {
-        if (document.getElementById(habit).checked) {
+        const el = document.getElementById(habit);
+        if (!el) return;
+        rendered++;
+        if (el.checked) {
             completed++;
         }
     });
-    const todayPerfect = completed === habits.length;
+    const todayPerfect = rendered > 0 && completed === rendered;
     
     let currentStreak = parseInt(originalGetItem('currentStreak') || '0');
     let bestStreak = parseInt(originalGetItem('bestStreak') || '0');
